@@ -3,6 +3,7 @@
   "version": "1.8.0",
   "description": "The Zoom Video SDK UI toolkit is a prebuilt video chat user interface powered by the Zoom Video SDK.",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,7 +25,7 @@
     "video",
     "sdk",
     "web",
-    "UI"
+    "UI toolkit"
   ],
   "license": "SEE LICENSE IN LICENSE.md",
   "bugs": {
@@ -34,6 +35,7 @@
   "files": [
     "/dist",
     "index.js",
+    "index.d.ts",
     "README.md",
     "LICENSE.md"
   ]

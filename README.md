@@ -2,7 +2,9 @@
 
 Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/video-sdk-terms/).
 
-The Zoom Video SDK UI toolkit is a prebuilt video chat user interface powered by the Zoom Video SDK.
+The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/) is a prebuilt video chat user interface powered by the Zoom Video SDK.
+
+![Zoom Video SDK UI toolkit web](https://developers.zoom.us/img/nextImageExportOptimizer/uikit-web-opt-750.WEBP)
 
 > Zoom Video SDK UI toolkit is in a public beta. [Share your feedback with us](https://zoom.sjc1.qualtrics.com/jfe/form/SV_3NMYztWpWzNVSiG), and leverage the [beta FAQ](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/#beta-faq) for details.
 
@@ -25,15 +27,12 @@ import * as UIToolkit from '@zoom/videosdk-ui-toolkit'
 import '@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css'
 ```
 
-In angular, CSS can't be imported directly into the component, instead, add the styles to your `angular.json` file in the styles array:
+In Angular, CSS can't be imported directly into the component, instead, add the styles to your `angular.json` file in the styles array:
 
 ```JSON
-...
 "styles": [
   "node_modules/@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css",
-  ...
-],
-...
+]
 ```
 
 For Vanilla JS applications, use the link and script tag syntax in your html file:
@@ -47,7 +46,7 @@ For Vanilla JS applications, use the link and script tag syntax in your html fil
 
 ### Preview
 
-To preview your local camera, microhpone, and speaker, render the following HTML element:
+To preview your local camera, microphone, and speaker, render the following HTML element:
 
 ```html
 <app-previewkit></app-previewkit>
@@ -59,11 +58,11 @@ To join a Video SDK session, create your Video SDK config object, with your [Vid
 
 ```js
 var UIToolkitConfig = JSON.stringify({
-  videoSDKJWT: "",
-  sessionName: "testReact",
-  userName: 'Tommy',
-  sessionPasscode: "test123",
-  features: ['video', 'audio', 'settings', 'users']
+  videoSDKJWT: '',
+  sessionName: '',
+  userName: '',
+  sessionPasscode: '',
+  features: ['video', 'audio', 'settings', 'users', 'chat']
 })
 ```
 
@@ -76,16 +75,34 @@ Then, add the following HTML element to where you want the UI Toolkit to be rend
 Now, create your UIToolkit instance, pass in the UIToolkitConfig object, and render the UIToolkit:
 
 ```js
-let UIToolkit = document.createElement('app-uitoolkit');
+let UIToolkit = document.createElement('app-uitoolkit')
 
 UIToolkit.setAttribute("uitoolkitconfig", UIToolkitConfig)
 
-document.getElementById('UIToolkit')?.append(UIToolkit);
+document.getElementById('UIToolkit')?.append(UIToolkit)
+```
+
+### Leave/End Session
+
+To leave a Video SDK session, the user can click the red leave button. The host can also end the session for everyone, by clicking their red end button.
+
+You can also leave/end a session programatically by calling the `destroyUikit()` function, the session will be left or ended based on the user's role in their [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/):
+
+```js
+window.destroyUikit()
+```
+
+Use the `uikit-destroy` event listener to be notified when the session is left or ended by a user:
+
+```js
+window.UIkitSubscribe("uikit-destroy", () => {
+  // session left/ended, post session business logic...
+})
 ```
 
 ## Sample Apps
 
-Sample apps built with the Video SDK UI are coming soon.
+Sample apps built with the Video SDK UI toolkit are coming soon.
 
 ## Need help?
 
