@@ -4,7 +4,7 @@ Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/vide
 
 The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/) is a prebuilt video chat user interface powered by the Zoom Video SDK.
 
-![Zoom Video SDK UI toolkit web](https://developers.zoom.us/img/nextImageExportOptimizer/uikit-web-opt-750.WEBP)
+![Zoom Video SDK UI toolkit web](videosdk-ui-toolkit-web.png)
 
 > Zoom Video SDK UI toolkit is in a public beta. [Share your feedback with us](https://zoom.sjc1.qualtrics.com/jfe/form/SV_3NMYztWpWzNVSiG), and leverage the [beta FAQ](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/#beta-faq) for details.
 
