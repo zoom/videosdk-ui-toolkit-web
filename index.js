@@ -1,3 +1,3 @@
 'use strict';
 
-module.exports = require('./dist/videosdk-uikit.js');
+module.exports = require('./dist/videosdk-ui-toolkit.js');
