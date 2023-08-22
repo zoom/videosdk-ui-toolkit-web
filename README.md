@@ -54,32 +54,33 @@ To preview your local camera, microphone, and speaker, render the following HTML
 
 ### Join Session
 
-To join a Video SDK session, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render:
-
-```js
-var UIToolkitConfig = JSON.stringify({
-  videoSDKJWT: '',
-  sessionName: '',
-  userName: '',
-  sessionPasscode: '',
-  features: ['video', 'audio', 'settings', 'users', 'chat']
-})
-```
-
-Then, add the following HTML element to where you want the UI Toolkit to be rendered:
+To join a Video SDK session, add the following HTML element to where you want the UI Toolkit to be rendered:
 
 ```html
 <div id='UIToolkit'></div>
 ```
 
-Now, create your UIToolkit instance, pass in the UIToolkitConfig object, and render the UIToolkit:
+Then, create your UIToolkit instance, pass in the UIToolkitConfig object, and render the UIToolkit:
 
 ```js
-let UIToolkit = document.createElement('app-uitoolkit')
+let UIKit = document.createElement('app-uitoolkit');
 
-UIToolkit.setAttribute("uitoolkitconfig", UIToolkitConfig)
+document.getElementById('UIToolkit')?.append(UIKit);
+```
 
-document.getElementById('UIToolkit')?.append(UIToolkit)
+Next, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render. Pass this object into the `window.initUIToolkit` function and call the `window.joinSession()` function to start or join a Video SDK Session:
+
+```js
+var UIToolkitConfig = {
+  videoSDKJWT: '',
+  sessionName: '',
+  userName: '',
+  sessionPasscode: '',
+  features: ['video', 'audio', 'settings', 'users', 'chat']
+};
+
+window.initUIToolKit(obj);
+window.joinSession();
 ```
 
 ### Leave/End Session
