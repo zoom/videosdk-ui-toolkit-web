@@ -60,7 +60,7 @@ To join a Video SDK session, add the following HTML element to where you want th
 <div id='UIToolkit'></div>
 ```
 
-Then, create your UIToolkit instance, and render it to your DOM:
+Then, create your UIToolkit instance and render it to your DOM:
 
 ```js
 let UIKit = document.createElement('app-uitoolkit');
@@ -68,7 +68,7 @@ let UIKit = document.createElement('app-uitoolkit');
 document.getElementById('UIToolkit')?.append(UIKit);
 ```
 
-Next, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render. Pass this object into the `window.initUIToolkit` function and call the `window.joinSession()` function to start or join a Video SDK Session:
+Next, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render. Pass this object into the `window.initUIToolkit()` function and call the `window.joinSession()` function to start or join a Video SDK Session:
 
 ```js
 let UIToolkitConfig = {
