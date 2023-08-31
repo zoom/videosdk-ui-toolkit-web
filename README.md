@@ -63,15 +63,15 @@ To join a Video SDK session, add the following HTML element to where you want th
 Then, create your UIToolkit instance and render it to your DOM:
 
 ```js
-let UIKit = document.createElement('app-uitoolkit');
+let UIToolKit = document.createElement('app-uitoolkit');
 
-document.getElementById('UIToolkit')?.append(UIKit);
+document.getElementById('UIToolkit')?.append(UIToolKit);
 ```
 
-Next, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render. Pass this object into the `window.initUIToolkit()` function and call the `window.joinSession()` function to start or join a Video SDK Session:
+Next, create your Video SDK config object, with your [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and features you want to render. Pass this object into the `window.ZoomUIToolKit.init()` function and call the `window.ZoomUIToolKit.join()` function to start or join a Video SDK Session:
 
 ```js
-let UIToolkitConfig = {
+let UIToolKitConfig = {
   videoSDKJWT: '',
   sessionName: '',
   userName: '',
@@ -79,25 +79,27 @@ let UIToolkitConfig = {
   features: ['video', 'audio', 'settings', 'users', 'chat']
 };
 
-window.initUIToolKit(obj);
+window.ZoomUIToolKit.init(UIToolKitConfig);
 
-window.joinSession();
+window.ZoomUIToolKit.join();
 ```
 
 ### Leave/End Session
 
 To leave a Video SDK session, the user can click the red leave button. The host can also end the session for everyone, by clicking their red end button.
 
-You can also leave/end a session programatically by calling the `destroyUikit()` function, the session will be left or ended based on the user's role in their [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/):
+You can also leave/end a session programatically by calling the `window.ZoomUIToolKit.destroy()` function, the session will be left or ended based on the user's role in their [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/):
 
 ```js
-window.destroyUikit()
+window.ZoomUIToolKit.destroy(); //Leaves the meeting
+//or
+window.ZoomUIToolKit.destroy(true); //If you're a host you can end the meeting by passing in 'true'
 ```
 
 Use the `uikit-destroy` event listener to be notified when the session is left or ended by a user:
 
 ```js
-window.UIkitSubscribe("uikit-destroy", () => {
+window.ZoomUIToolKit.subscribe("uikit-destroy", () => {
   // session left/ended, post session business logic...
 })
 ```
