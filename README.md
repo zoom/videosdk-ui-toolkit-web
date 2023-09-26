@@ -101,7 +101,14 @@ Use the `uikit-destroy` event listener to be notified when the session is left o
 ```js
 window.ZoomUIToolKit.subscribe("uikit-destroy", () => {
   // session left/ended, post session business logic...
-})
+});
+```
+
+You can also subscribe directly to the [Zoom Video SDK Events](https://marketplacefront.zoom.us/sdk/custom/web/modules/VideoClient.html#on) using the `window.ZoomUIToolKit.vsdkSubscribe()` method. Pass in the name of the Video SDK event and a callback function as shown:
+ ```js
+window.ZoomUIToolKit.vsdkSubscribe("user-added", () => {
+        console.log("USER ADDED!")
+});
 ```
 
 ## Sample Apps
