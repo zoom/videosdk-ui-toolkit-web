@@ -111,6 +111,14 @@ window.ZoomUIToolKit.vsdkSubscribe("user-added", () => {
 });
 ```
 
+Subscribe to the `loader-switch` event to better sync your loaders to the join flow of the UIToolKit! You only need to pass in a callback function that controls the state of your loader. The UIToolKit will fire the event and execute your loader callback logic once the meeting has been joined:
+```js
+window.ZoomUIToolKit.subscribe("loader-switch", () => { 
+  setLoader(loader => !loader) 
+  });
+```
+
+
 ## Sample Apps
 
 Sample apps built with the Video SDK UI toolkit are coming soon.
