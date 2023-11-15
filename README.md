@@ -84,7 +84,7 @@ To join a Video SDK session, create an HTML container that it will be render in:
 <div id='sessionContainer'></div>
 ```
 
-Create your Video SDK session config object, with your [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites) features you want to render.
+Create your Video SDK session config object, with your [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), and the features you want to render.
 
 ```js
 var config = {
@@ -92,9 +92,21 @@ var config = {
   sessionName: 'SessionA',
   userName: 'UserA',
   sessionPasscode: 'abc123',
-  features: ['video', 'audio', 'settings', 'users', 'chat']
+  features: ['video', 'audio', 'share', 'chat', 'users', 'settings']
 }
 ```
+
+Currently, we support the following features:
+
+| Feature    | Description                                         |
+| ---------- | --------------------------------------------------- |
+| `video`    | Enable the video layout, and to send and receive video.   |
+| `audio`    | Show the audio button on the toolbar, and to send and receive audio.            |
+| `share`    | Show the screen share button on the toolbar, and to send and receive screen share content.        |
+| `chat`     | Show the chat button on the toolbar, and to send and receive session chats.        |
+| `users`    | Show the users button on the toolbar, and to see the list of users in the session.        |
+| `settings` | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics.       |
+
 
 Then, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
 
@@ -108,7 +120,7 @@ uitoolkit.joinSession(sessionContainer, config)
 
 To leave a Video SDK session, the user can click the red leave button. The host can also end the session for everyone, by clicking their red end button.
 
-You can also leave a session programatically by calling the `uitoolkit.closeSession` function:
+You can also leave a session programmatically by calling the `uitoolkit.closeSession` function:
 
 ```js
 uitoolkit.closeSession(sessionContainer)
@@ -146,12 +158,12 @@ uitoolkit.offSessionClosed(sessionClosed)
 
 Currently, we support the following event listeners:
 
-| Event Listener     | Description                                        |
-| ------------------ | -------------------------------------------------- |
-| `onSessionJoined`  | Fires when the user joins the session succesfully. |
-| `onSessionClosed`  | Fires when the session is left or ended.           |
-| `offSessionJoined` | Unsubscribes to the `onSessionJoined` event.       |
-| `offSessionClosed` | Unsubscribes to the `onSessionClosed` event.       |
+| Event Listener     | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `onSessionJoined`  | Fires when the user joins the session successfully. |
+| `onSessionClosed`  | Fires when the session is left or ended.            |
+| `offSessionJoined` | Unsubscribes to the `onSessionJoined` event.        |
+| `offSessionClosed` | Unsubscribes to the `onSessionClosed` event.        |
 
 ## Sample Apps
 
