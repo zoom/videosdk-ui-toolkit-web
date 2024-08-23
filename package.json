@@ -1,0 +1,48 @@
+{
+    "name": "@zoom/videosdk-ui-toolkit",
+    "version": "1.12.1-1",
+    "description": "The Zoom Video SDK UI toolkit is a prebuilt video chat user interface powered by the Zoom Video SDK.",
+    "main": "index.js",
+    "types": "index.d.ts",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Zoom Video Communications, Inc.",
+    "contributors": [
+        {
+            "name": "Tommy Gaessler"
+        },
+        {
+            "name": "Ticorrian Heard"
+        },
+        {
+            "name": "Enda Zhang"
+        },
+        {
+            "name": "Vic Yang"
+        }
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/zoom/videosdk-ui-toolkit-web.git"
+    },
+    "keywords": [
+        "zoom",
+        "video",
+        "sdk",
+        "web",
+        "UI toolkit"
+    ],
+    "license": "SEE LICENSE IN LICENSE.md",
+    "bugs": {
+        "url": "https://github.com/zoom/videosdk-ui-toolkit-web/issues"
+    },
+    "homepage": "https://github.com/zoom/videosdk-ui-toolkit-web#readme",
+    "files": [
+        "/dist",
+        "index.js",
+        "index.d.ts",
+        "README.md",
+        "LICENSE.md"
+    ]
+}

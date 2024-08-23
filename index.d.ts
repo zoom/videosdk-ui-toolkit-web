@@ -1,0 +1,23 @@
+declare const _default: {
+    openPreview: (container: any) => void;
+    closePreview: (container: any) => void;
+    joinSession: (container: any, config: any) => void;
+    closeSession: (container: any) => void;
+    onSessionJoined: (callback: any) => void;
+    offSessionJoined: (callback: any) => void;
+    onSessionClosed: (callback: any) => void;
+    offSessionClosed: (callback: any) => void;
+    showUitoolkitComponents: (container: any, config: any) => void;
+    hideUitoolkitComponents: (container: any) => void;
+    showVideoComponent: (container: any) => void;
+    hideVideoComponent: (container: any) => void;
+    showChatComponent: (container: any) => void;
+    hideChatComponent: (container: any) => void;
+    showControlsComponent: (container: any) => void;
+    hideControlsComponent: (container: any) => void;
+    showUsersComponent: (container: any) => void;
+    hideUsersComponent: (container: any) => void;
+    showSettingsComponent: (container: any) => void;
+    hideSettingsComponent: (container: any) => void;
+};
+export default _default;
