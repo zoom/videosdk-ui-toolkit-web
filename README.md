@@ -106,7 +106,7 @@ Currently, we support the following features:
 | `audio`      | Show the audio button on the toolbar, and to send and receive audio.                                                                                       |
 | `share`      | Show the screen share button on the toolbar, and to send and receive screen share content.                                                                 |
 | `chat`       | Show the chat button on the toolbar, and to send and receive session chats.                                                                                |
-| `livestream` | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
+| `livestream` | Show the livestream button on the toolbar to start or end a livestream. |
 | `users`      | Show the users button on the toolbar, and to see the list of users in the session.                                                                         |
 | `pstn`       | Show the invite by phone feature in the users interface.                                                                                                   |
 | `crc`        | Show the invite by SIP feature in the users interface.                                                                                                     |
