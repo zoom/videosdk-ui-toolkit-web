@@ -4,7 +4,7 @@ Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/vide
 
 The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/) is a prebuilt video chat user interface powered by the Zoom Video SDK.
 
-![Zoom Video SDK UI toolkit web](ui-toolkit–gallery-view.png)
+![Zoom Video SDK UI toolkit web](uitoolkitgalleryview.png)
 
 ## Installation
 
@@ -66,7 +66,14 @@ var config = {
   sessionName: 'SessionA',
   userName: 'UserA',
   sessionPasscode: 'abc123',
-  features: ['preview', 'video', 'audio', 'share', 'chat', 'users', 'settings'],
+  streamUrl: 'rtmp://a.rtmp.siteofyourchoice.com',
+  streamKey: 'xxxx-xxxx-xxxx-xxxx',
+  broadcastUrl: 'https://studio.siteofyourchoice.com/livestreaming',
+  crDisclaimer: 'Cloud recording disclaimer for the UIToolkit to prompt',
+  lttDisclaimer: 'Live Transscription and Translation disclaimer for the UIToolkit to prompt',
+  livestreamDisclaimer: 'Live streaming disclaimer for the UIToolkit to prompt',
+  disableCaptionsOnJoin: true,
+  features: ['preview', 'video', 'audio', 'share', 'chat', 'users', 'livestream', 'pstn', 'ltt', 'recording', 'settings', 'feedback'],
   options: { init: {}, audio: {}, video: {}, share: {}},
   virtualBackground: {
     allowVirtualBackground: true,
@@ -75,6 +82,20 @@ var config = {
   }
 }
 ```
+
+If you pass a string to the config object disclaimers(cr, ltt, and livestream), you are telling the UIToolkit that it will handle prompting the disclaimers passed when the corresponding event triggers. If you leave the fields empty, the developer is responsible  for the disclaimer UI and the prompting these disclaimers when the event is triggered. You can listen for these events and pass in a callback via the code below:
+
+```js
+const client = ZoomVideo.createClient();
+
+client.on('recording-change', () => {});
+client.on('caption-status', () => {});
+client.on('live-stream-status', () => {});
+```
+
+Because the VideoClient follows the singleton pattern, you can call createClient() to retrieve the same client object the UIToolKit uses to control the underlying Zoom Video SDK. You can then utilize any functions offered by the base Zoom Video SDK. Please note, that certain components in the UIToolKit depend on state stored and passed within its underlying components so calling certain functions outside of the UIToolKit can introduce unexpected behavior in the UI. 
+
+
 
 Currently, we support the following features:
 
@@ -85,8 +106,14 @@ Currently, we support the following features:
 | `audio`      | Show the audio button on the toolbar, and to send and receive audio.                                                                                       |
 | `share`      | Show the screen share button on the toolbar, and to send and receive screen share content.                                                                 |
 | `chat`       | Show the chat button on the toolbar, and to send and receive session chats.                                                                                |
+| `livestream` | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
 | `users`      | Show the users button on the toolbar, and to see the list of users in the session.                                                                         |
+| `pstn`       | Show the invite by phone feature in the users interface.                                                                                                   |
+| `crc`        | Show the invite by SIP feature in the users interface.                                                                                                     |
+| `ltt`        | Show the Live Transcription button on the toolbar. The user can start transcription and hide or show the captions.                                         |
+| `recording`  | Show the Cloud Recording button on the toolbar.                                                                                                            |
 | `settings`   | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
+| `feedback`   | Show the feedback flow after the session is left or ended. The user can rate the session (1-5 stars) and report feedback to Zoom.                          |
 
 We also support setting specific properties for the Video SDK [init](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html), [audio](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/AudioOption.html), [video](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/CaptureVideoOption.html), and [share](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/ScreenShareOption.html) options.
 
