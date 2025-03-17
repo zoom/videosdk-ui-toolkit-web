@@ -1,10 +1,10 @@
-# Zoom Video SDK UI toolkit for web
-
-Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/video-sdk-terms/).
+# Zoom Video SDK UI toolkit
 
 The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/) is a prebuilt video chat user interface powered by the Zoom Video SDK.
 
-![Zoom Video SDK UI toolkit web](uitoolkitgalleryview.png)
+![Zoom Video SDK UI toolkit web](https://github.com/zoom/videosdk-ui-toolkit-web/blob/main/uitoolkitgalleryview.png?raw=true)
+
+Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/video-sdk-terms/).
 
 ## Installation
 
@@ -17,8 +17,19 @@ $ npm install @zoom/videosdk-ui-toolkit --save
 Or, for Vanilla JS applications, download the package and add it to your project. Then, add the following script and CSS style to the HTML page you want the UI toolkit to live on:
 
 ```html
-<link rel="stylesheet" href="@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css">
-<script src="@zoom/videosdk-ui-toolkit/index.js" type="module"></script>
+<link rel="stylesheet" href="https://source.zoom.us/uitoolkit/{VERSION}/videosdk-ui-toolkit.css" />
+<script src="https://source.zoom.us/uitoolkit/{VERSION}/videosdk-ui-toolkit.min.umd.js">
+  const uitoolkit = window.UIToolkit;
+</script>
+```
+
+or
+
+```html
+<link rel="stylesheet" href="https://source.zoom.us/uitoolkit/{VERSION}/videosdk-ui-toolkit.css" />
+<script type="module">
+  import uitoolkit from "https://source.zoom.us/uitoolkit/{VERSION}/videosdk-ui-toolkit.min.esm.js";
+</script>
 ```
 
 ## Setup
@@ -26,8 +37,8 @@ Or, for Vanilla JS applications, download the package and add it to your project
 For webpack / single page applications like Angular, Vue, React, etc, import the UI toolkit, package and styles:
 
 ```js
-import uitoolkit from '@zoom/videosdk-ui-toolkit'
-import '@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css'
+import uitoolkit from "@zoom/videosdk-ui-toolkit";
+import "@zoom/videosdk-ui-toolkit/dist/videosdk-ui-toolkit.css";
 ```
 
 In Angular, CSS can't be imported directly into the component, instead, add the styles to your `angular.json` file in the styles array:
@@ -41,12 +52,10 @@ In Angular, CSS can't be imported directly into the component, instead, add the 
 Or, for Vanilla JS applications, import the JS file directly:
 
 ```js
-import uitoolkit from './@zoom/videosdk-ui-toolkit/index.js'
+import uitoolkit from "./@zoom/videosdk-ui-toolkit/index.js";
 ```
 
 > [JS imports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Modules#applying_the_module_to_your_html) work if your script tag has the `type="module"` attribute.
-
-> UI toolkit CDN is coming soon to make vanilla JS usage easier.
 
 ## Usage
 
@@ -55,91 +64,54 @@ import uitoolkit from './@zoom/videosdk-ui-toolkit/index.js'
 To join a Video SDK session, create an HTML container that it will be rendered in:
 
 ```html
-<div id='sessionContainer'></div>
+<div id="sessionContainer"></div>
 ```
 
 Create your Video SDK session config object, with your [Video SDK JWT](https://developers.zoom.us/docs/video-sdk/auth/), and [Video SDK session info](https://developers.zoom.us/docs/video-sdk/web/sessions/#prerequisites), the features you want to render, and any options you want to specify.
 
 ```js
 var config = {
-  videoSDKJWT: '',
-  sessionName: 'SessionA',
-  userName: 'UserA',
-  sessionPasscode: 'abc123',
-  streamUrl: 'rtmp://a.rtmp.siteofyourchoice.com',
-  streamKey: 'xxxx-xxxx-xxxx-xxxx',
-  broadcastUrl: 'https://studio.siteofyourchoice.com/livestreaming',
-  crDisclaimer: 'Cloud recording disclaimer for the UIToolkit to prompt',
-  lttDisclaimer: 'Live Transscription and Translation disclaimer for the UIToolkit to prompt',
-  livestreamDisclaimer: 'Live streaming disclaimer for the UIToolkit to prompt',
-  disableCaptionsOnJoin: true,
-  features: ['preview', 'video', 'audio', 'share', 'chat', 'users', 'livestream', 'pstn', 'ltt', 'recording', 'settings', 'feedback'],
-  options: { init: {}, audio: {}, video: {}, share: {}},
-  virtualBackground: {
-    allowVirtualBackground: true,
-    allowVirtualBackgroundUpload: true,
-    virtualBackgrounds: ['https://images.unsplash.com/photo-1715490187538-30a365fa05bd?q=80&w=1945&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D']
-  }
-}
+  videoSDKJWT: "",
+  sessionName: "SessionA",
+  userName: "UserA",
+  sessionPasscode: "abc123",
+};
 ```
-
-If you pass a string to the config object disclaimers(cr, ltt, and livestream), you are telling the UIToolkit that it will handle prompting the disclaimers passed when the corresponding event triggers. If you leave the fields empty, the developer is responsible  for the disclaimer UI and the prompting these disclaimers when the event is triggered. You can listen for these events and pass in a callback via the code below:
-
-```js
-const client = ZoomVideo.createClient();
-
-client.on('recording-change', () => {});
-client.on('caption-status', () => {});
-client.on('live-stream-status', () => {});
-```
-
-Because the VideoClient follows the singleton pattern, you can call createClient() to retrieve the same client object the UIToolKit uses to control the underlying Zoom Video SDK. You can then utilize any functions offered by the base Zoom Video SDK. Please note, that certain components in the UIToolKit depend on state stored and passed within its underlying components so calling certain functions outside of the UIToolKit can introduce unexpected behavior in the UI. 
-
-
 
 Currently, we support the following features:
 
-| `features[]` | Description                                                                                                                                                |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `preview`    | Enables the preview flow, let's the end user choose their preferred video, microphone, speaker, and background before joining the session.                 |
-| `video`      | Enable the video layout, and to send and receive video.                                                                                                    |
-| `audio`      | Show the audio button on the toolbar, and to send and receive audio.                                                                                       |
-| `share`      | Show the screen share button on the toolbar, and to send and receive screen share content.                                                                 |
-| `chat`       | Show the chat button on the toolbar, and to send and receive session chats.                                                                                |
-| `livestream` | Show the livestream button on the toolbar to start or end a livestream. |
-| `users`      | Show the users button on the toolbar, and to see the list of users in the session.                                                                         |
-| `pstn`       | Show the invite by phone feature in the users interface.                                                                                                   |
-| `crc`        | Show the invite by SIP feature in the users interface.                                                                                                     |
-| `ltt`        | Show the Live Transcription button on the toolbar. The user can start transcription and hide or show the captions.                                         |
-| `recording`  | Show the Cloud Recording button on the toolbar.                                                                                                            |
-| `settings`   | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
-| `feedback`   | Show the feedback flow after the session is left or ended. The user can rate the session (1-5 stars) and report feedback to Zoom.                          |
+| `featuresOptions[]` | Description                                                                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `preview`           | Enable the preview flow, lets the end user choose their preferred video, microphone, speaker, and background before joining the session.                   |
+| `video`             | Enable the video layout, and to send and receive video.                                                                                                    |
+| `audio`             | Show the audio button on the toolbar, and to send and receive audio.                                                                                       |
+| `share`             | Show the screen share button on the toolbar, and to send and receive screen share content.                                                                 |
+| `chat`              | Show the chat button on the toolbar, and to send and receive session chats.                                                                                |
+| `users`             | Show the users button on the toolbar, and to see the list of users in the session.                                                                         |
+| `settings`          | Show the settings button on the toolbar, and to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
+| `recording`         | Show the button for cloud recording (Requires a paid plan).                                                                                                |
+| `phone`             | Show the options of joining the session by phone (Requires a paid plan).                                                                                   |
+| `invite`            | Show the invite options to the session by invite link                                                                                                      |
+| `theme`             | Show the options in the settings panel to select theme color.                                                                                              |
+| `viewMode`          | Show the options to choose view modes.                                                                                                                     |
+| `feedback`          | Show session experience feedback after the session ends.                                                                                                   |
+| `troubleshoot`      | Show the troubleshooting settings tab using [Zoom Probe SDK](https://www.npmjs.com/package/@zoom/probesdk).                                                |
+| `caption`           | Show the in-session translations (Requires a paid plan).                                                                                                   |
+| `playback`          | Show media file playback options in the settings panel.                                                                                                    |
+| `subsession`        | Show button for subsession.                                                                                                                                |
+| `leave`             | Show button for end session or leave.                                                                                                                      |
+| `virtualBackground` | Show options for the virtual background in the settings panel.                                                                                             |
+| `footer`            | Show footer UI with buttons for the session                                                                                                                |
+| `header`            | Show the session header UI.                                                                                                                                |
 
-We also support setting specific properties for the Video SDK [init](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html), [audio](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/AudioOption.html), [video](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/CaptureVideoOption.html), and [share](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/ScreenShareOption.html) options.
+See [index.d.ts](index.d.ts) for more `featuresOptions` details.
 
-| `options{}` | Properties                                                                                       | Default                                         | Description |
-| ----------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------- | ----------- |
-| `init`      | `enforceMultipleVideos` <br> `enforceVirtualBackground` <br> `webEndpoint`                       | `false` <br> `false` <br> `zoom.us`             | Enables [rendering multiple videos](https://developers.zoom.us/docs/video-sdk/web/video/#render-multiple-participant-videos) if [SharedArrayBuffer](https://developers.zoom.us/docs/video-sdk/web/sharedarraybuffer/) is off. <br> Enables [virtual background](https://developers.zoom.us/docs/video-sdk/web/video/#use-virtual-background) if [SharedArrayBuffer](https://developers.zoom.us/docs/video-sdk/web/sharedarraybuffer/) is off. <br> Specifies the Zoom real-time media environment.          |
-| `audio`     | `backgroundNoiseSuppression` <br> `originalSound` <br> `syncButtonsOnHeadset` | `true` <br> `false` <br> `false`   | Zoom's AI background noise suppression. <br> Sends sound exactly as it's captured (opposite of background noise suppression). <br> Enables headset buttons like mute/unmute to work within [supported browsers](https://caniuse.com/webhid). |
-| `video`     | `originalRatio` <br> `virtualBackground`                              | `true` <br> `false` <br> `true` <br> `null`     | Sends video exactly as it's captured. If false, Zoom crops it to 16:9. <br> Sets a default virtual background for the user. |
-| `share`     | `controls` <br> `displaySurface` <br> `hideShareAudioOption` <br> `optimizedForSharedVideo`      | `null`  <br> `null`  <br> `false`  <br> `false` | Enables configuring specific content to share within [supported browsers](https://caniuse.com/mdn-api_mediadevices_getdisplaymedia_controller_option) <br> Enables configuring specific share surfaces within [supported browsers](https://caniuse.com/mdn-api_mediadevices_getdisplaymedia_monitortypesurfaces_option).  <br> Enables or disables the share computer audio option within [supported browsers](https://caniuse.com/mdn-api_mediadevices_getdisplaymedia_systemaudio_option). <br> Prioritizes frame rate over resolution for better screen sharing of videos. |
-
-> You may notice some options irrelevant for the UI Toolkit use case are not exposed (for example [`skipJsMedia`](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html#skipJsMedia) and [`alternativeNameForVideoPlayer`](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html#alternativeNameForVideoPlayer)), or are defaulted on (for example [`leaveOnPageUnload`](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html#leaveOnPageUnload) and [`patchJsMedia`](https://marketplacefront.zoom.us/sdk/custom/web/interfaces/InitOptions.html#patchJsMedia)) with no option to change them. For feedback or requests relating to exposing additional [`init`](https://marketplacefront.zoom.us/sdk/custom/web/modules/VideoClient.html#init), [`audio`](https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#startAudio), [`video`](https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#startVideo), and [`share`](https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#startShareScreen) options from the Video SDK, please [share your use case here](https://github.com/zoom/videosdk-ui-toolkit-web/issues).
-
-Virtual backgrounds can also be configured further like providing a list of available backgrounds, allowing the user to upload their own background, or disabling virtual backgrounds completely. To set a default, specific virtual background for a user, use the `options` -> `video` -> `virtualBackground` approach mentioned above.
-
-| `virtualBackground{}`          |  Default    | Description                                                                   |
-| ------------------------------ | ----------- | ----------------------------------------------------------------------------- |
-| `allowVirtualBackground`       | `true`      | Enables users to choose their virtual background from the `backgrounds` list. |
-| `allowVirtualBackgroundUpload` | `true`      | Enables users to upload their own virtual background.                         |
-| `virtualBackgrounds`           | `[]`        | Sets the list of available virtual backgrounds.                               |
-
-After you have configured your session, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
+After configuring your session, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
 
 ```js
-var sessionContainer = document.getElementById('sessionContainer')
-
-uitoolkit.joinSession(sessionContainer, config)
+var sessionContainer = document.getElementById("sessionContainer");
+// const newConfig = uitoolkit.migrateConfig(config); if use migrate config from old version(<2.1.10)
+uitoolkit.joinSession(sessionContainer, newConfig);
 ```
 
 ### Leave Session
@@ -149,37 +121,37 @@ To leave a Video SDK session, the user can click the red leave button. The host 
 You can also leave a session programmatically by calling the `uitoolkit.closeSession` function:
 
 ```js
-uitoolkit.closeSession(sessionContainer)
+uitoolkit.closeSession(sessionContainer);
 ```
 
 ### Event Listeners
 
-To subscribe to event listeners, define a callback function that you want to execute when the respective event is triggered:
+To subscribe to event listeners, define a callback function to execute when the respective event is triggered:
 
 ```js
-var sessionJoined = (() => {
-  console.log('session joined')
-})
+var sessionJoined = () => {
+  console.log("session joined");
+};
 
-var sessionClosed = (() => {
-  console.log('session closed')
-})
+var sessionClosed = () => {
+  console.log("session closed");
+};
 ```
 
 Then, pass the callback function to the respective **on** event listener (after calling the `uitoolkit.joinSession` function).
 
 ```js
-uitoolkit.onSessionJoined(sessionJoined)
+uitoolkit.onSessionJoined(sessionJoined);
 
-uitoolkit.onSessionClosed(sessionClosed)
+uitoolkit.onSessionClosed(sessionClosed);
 ```
 
 To unsubscribe to event listeners, pass the callback function to the respective **off** event listener.
 
 ```js
-uitoolkit.offSessionJoined(sessionJoined)
+uitoolkit.offSessionJoined(sessionJoined);
 
-uitoolkit.offSessionClosed(sessionClosed)
+uitoolkit.offSessionClosed(sessionClosed);
 ```
 
 Currently, we support the following event listeners:
@@ -191,41 +163,12 @@ Currently, we support the following event listeners:
 | `offSessionJoined` | Unsubscribes to the `onSessionJoined` event.        |
 | `offSessionClosed` | Unsubscribes to the `onSessionClosed` event.        |
 
-## Build with UI Toolkit components
-
-Zoom's UI Toolkit now offers Developers powerful built-in components that are ready to use. Currently, we offer the following components:
-
-| Component    | Description                                         |
-| ---------- | --------------------------------------------------- |
-| `uitoolkit-components`    | Gives UI Toolkit components access to Video SDK session and context. |
-| `controls-component`    | Enables users to envoke actions such as muting, starting video, screen sharing, and more. |
-| `video-component`    | Displays user videos and screen sharing. |
-| `chat-component`    | Displays session and 1:1 chat messages. |
-| `users-component`     | Displays the list of users in a session and allows hosts to moderate the session. |
-| `settings-component`    | Displays the session settings and allows users to configure virtual background, camera, microphone, and speaker devices, and see session quality statistics. |
-
-### Show UI Toolkit components
-
-When building with UI Toolkit components, the `uitoolkit-components` component is a required wrapper around the UI Toolkit components. To begin, create an HTML container that it will be rendered in:
-
-```html
-<div id='uitoolkitContainer'></div>
-```
-
-Then, call the `uitoolkit.showUitoolkitComponents` function, passing in the container reference, and the Video SDK session config object:
-
-```js
-var uitoolkitContainer = document.getElementById('uitoolkitContainer')
-
-uitoolkit.showUitoolkitComponents(uitoolkitContainer, config)
-```
-
 ### Hide UI Toolkit components
 
-To close the wrapper, call the `uitoolkit.hideUiToolkitComponents` function while passing in the container reference:
+To close the wrapper, call the `uitoolkit.hideAllComponents` function while passing in the container reference:
 
 ```js
-uitoolkit.hideUiToolkitComponents(providerContainer)
+uitoolkit.hideAllComponents();
 ```
 
 ### Show the controls component
@@ -234,17 +177,17 @@ The controls component is a required component that enables users to control the
 To render the controls component, create and HTML container and pass it into the `uitoolkit.showControlsComponent` function:
 
 ```html
-<div id='uitoolkitContainer'>
+<div id="uitoolkitContainer">
   ...
-  <div id='controlsContainer'></div>
+  <div id="controlsContainer"></div>
   ...
 </div>
 ```
 
 ```js
-var controlsContainer = document.getElementById('controlsContainer')
+var controlsContainer = document.getElementById("controlsContainer");
 
-uitoolkit.showControlsComponent(controlsContainer)
+uitoolkit.showControlsComponent(controlsContainer);
 ```
 
 ### Hide the controls component
@@ -252,33 +195,7 @@ uitoolkit.showControlsComponent(controlsContainer)
 To close the Control Bar Component, call the `uitoolkit.hideControlsComponent` function while passing in the container reference:
 
 ```js
-uitoolkit.hideControlsComponent(controlsContainer)
-```
-
-### Show the video component
-
-To render the video component, create and HTML container and pass it into the `uitoolkit.showVideoComponent` function:
-
-```html
-<div id='uitoolkitContainer'>
-  ...
-  <div id='videoContainer'></div>
-  ...
-</div>
-```
-
-```js
-var videoContainer = document.getElementById('videoContainer')
-
-uitoolkit.showVideoComponent(videoContainer)
-```
-
-### Hide the video component
-
-To close the video component, call the `uitoolkit.hideVideoComponent` function while passing in the container reference:
-
-```js
-uitoolkit.hideVideoComponent(videoContainer)
+uitoolkit.hideControlsComponent(controlsContainer);
 ```
 
 ### Show the chat component
@@ -286,17 +203,17 @@ uitoolkit.hideVideoComponent(videoContainer)
 To render the Chatkit, create and HTML container and pass it into the `uitoolkit.showChatComponent` function:
 
 ```html
-<div id='uitoolkitContainer'>
+<div id="uitoolkitContainer">
   ...
-  <div id='chatContainer'></div>
+  <div id="chatContainer"></div>
   ...
 </div>
 ```
 
 ```js
-var chatContainer = document.getElementById('chatContainer')
+var chatContainer = document.getElementById("chatContainer");
 
-uitoolkit.showChatComponent(chatContainer)
+uitoolkit.showChatComponent(chatContainer);
 ```
 
 ### Hide the chat component
@@ -304,7 +221,7 @@ uitoolkit.showChatComponent(chatContainer)
 To close the chat component, call the `uitoolkit.hideChatComponent` function while passing in the container reference:
 
 ```js
-uitoolkit.hideChatComponent(chatContainer)
+uitoolkit.hideChatComponent(chatContainer);
 ```
 
 ### Show the users component
@@ -312,17 +229,17 @@ uitoolkit.hideChatComponent(chatContainer)
 To render the users component, create and HTML container and pass it into the `uitoolkit.showUsersComponent` function:
 
 ```html
-<div id='uitoolkitContainer'>
+<div id="uitoolkitContainer">
   ...
-  <div id='usersContainer'></div>
+  <div id="usersContainer"></div>
   ...
 </div>
 ```
 
 ```js
-var usersContainer = document.getElementById('usersContainer')
+var usersContainer = document.getElementById("usersContainer");
 
-uitoolkit.showUsersComponent(usersContainer)
+uitoolkit.showUsersComponent(usersContainer);
 ```
 
 ### Hide the users component
@@ -330,7 +247,7 @@ uitoolkit.showUsersComponent(usersContainer)
 To close the users component, call the `uitoolkit.hideUsersComponent` function while passing in the container reference:
 
 ```js
-uitoolkit.hideUsersComponent(usersContainer)
+uitoolkit.hideUsersComponent(usersContainer);
 ```
 
 ### Show the settings component
@@ -338,17 +255,17 @@ uitoolkit.hideUsersComponent(usersContainer)
 To render the settings component, create and HTML container and pass it into the `uitoolkit.showSettingsComponent` function:
 
 ```html
-<div id='uitoolkitContainer'>
+<div id="uitoolkitContainer">
   ...
-  <div id='settingsContainer'></div>
+  <div id="settingsContainer"></div>
   ...
 </div>
 ```
 
 ```js
-var settingsContainer = document.getElementById('settingsContainer')
+var settingsContainer = document.getElementById("settingsContainer");
 
-uitoolkit.showSettingsComponent(settingsContainer)
+uitoolkit.showSettingsComponent(settingsContainer);
 ```
 
 ### Hide the settings component
@@ -356,7 +273,7 @@ uitoolkit.showSettingsComponent(settingsContainer)
 To close the settings component, call the `uitoolkit.hideSettingsComponent` function while passing in the container reference:
 
 ```js
-uitoolkit.hideSettingsComponent(settingsContainer)
+uitoolkit.hideSettingsComponent(settingsContainer);
 ```
 
 ### Cleaning up the session
@@ -364,17 +281,10 @@ uitoolkit.hideSettingsComponent(settingsContainer)
 Once your session has ended, we recommend properly cleaning up the UI Toolkit so users can join subsequent sessions. You can easily do this by using the `onSessionClosed` event listener. Simply call each component's respective hide function to properly remove each component from the DOM. See the following code snippet for an example:
 
 ```js
-  ...
   uitoolkit.onSessionClosed(sessionClosed)
-  ...
 
   function sessionClosed {
-    uitoolkit.hideSettingsComponent(settingsContainer)
-    uitoolkit.hideUsersComponent(usersContainer)
-    uitoolkit.hideControlsComponent(controlsContainer)
-    uitoolkit.hideVideoComponent(videoContainer)
-    uitoolkit.hideChatComponent(chatContainer)
-    uitoolkit.hideUitoolkitComponents(sessionContainer)
+    uitoolkit.closeSession(sessionContainer)
   }
 ```
 
@@ -389,4 +299,4 @@ Once your session has ended, we recommend properly cleaning up the UI Toolkit so
 
 ## Need help?
 
-If you're looking for help, try [Developer Support](https://devsupport.zoom.us) or our [Developer Forum](https://devforum.zoom.us). Priority support is also available with [Premier Developer Support](https://zoom.us/docs/en-us/developer-support-plans.html) plans.
+If you're looking for help, try [Developer Support](https://developers.zoom.us/support/) or our [Developer Forum](https://devforum.zoom.us). Priority support is also available with [Premier Developer Support](https://explore.zoom.us/en/support-plans/developer/) plans.
