@@ -282,6 +282,10 @@ Once your session has ended, we recommend properly cleaning up the UI Toolkit so
 
 ```js
   uitoolkit.onSessionClosed(sessionClosed)
+
+  function sessionClosed() {
+    // Your code here
+  }
 ```
 
 ## Sample Apps
