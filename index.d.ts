@@ -540,6 +540,16 @@ export type CustomizationOptions = {
     header?: {
       enable: boolean;
     };
+    screenshot?: {
+      video?: {
+        /** Enable video-frame screenshots. @default false */
+        enable: boolean; // default false
+      };
+      share?: {
+        /** Enable shared-screen screenshots. @default false */
+        enable: boolean; // default false
+      };
+    };
   };
   /**
    * dependent assets
