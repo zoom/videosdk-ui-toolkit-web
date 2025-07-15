@@ -894,6 +894,12 @@ export interface UIToolkit {
    * @returns void
    */
   destroy(): void;
+
+  /**
+   * Get the version of the UI toolkit, Video SDK and Tailwind CSS
+   * @returns {Object} { uikit: string, videosdk: string, tailwindcss: string }
+   */
+  version(): { uikit: string; videosdk: string; tailwindcss: string };
 }
 
 declare const _default: UIToolkit;
