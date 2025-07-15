@@ -547,7 +547,7 @@ export type CustomizationOptions = {
       };
       share?: {
         /** Enable shared-screen screenshots. @default false */
-        enbale: boolean; // default false
+        enable: boolean; // default false
       };
     };
   };
