@@ -1,0 +1,10 @@
+.audio-progress {
+  width: 100%;
+  background-color: #f1f4f6;
+  border-radius: 6px;
+  overflow: hidden;
+  .audio-progress-inner {
+    height: 4px;
+    background-color: #4793f1;
+  }
+}
