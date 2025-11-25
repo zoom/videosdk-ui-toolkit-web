@@ -20,6 +20,7 @@ const commonConfig = {
 const urlArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 
 devConfig = { ...commonConfig, ...devConfig };
+// eslint-disable-next-line no-console
 console.log({ devConfig });
 export { devConfig };
 export default devConfig;

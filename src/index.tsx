@@ -5,9 +5,7 @@ import UIToolkit from "./uikit/index";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AudioVideoPlaybacks, CustomizationOptions, SuspensionViewType } from "./types/index.d";
 import { getExploreName } from "./components/util/platform";
-import WebApp from "./webapp";
 import "./demo.css";
-import { usePrevious } from "./hooks";
 
 let urlArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 if (!urlArgs.sdkKey || !urlArgs.topic || !urlArgs.name || !urlArgs.signature) {
@@ -122,10 +120,10 @@ const customization: CustomizationOptions = {
     //   enable: true,
     //   inviteLink: "https://zoom.us", // you custom invite link
     // },
-    // playback: {
-    //   enable: true,
-    //   audioVideoPlaybacks: audioVideoPlaybacks,
-    // },
+    playback: {
+      enable: true,
+      audioVideoPlaybacks: audioVideoPlaybacks,
+    },
     // virtualBackground: {
     //   enable: true,
     //   allowVirtualBackgroundUpload: false,
@@ -229,7 +227,7 @@ const customization: CustomizationOptions = {
           blurRadius: 50,
         },
       },
-    }
+    },
   },
   debug: isDebug,
   sessionIdleTimeoutMins: 40, // Set an appropriate value
@@ -262,7 +260,7 @@ export default function HomeApp() {
     display: "block",
   });
 
-  const clickJoinSession = async () => {
+  const clickJoinSession = useCallback(async () => {
     const sessionContainer = document.getElementById("sessionContainer");
     if (sessionContainer) {
       setShowJoinFlow(false);
@@ -319,7 +317,7 @@ export default function HomeApp() {
       };
       UIToolkit.onSessionDestroyed(destroyedCallback);
     }
-  };
+  }, []);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -348,13 +346,9 @@ export default function HomeApp() {
         window.clearTimeout(hideTimeoutRef.current);
       }
     };
-  }, [handleTouchStart]);
+  }, [handleTouchStart, hideTimeoutRef]);
 
   const nodeRef = useRef(null);
-
-  if (urlArgs?.webapp === "1") {
-    return <WebApp />;
-  }
 
   return (
     <div className="App" style={{ height: "100vh", width: "100vw" }}>

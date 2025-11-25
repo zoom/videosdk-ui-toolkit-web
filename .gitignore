@@ -25,3 +25,4 @@ dist-ssr
 public/lib
 src/config/dev.ts
 src/config/dev2.ts
+videosdk-ui-toolkit
