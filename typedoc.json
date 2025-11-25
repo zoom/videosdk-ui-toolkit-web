@@ -1,0 +1,26 @@
+{
+    "entryPoints": [
+        "./lib/@zoom/videosdk-ui-toolkit/index.d.ts"
+    ],
+    "out": "docs/api",
+    "name": "Zoom VideoSDK UI Toolkit",
+    "excludePrivate": true,
+    "excludeProtected": true,
+    "excludeExternals": false,
+    "includeVersion": false,
+    "readme": "./lib/@zoom/videosdk-ui-toolkit/README.md",
+    "theme": "default",
+    "hideGenerator": true,
+    "tsconfig": "./tsconfig.json",
+    "navigation": {
+        "includeGroups": false
+    },
+    "navigationLinks": {
+        "VideoSDK UI Toolkit": "https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/",
+        "VideoSDK": "https://marketplacefront.zoom.us/sdk/custom/web/index.html",
+        "Npm": "https://www.npmjs.com/package/@zoom/videosdk-ui-toolkit",
+        "React Demo": "https://github.com/zoom/videosdk-ui-toolkit-react-sample",
+        "JavaScript Demo": "https://github.com/zoom/videosdk-ui-toolkit-javascript-sample",
+        "Release Notes": "https://developers.zoom.us/changelog/ui-toolkit/web/"
+    }
+}

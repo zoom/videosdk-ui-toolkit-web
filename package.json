@@ -1,63 +1,118 @@
 {
-  "name": "@zoom/videosdk-ui-toolkit",
-  "version": "2.3.0-2",
-  "description": "The Zoom Video SDK UI toolkit is a prebuilt video chat user interface powered by the Zoom Video SDK.",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.11.0",
+    "@zoom/probesdk": "1.0.3",
+    "@zoom/videosdk": "2.3.5",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-draggable": "^4.5.0",
+    "react-redux": "^9.2.0",
+    "recharts": "^3.5.0"
   },
+  "devDependencies": {
+    "@commitlint/cz-commitlint": "^20.1.0",
+    "@eslint/js": "^9.39.1",
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/line-clamp": "^0.4.4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jsrsasign": "^10.5.15",
+    "@types/lodash-es": "^4.17.12",
+    "@types/react": "^18.3.7",
+    "@types/react-dom": "^18.2.14",
+    "@types/react-virtualized": "^9.22.3",
+    "@types/uuid": "^11.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "@typescript-eslint/parser": "^8.44.1",
+    "@vitejs/plugin-react": "^5.1.1",
+    "@vitejs/plugin-react-swc": "^4.2.2",
+    "@vitest/coverage-v8": "^4.0.13",
+    "autoprefixer": "^10.4.22",
+    "axios": "^1.13.2",
+    "commitizen": "^4.3.0",
+    "cross-env": "^10.1.0",
+    "emoji-picker-react": "^4.15.2",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.5.0",
+    "html2canvas": "^1.4.1",
+    "husky": "^9.1.6",
+    "i18next": "^25.6.3",
+    "jsdom": "^27.2.0",
+    "jspdf": "^3.0.4",
+    "jsrsasign": "^11.1.0",
+    "lint-staged": "^16.2.7",
+    "lodash-es": "^4.17.21",
+    "lucide-react": "^0.554.0",
+    "mitt": "^3.0.1",
+    "notistack": "^3.0.2",
+    "postcss": "^8.5.3",
+    "postcss-prefix-selector": "^2.1.1",
+    "postcss-scss": "^4.0.9",
+    "prettier": "^3.6.2",
+    "prettier-eslint": "^16.4.2",
+    "react-i18next": "^16.3.5",
+    "react-modal": "^3.16.3",
+    "react-select": "^5.10.2",
+    "react-tooltip": "^5.30.0",
+    "react-virtualized": "^9.22.6",
+    "regenerator-runtime": "^0.14.1",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "sass": "^1.94.2",
+    "sass-loader": "^16.0.6",
+    "stylelint": "^16.26.0",
+    "stylelint-config-recommended-scss": "^16.0.2",
+    "stylelint-config-tailwindcss": "^1.0.0",
+    "stylelint-order": "^7.0.0",
+    "tailwindcss": "^3.4.17",
+    "typedoc": "^0.28.14",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.48.0",
+    "uuid": "^13.0.0",
+    "vite": "^7.2.4",
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^4.0.13"
+  },
+  "license": "MIT",
   "author": "Zoom Communications",
-  "contributors": [
-    {
-      "name": "Jack Yang"
-    },
-    {
-      "name": "Enda Zhang"
-    },
-    {
-      "name": "Joyce Ma"
-    },
-    {
-      "name": "BJ Zamites"
-    },
-    {
-      "name": "Owais Mukhtar"
-    },
-    {
-      "name": "Vic Yang"
-    }
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zoom/videosdk-ui-toolkit-web.git"
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{json,css,scss,md}": [
+      "prettier --write"
+    ]
   },
-  "keywords": [
-    "zoom",
-    "video",
-    "sdk",
-    "web",
-    "UI toolkit"
-  ],
-  "license": "SEE LICENSE IN LICENSE.md",
-  "bugs": {
-    "url": "https://github.com/zoom/videosdk-ui-toolkit-web/issues"
+  "name": "videosdk-ui-toolkit",
+  "private": true,
+  "scripts": {
+    "build": "tsc && cross-env NODE_ENV=production vite build && npm run umd && npm run lint",
+    "buildTest": "cp ./src/config/devTmp.ts ./src/config/dev.ts && tsc && cross-env NODE_ENV=production vite build && npm run umd",
+    "builddev": "npm run lint && mv ./src/config/dev.ts ./src/config/devTmp.ts && cp ./src/config/devTemplate.ts ./src/config/dev.ts && tsc && cross-env NODE_ENV=development vite build && mv ./src/config/devTmp.ts ./src/config/dev.ts",
+    "test:unit": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run",
+    "dev": "npm run copy && cross-env vite",
+    "https": "npm run copy && cross-env HTTPS=true vite",
+    "copy": "rm -rf public/lib && cp -r node_modules/@zoom/videosdk/dist/lib public",
+    "umd": "rm -rf lib/@zoom/videosdk-ui-toolkit/dist && cp -r distTmp lib/@zoom/videosdk-ui-toolkit/dist",
+    "pack": "cd lib/@zoom/videosdk-ui-toolkit && npm pack && mv *.tgz ../../../",
+    "tgz": "npm run build && npm run pack",
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint --ext ts,tsx ./src --fix",
+    "lint:style": "stylelint **/*.{scss,css} --max-warnings 4000",
+    "prepare": "husky install",
+    "preview": "vite preview",
+    "visualizer": "cross-env NODE_ENV=development VITE_USE_VISUALIZER=true npm run build",
+    "docs": "typedoc --options typedoc.json && node update-api.cjs",
+    "docs:prod": "typedoc --options typedoc.json"
   },
-  "homepage": "https://github.com/zoom/videosdk-ui-toolkit-web#readme",
-  "files": [
-    "/dist",
-    "index.js",
-    "index.d.ts",
-    "README.md",
-    "LICENSE.md",
-    "oss_attribution.txt"
-  ],
-  "peerDependencies": {
-    "@zoom/videosdk": "^2.3.0",
-    "@reduxjs/toolkit": "^2.0.0",
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0",
-    "react-draggable": "^4.0.0",
-    "react-redux": "^9.0.0"
-  }
+  "type": "module",
+  "version": "2.3.5-1"
 }

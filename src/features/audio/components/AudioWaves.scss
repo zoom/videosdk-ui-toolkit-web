@@ -1,0 +1,25 @@
+@keyframes sound {
+  0% {
+    opacity: .35;
+    height: 3px; 
+  }
+  100% {
+    opacity: 1;       
+    height: 28px;        
+  }
+}
+
+.sound {
+  animation-name: sound;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  transition: height 500ms ease, opacity 500ms ease;
+}
+
+// Override animation when inactive
+.opacity-0 .sound {
+  animation: none;
+  height: 3px !important;
+  opacity: 0.35;
+}
