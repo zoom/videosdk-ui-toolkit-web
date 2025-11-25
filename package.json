@@ -93,25 +93,20 @@
   "private": true,
   "scripts": {
     "build": "tsc && cross-env NODE_ENV=production vite build && npm run umd && npm run lint",
-    "buildTest": "cp ./src/config/devTmp.ts ./src/config/dev.ts && tsc && cross-env NODE_ENV=production vite build && npm run umd",
-    "builddev": "npm run lint && mv ./src/config/dev.ts ./src/config/devTmp.ts && cp ./src/config/devTemplate.ts ./src/config/dev.ts && tsc && cross-env NODE_ENV=development vite build && mv ./src/config/devTmp.ts ./src/config/dev.ts",
     "test:unit": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:ci": "vitest run",
     "dev": "npm run copy && cross-env vite",
     "https": "npm run copy && cross-env HTTPS=true vite",
     "copy": "rm -rf public/lib && cp -r node_modules/@zoom/videosdk/dist/lib public",
-    "umd": "rm -rf lib/@zoom/videosdk-ui-toolkit/dist && cp -r distTmp lib/@zoom/videosdk-ui-toolkit/dist",
-    "pack": "cd lib/@zoom/videosdk-ui-toolkit && npm pack && mv *.tgz ../../../",
+    "umd": "rm -rf videosdk-ui-toolkit/dist && cp -r distTmp videosdk-ui-toolkit/dist",
+    "pack": "cd videosdk-ui-toolkit && npm pack && mv *.tgz ../",
     "tgz": "npm run build && npm run pack",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint --ext ts,tsx ./src --fix",
     "lint:style": "stylelint **/*.{scss,css} --max-warnings 4000",
-    "prepare": "husky install",
-    "preview": "vite preview",
     "visualizer": "cross-env NODE_ENV=development VITE_USE_VISUALIZER=true npm run build",
-    "docs": "typedoc --options typedoc.json && node update-api.cjs",
-    "docs:prod": "typedoc --options typedoc.json"
+    "docs": "typedoc --options typedoc.json"
   },
   "type": "module",
   "version": "2.3.5-1"

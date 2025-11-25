@@ -437,8 +437,8 @@ export type CustomizationOptions = {
       };
     };
     cameraShare?: {
-      enable: boolean
-    }
+      enable: boolean;
+    };
   };
   /**
    * dependent assets
