@@ -50,7 +50,7 @@ npm run https
 npm run visualizer
 ```
 
-### Testing
+### Testing(WIP)
 ```bash
 # Run tests in watch mode
 npm run test:unit

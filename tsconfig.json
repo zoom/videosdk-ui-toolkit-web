@@ -30,7 +30,7 @@
   },
   "include": [
     "src",
-    "lib/@zoom/videosdk-ui-toolkit/**/*",
+    "videosdk-ui-toolkit/**/*",
     "tailwind.config.ts"
   ],
   "references": [
