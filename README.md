@@ -289,7 +289,7 @@ Once your session has ended, we recommend properly cleaning up the UI Toolkit so
 ```
 
 ## [Development](./CLAUDE.md)
-
+Node >= v20.19.5
 ### Setup Development Environment
 ```bash
 cp src/config/devTemplate.ts src/config/dev.ts
