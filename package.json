@@ -92,21 +92,21 @@
   "name": "videosdk-ui-toolkit",
   "private": true,
   "scripts": {
-    "build": "tsc && cross-env NODE_ENV=production vite build && npm run copydist && npm run lint",
-    "test:unit": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "test:ci": "vitest run",
     "dev": "npm run copy && cross-env vite",
+    "build": "tsc && cross-env NODE_ENV=production vite build && npm run copydist && npm run lint",
+    "tgz": "npm run build && npm run pack",
     "https": "npm run copy && cross-env HTTPS=true vite",
     "copy": "rm -rf public/lib && cp -r node_modules/@zoom/videosdk/dist/lib public",
     "copydist": "rm -rf videosdk-ui-toolkit/dist && cp -r distTmp videosdk-ui-toolkit/dist",
     "pack": "cd videosdk-ui-toolkit && npm pack && mv *.tgz ../",
-    "tgz": "npm run build && npm run pack",
     "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint --ext ts,tsx ./src --fix",
     "lint:style": "stylelint **/*.{scss,css} --max-warnings 4000",
     "visualizer": "cross-env NODE_ENV=development VITE_USE_VISUALIZER=true npm run build",
-    "docs": "typedoc --options typedoc.json"
+    "docs": "typedoc --options typedoc.json",
+    "test:unit": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:ci": "vitest run"
   },
   "type": "module",
   "version": "2.3.5-1"
