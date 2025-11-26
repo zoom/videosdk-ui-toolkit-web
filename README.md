@@ -104,7 +104,7 @@ Currently, we support the following features:
 | `footer`            | Show footer UI with buttons for the session                                                                                                                |
 | `header`            | Show the session header UI.                                                                                                                                |
 
-See [index.d.ts](index.d.ts) for more `featuresOptions` details.
+See [index.d.ts](./videosdk-ui-toolkit/index.d.ts) for more `featuresOptions` details.
 
 After configuring your session, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
 
@@ -286,6 +286,19 @@ Once your session has ended, we recommend properly cleaning up the UI Toolkit so
   function sessionClosed() {
     // Your code here
   }
+```
+
+## [Development](./CLAUDE.md)
+Node >= v20.19.5
+### Setup Development Environment
+```bash
+cp src/config/devTemplate.ts src/config/dev.ts
+npm i && npm run dev
+```
+### build
+```
+npm run build
+or npm run tgz
 ```
 
 ## Sample Apps

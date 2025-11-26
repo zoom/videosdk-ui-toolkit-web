@@ -1,0 +1,52 @@
+/* src/styles/themes.css */
+:root[zoom-data-theme="light"] {
+  --color-primary: #4a90e2;
+  --color-secondary: #ff2d55;
+  --color-background: #ffffff;
+  --color-surface: #f5f5f5;
+  --color-surface-elevated: #e8e8e8;
+  --color-text: #1d1c1c;
+  --color-text-secondary: #313d44;
+  --color-text-button: #ffffff;
+  --color-accent: #71c4ef;
+  --color-divider: #e0e0e0;
+}
+
+:root[zoom-data-theme="dark"] {
+  --color-primary: #1d75c3;
+  --color-secondary: #ff1a47;
+  --color-background: #000000;
+  --color-surface: #2d2d2d;
+  --color-surface-elevated: #3d3d3d;
+  --color-text: #ffffff;
+  --color-text-secondary: #b0b0b0;
+  --color-text-button: #ffffff;
+  --color-accent: #00668c;
+  --color-divider: #404040;
+}
+
+:root[zoom-data-theme="blue"] {
+  --color-primary: #003a80;
+  --color-secondary: #cc0027;
+  --color-background: #e6f3ff;
+  --color-surface: #f0f8ff;
+  --color-surface-elevated: #d9ecff;
+  --color-text: #001f40;
+  --color-text-secondary: #003366;
+  --color-text-button: #ffffff;
+  --color-accent: #0056b3;
+  --color-divider: #cce0ff;
+}
+
+:root[zoom-data-theme="green"] {
+  --color-primary: #2e7d32;
+  --color-secondary: #c62828;
+  --color-background: #f1f8e9;
+  --color-surface: #f9fbe7;
+  --color-surface-elevated: #e8f5d9;
+  --color-text: #1b5e20;
+  --color-text-secondary: #33691e;
+  --color-text-button: #ffffff;
+  --color-accent: #558b2f;
+  --color-divider: #dcedc8;
+}
