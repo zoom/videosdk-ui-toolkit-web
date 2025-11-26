@@ -27,3 +27,5 @@ src/config/dev2.ts
 videosdk-ui-toolkit
 zoom-videosdk-ui-toolkit*
 coverage
+stats.html
+docs

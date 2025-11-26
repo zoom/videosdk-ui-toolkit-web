@@ -1,6 +1,6 @@
 {
     "entryPoints": [
-        "./lib/@zoom/videosdk-ui-toolkit/index.d.ts"
+        "./videosdk-ui-toolkit/index.d.ts"
     ],
     "out": "docs/api",
     "name": "Zoom VideoSDK UI Toolkit",
@@ -8,7 +8,7 @@
     "excludeProtected": true,
     "excludeExternals": false,
     "includeVersion": false,
-    "readme": "./lib/@zoom/videosdk-ui-toolkit/README.md",
+    "readme": "./README.md",
     "theme": "default",
     "hideGenerator": true,
     "tsconfig": "./tsconfig.json",
