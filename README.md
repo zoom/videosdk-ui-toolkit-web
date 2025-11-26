@@ -9,7 +9,7 @@ Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/vide
 ### run
 ```bash
 cp src/config/devTemplate.ts src/config/dev.ts
-npm i && npm run start
+npm i && npm run dev
 ```
 ### build
 ```
