@@ -5,7 +5,17 @@ The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui
 ![Zoom Video SDK UI toolkit web](https://github.com/zoom/videosdk-ui-toolkit-web/blob/main/uitoolkitgalleryview.png?raw=true)
 
 Use of this SDK is subject to our [Terms of Use](https://explore.zoom.us/en/video-sdk-terms/).
-
+## develop
+### run
+```bash
+cp src/config/devTemplate.ts src/config/dev.ts
+npm i && npm run start
+```
+### build
+```
+npm run build
+or npm run tgz
+```
 ## Installation
 
 In your frontend project, install the Video SDK UI toolkit:
