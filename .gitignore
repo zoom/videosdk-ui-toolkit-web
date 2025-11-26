@@ -1,1 +1,31 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+distTmp
+dist-ssr
+*.local
+
+# Editor directories and files
+.idea
 .DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+public/lib
+src/config/dev.ts
+src/config/dev2.ts
+videosdk-ui-toolkit
+zoom-videosdk-ui-toolkit*
+coverage
+stats.html
+docs

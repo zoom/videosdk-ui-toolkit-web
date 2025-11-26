@@ -334,6 +334,98 @@ export interface AudioVideoPlaybacks {
   url: string;
 }
 
+// BEGIN VideoClientEvent union (auto-generated)
+export type VideoClientEvent =
+  | "connection-change"
+  | "user-added"
+  | "user-updated"
+  | "user-removed"
+  | "video-active-change"
+  | "video-dimension-change"
+  | "active-speaker"
+  | "host-ask-unmute-audio"
+  | "current-audio-change"
+  | "dialout-state-change"
+  | "audio-statistic-data-change"
+  | "video-statistic-data-change"
+  | "chat-on-message"
+  | "chat-privilege-change"
+  | "command-channel-status"
+  | "command-channel-message"
+  | "recording-change"
+  | "individual-recording-change"
+  | "auto-play-audio-failed"
+  | "device-change"
+  | "video-capturing-change"
+  | "active-share-change"
+  | "share-content-dimension-change"
+  | "peer-share-state-change"
+  | "share-privilege-change"
+  | "passively-stop-share"
+  | "share-content-change"
+  | "peer-video-state-change"
+  | "share-audio-change"
+  | "subsession-invite-to-join"
+  | "subsession-countdown"
+  | "subsession-time-up"
+  | "closing-subsession-countdown"
+  | "subsession-broadcast-message"
+  | "subsession-ask-for-help"
+  | "subsession-ask-for-help-response"
+  | "subsession-state-change"
+  | "main-session-user-updated"
+  | "video-virtual-background-preload-change"
+  | "media-sdk-change"
+  | "video-detailed-data-change"
+  | "caption-status"
+  | "caption-message"
+  | "caption-enable"
+  | "caption-language-lock"
+  | "share-can-see-screen"
+  | "far-end-camera-request-control"
+  | "far-end-camera-response-control"
+  | "far-end-camera-in-control-change"
+  | "far-end-camera-capability-change"
+  | "network-quality-change"
+  | "share-statistic-data-change"
+  | "caption-host-disable"
+  | "remote-control-approved-change"
+  | "remote-control-in-control-change"
+  | "remote-control-clipboard-change"
+  | "remote-control-request-change"
+  | "remote-control-app-status-change"
+  | "remote-control-controlled-status-change"
+  | "live-stream-status"
+  | "video-aspect-ratio-change"
+  | "device-permission-change"
+  | "chat-file-upload-progress"
+  | "chat-file-download-progress"
+  | "summary-status-change"
+  | "meeting-query-status-change"
+  | "subsession-invite-back-to-main-session"
+  | "subsession-user-update"
+  | "subsession-broadcast-voice"
+  | "crc-call-out-state-change"
+  | "current-audio-level-change"
+  | "active-media-failed"
+  | "video-spotlight-change"
+  | "video-screenshot-taken"
+  | "share-content-screenshot-taken"
+  | "annotation-privilege-change"
+  | "annotation-redo-status"
+  | "annotation-undo-status"
+  | "annotation-viewer-draw-request"
+  | "share-camera-request"
+  | "share-camera-approve-change"
+  | "share-camera-status"
+  | "broadcast-streaming-status"
+  | "whiteboard-status-change"
+  | "whiteboard-privilege-change"
+  | "speaking-while-muted"
+  | "system-resource-usage-change"
+  | "webrtc-statistic-data-change";
+// END VideoClientEvent union (auto-generated)
+
 /**
  * Configuration options for customizing the Zoom Video SDK UI Toolkit.
  *
@@ -373,6 +465,10 @@ export type CustomizationOptions = {
    * webEndpoint
    */
   webEndpoint?: string;
+  /**
+   * leaveOnPageUnload
+   */
+  leaveOnPageUnload?: boolean;
   /**
    * @deprecated Use featuresOptions instead.
    */
@@ -437,15 +533,24 @@ export type CustomizationOptions = {
   featuresOptions?: {
     video?: {
       enable: boolean;
-      enforceMultipleVideos?: boolean; // only for WASM test
+      /**
+       * @default false
+       * @see https://marketplacefront.zoom.us/sdk/custom/web/interfaces/ZoomVideo.InitOptions.html#enforceMultipleVideos
+       */
+      enforceMultipleVideos?: boolean;
       originalRatio?: boolean;
-      virtualBackground?: boolean;
+      /**
+       * @default false
+       * @see https://marketplacefront.zoom.us/sdk/custom/web/interfaces/ZoomVideo.InitOptions.html#enforceMultipleVideos disableRenderLimits
+       */
+      disableRenderLimits?: boolean;
     };
     audio?: {
       enable: boolean;
       backgroundNoiseSuppression?: boolean;
       originalSound?: boolean;
       syncButtonsOnHeadset?: boolean;
+      joinAudioConsent?: boolean; // default true, if false, will not show join audio consent panel
     };
     secondaryAudio?: {
       enable: boolean;
@@ -550,6 +655,11 @@ export type CustomizationOptions = {
         enable: boolean; // default false
       };
     };
+    // whiteboard?: {
+    //   enable: boolean;
+    //   enableExport?: boolean;
+    //   enableViewerUserExport?: boolean;
+    // };
   };
   /**
    * dependent assets
@@ -654,6 +764,13 @@ export interface UIToolkit {
   onSessionDestroyed(callback: () => void): void;
 
   /**
+   * Removes a previously registered session destroy callback.
+   * @param callback - Function to remove from event listeners.
+   * @category Events
+   */
+  offSessionDestroyed(callback: () => void): void;
+
+  /**
    * Adds a view type change event listener.
    * @param callback - The callback function to be called when the view type changes.
    * @category Events
@@ -674,6 +791,7 @@ export interface UIToolkit {
    * @param callback - The callback function to execute when the event occurs.
    * @category Events
    */
+  on(event: VideoClientEvent, callback: (payload: any) => void): void;
   on(event: string, callback: (payload: any) => void): void;
 
   /**
@@ -683,7 +801,18 @@ export interface UIToolkit {
    * @param callback - The callback function to remove from event listeners.
    * @category Events
    */
+  off(event: VideoClientEvent, callback: (payload: any) => void): void;
   off(event: string, callback: (payload: any) => void): void;
+
+  /**
+   * Mirrors or unmirrors your self video.
+   * Pass `true` to mirror the local preview and `false` to restore normal orientation.
+   * This affects only your local view and does not impact how others see your video.
+   * @param mirrored - Whether to mirror the self video.
+   * @returns A promise that resolves when the operation completes.
+   * @category Video
+   */
+  mirrorVideo(mirrored: boolean): Promise<void>;
 
   /**
    * Subscribes to audio statistic data based on the type parameter.
@@ -900,6 +1029,12 @@ export interface UIToolkit {
    * @returns {Object} { uikit: string, videosdk: string, tailwindcss: string }
    */
   version(): { uikit: string; videosdk: string; tailwindcss: string };
+
+  /**
+   * Get the client instance when debug mode is true
+   * @returns videosdk client instance https://marketplacefront.zoom.us/sdk/custom/web/modules/ZoomVideo.VideoClient.html
+   */
+  getClient(): any;
 }
 
 declare const _default: UIToolkit;
