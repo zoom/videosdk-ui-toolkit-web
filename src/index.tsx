@@ -5,7 +5,7 @@ import UIToolkit from "./uikit/index";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { AudioVideoPlaybacks, CustomizationOptions, SuspensionViewType } from "./types/index.d";
 import { getExploreName } from "./components/util/platform";
-import "./demo.css";
+import "./index.css";
 
 let urlArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 if (!urlArgs.sdkKey || !urlArgs.topic || !urlArgs.name || !urlArgs.signature) {
@@ -317,6 +317,7 @@ export default function HomeApp() {
       };
       UIToolkit.onSessionDestroyed(destroyedCallback);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -327,7 +328,7 @@ export default function HomeApp() {
     return () => {
       clearTimeout(timeout);
     };
-  }, []);
+  }, [clickJoinSession]);
 
   // Add touch event handlers
   const handleTouchStart = useCallback((e: TouchEvent) => {
@@ -342,11 +343,13 @@ export default function HomeApp() {
     document.addEventListener("touchstart", handleTouchStart, { passive: false });
     return () => {
       document.removeEventListener("touchstart", handleTouchStart);
-      if (hideTimeoutRef.current) {
-        window.clearTimeout(hideTimeoutRef.current);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const currentTimeout = hideTimeoutRef.current;
+      if (currentTimeout) {
+        window.clearTimeout(currentTimeout);
       }
     };
-  }, [handleTouchStart, hideTimeoutRef]);
+  }, [handleTouchStart]);
 
   const nodeRef = useRef(null);
 

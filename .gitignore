@@ -9,7 +9,6 @@ lerna-debug.log*
 
 node_modules
 distTmp
-dist
 dist-ssr
 *.local
 
@@ -26,3 +25,4 @@ public/lib
 src/config/dev.ts
 src/config/dev2.ts
 videosdk-ui-toolkit
+zoom-videosdk-ui-toolkit*
