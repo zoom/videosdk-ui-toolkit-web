@@ -104,7 +104,7 @@ Currently, we support the following features:
 | `footer`            | Show footer UI with buttons for the session                                                                                                                |
 | `header`            | Show the session header UI.                                                                                                                                |
 
-See [index.d.ts](index.d.ts) for more `featuresOptions` details.
+See [index.d.ts](./videosdk-ui-toolkit/index.d.ts) for more `featuresOptions` details.
 
 After configuring your session, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
 
