@@ -1,7 +1,7 @@
 import { CustomizationOptions, Participant, SessionClient, SuspensionViewValue, VideoClientEvent } from "@/types";
 import UIToolkit from "./UIToolkit";
 import { migrateConfig } from "./util";
-import "../index.css";
+import "./index.css";
 import ZoomVideo, { ExecutedResult, SessionInfo, StatisticOption, VideoStatisticOption } from "@zoom/videosdk";
 import { isMobileDeviceNotIpad, TAILWIND_VERSION, UIKIT_VERSION } from "@/components/util/service";
 
