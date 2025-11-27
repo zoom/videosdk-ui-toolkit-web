@@ -30,7 +30,7 @@
     "@vitest/coverage-v8": "^4.0.13",
     "autoprefixer": "^10.4.22",
     "axios": "^1.13.2",
-    "commitizen": "^4.3.0",
+    "commitizen": "^4.3.1",
     "cross-env": "^10.1.0",
     "emoji-picker-react": "^4.15.2",
     "eslint": "^9.39.1",
@@ -77,6 +77,9 @@
     "vite": "^7.2.4",
     "vite-plugin-svgr": "^4.5.0",
     "vitest": "^4.0.13"
+  },
+  "overrides": {
+    "tmp": ">=0.2.4"
   },
   "license": "MIT",
   "author": "Zoom Communications",
