@@ -29,3 +29,5 @@ zoom-videosdk-ui-toolkit*
 coverage
 stats.html
 docs
+dist/image
+dist/lib
