@@ -30,4 +30,4 @@ coverage
 stats.html
 docs
 dist/image
-dist/lib
+dist/lib.npmrc
