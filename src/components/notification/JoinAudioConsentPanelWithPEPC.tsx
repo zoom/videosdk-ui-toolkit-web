@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import CommonNotification from "@/components/widget/CommonNotification";
@@ -7,6 +8,7 @@ import { setShowJoinAudioConsent, setIsAudioConsentInitialized } from "@/store/u
 import { canUsePEPCPermissionQuery } from "@/components/util/pepcDetection";
 import PermissionElement from "@/components/widget/PermissionElement";
 import { closeSnackbar } from "notistack";
+import { permissionStateLabel } from "@/components/util/permissionStateLabel";
 
 interface PEPCPermissionStatus {
   camera: {
@@ -25,13 +27,10 @@ interface PEPCConsentPanelProps {
   subtitle?: string;
 }
 
-const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
-  isOpen,
-  onClose,
-  onConsent,
-  title = "Do you want people to see you in the session?",
-  subtitle = "You can still turn off your microphone and camera anytime in the session",
-}) => {
+const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({ isOpen, onClose, onConsent, title, subtitle }) => {
+  const { t } = useTranslation();
+  const displayTitle = title || t("notification.join_audio_pepc_title");
+  const displaySubtitle = subtitle || t("notification.join_audio_pepc_subtitle");
   const [permissionStatus, setPermissionStatus] = useState<PEPCPermissionStatus>({
     camera: { state: "prompt" },
     microphone: { state: "prompt" },
@@ -124,10 +123,10 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
     <div className="flex flex-col h-full justify-between bg-theme-surface p-1">
       <div className="space-y-3">
         <h2 className="text-xl font-medium text-theme-text" id="uikit-join-audio-consent-title">
-          Enable Audio
+          {t("notification.enable_audio_title")}
         </h2>
         <p className="leading-relaxed text-theme-text" id="uikit-join-audio-consent-content">
-          Would you like to enable audio for this session?
+          {t("notification.enable_audio_content")}
         </p>
       </div>
 
@@ -137,7 +136,7 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
           onClick={handleNotNow}
           id="uikit-join-audio-consent-not-now"
         >
-          Not Now
+          {t("notification.not_now")}
         </button>
 
         <button
@@ -146,7 +145,7 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
           id="uikit-join-audio-consent-enable"
           autoFocus
         >
-          Enable
+          {t("notification.enable_audio_button")}
         </button>
       </div>
     </div>
@@ -157,8 +156,8 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
     <div className="space-y-6">
       <div className="text-center space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-theme-text mb-2">{title}</h3>
-          <p className="text-sm text-theme-text leading-relaxed opacity-75">{subtitle}</p>
+          <h3 className="text-lg font-semibold text-theme-text mb-2">{displayTitle}</h3>
+          <p className="text-sm text-theme-text leading-relaxed opacity-75">{displaySubtitle}</p>
         </div>
       </div>
 
@@ -166,7 +165,9 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
       <div className="border-t border-theme-divider"></div>
 
       <div className="space-y-3">
-        <h4 className="text-xs font-medium text-theme-text opacity-60 uppercase tracking-wider">Current Permissions</h4>
+        <h4 className="text-xs font-medium text-theme-text opacity-60 uppercase tracking-wider">
+          {t("notification.pepc_current_permissions")}
+        </h4>
 
         <div className="space-y-3">
           {/* Camera Permission Status */}
@@ -187,10 +188,10 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
                   />
                 </svg>
               </div>
-              <span className="text-sm font-medium text-theme-text">Camera</span>
+              <span className="text-sm font-medium text-theme-text">{t("notification.pepc_camera")}</span>
             </div>
             <span className="px-3 py-1 text-xs font-medium bg-orange-500 bg-opacity-20 text-orange-600 dark:text-orange-400 rounded capitalize">
-              {permissionStatus.camera.state}
+              {permissionStateLabel(t, permissionStatus.camera.state)}
             </span>
           </div>
 
@@ -211,10 +212,10 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
                   />
                 </svg>
               </div>
-              <span className="text-sm font-medium text-theme-text">Microphone</span>
+              <span className="text-sm font-medium text-theme-text">{t("notification.pepc_microphone")}</span>
             </div>
             <span className="px-3 py-1 text-xs font-medium bg-orange-500 bg-opacity-20 text-orange-600 dark:text-orange-400 rounded capitalize">
-              {permissionStatus.microphone.state}
+              {permissionStateLabel(t, permissionStatus.microphone.state)}
             </span>
           </div>
         </div>
@@ -246,12 +247,12 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
           onClick={handleContinueWithoutMedia}
           className="w-full px-4 py-2 bg-theme-surface-elevated border border-theme-divider text-blue-600 dark:text-blue-400 hover:bg-theme-background rounded-lg font-medium transition-colors"
         >
-          Continue without microphone and camera
+          {t("notification.pepc_continue_without")}
         </button>
       </div>
 
       <div className="text-xs text-theme-text opacity-60 text-center">
-        <p>Permissions granted will last for this browser session and can be revoked anytime.</p>
+        <p>{t("notification.pepc_permission_notice")}</p>
       </div>
     </div>
   );
@@ -272,6 +273,7 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({
 };
 
 const JoinAudioConsentPanelWithPEPC = () => {
+  const { t } = useTranslation();
   const {
     isShowJoinAudioConsent,
     isAudioConsentInitialized,
@@ -307,6 +309,17 @@ const JoinAudioConsentPanelWithPEPC = () => {
     }
   }, [isShowJoinAudioConsent]);
 
+  // Focus the audio button in footer when panel closes for accessibility
+  const focusAudioButton = useCallback(() => {
+    // Use setTimeout to ensure focus happens after the panel is removed from DOM
+    setTimeout(() => {
+      const audioButton = document.getElementById("uikit-footer-audio");
+      if (audioButton) {
+        audioButton.focus();
+      }
+    }, 0);
+  }, []);
+
   const handlePEPCConsent = async (permissions: { camera: boolean; microphone: boolean }) => {
     if (permissions.microphone) {
       if (isMicMuted) {
@@ -316,15 +329,18 @@ const JoinAudioConsentPanelWithPEPC = () => {
       }
     }
     dispatch(setShowJoinAudioConsent(false));
+    focusAudioButton();
   };
 
   const handleStandardConsent = async () => {
     await toggleMic(isUserMuteEntry);
     dispatch(setShowJoinAudioConsent(false));
+    focusAudioButton();
   };
 
   const handleClose = () => {
     dispatch(setShowJoinAudioConsent(false));
+    focusAudioButton();
   };
 
   if (!isShowJoinAudioConsent) {
@@ -340,10 +356,10 @@ const JoinAudioConsentPanelWithPEPC = () => {
       <div className="flex flex-col h-full justify-between bg-theme-surface p-1">
         <div className="space-y-3">
           <h2 className="text-xl font-medium text-theme-text" id="uikit-join-audio-consent-title">
-            Enable Audio
+            {t("notification.enable_audio_title")}
           </h2>
           <p className="leading-relaxed text-theme-text" id="uikit-join-audio-consent-content">
-            Would you like to enable audio for this session?
+            {t("notification.enable_audio_content")}
           </p>
         </div>
 
@@ -353,7 +369,7 @@ const JoinAudioConsentPanelWithPEPC = () => {
             onClick={handleClose}
             id="uikit-join-audio-consent-not-now"
           >
-            Not Now
+            {t("notification.not_now")}
           </button>
 
           <button
@@ -362,7 +378,7 @@ const JoinAudioConsentPanelWithPEPC = () => {
             id="uikit-join-audio-consent-enable"
             autoFocus
           >
-            Enable
+            {t("notification.enable_audio_button")}
           </button>
         </div>
       </div>

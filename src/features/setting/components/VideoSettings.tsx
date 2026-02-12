@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useHardwareAcceleration } from "../hooks/useHardwareAcceleration";
 import { useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { ChevronDown } from "lucide-react";
@@ -12,6 +13,7 @@ interface VideoSettingsProps {
 }
 
 export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, changeCamera }) => {
+  const { t } = useTranslation();
   // const activeCamera = useAppSelector((state) => state.ui.activeCamera);
   const { activeCamera } = useAppSelector(useSessionUISelector);
   const { videoPlaybackFile } = useAppSelector(useSessionSelector);
@@ -75,7 +77,7 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
       <div className="space-y-4">
         <div className="flex items-center">
           <label htmlFor="cameraSelect" className="w-1/4 text-sm font-semibold ">
-            Camera:
+            {t("settings.video_camera_label")}
           </label>
           <div className="w-3/4 relative">
             <select
@@ -87,7 +89,7 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
             >
               {cameraList.map((camera) => (
                 <option key={camera.deviceId} value={camera.deviceId}>
-                  {camera.label || `Camera ${camera.deviceId}`}
+                  {camera.label || t("settings.video_camera_default", { deviceId: camera.deviceId })}
                 </option>
               ))}
             </select>
@@ -97,7 +99,7 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
           </div>
         </div>
         <div className="flex flex-col gap-2">
-          <span className="w-1/4 text-sm font-semibold ">Video Settings:</span>
+          <span className="w-1/4 text-sm font-semibold ">{t("settings.video_settings_label")}</span>
           <label className="flex items-center gap-2 text-sm ">
             <input
               type="checkbox"
@@ -105,7 +107,7 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
               onChange={handleReceivingChange}
               className="form-checkbox h-4 w-4 text-blue-600"
             />
-            Enable Hardware Acceleration (Receiving)
+            {t("settings.video_hw_accel_receiving")}
           </label>
           <label className="flex items-center gap-2 text-sm ">
             <input
@@ -114,7 +116,7 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
               onChange={handleSendingChange}
               className="form-checkbox h-4 w-4 text-blue-600"
             />
-            Enable Hardware Acceleration (Sending)
+            {t("settings.video_hw_accel_sending")}
           </label>
           <label className="flex items-center gap-2 text-sm ">
             <input
@@ -124,13 +126,11 @@ export const VideoSettings: React.FC<VideoSettingsProps> = ({ cameraList, change
               className="form-checkbox h-4 w-4 text-blue-600"
               disabled={!canMirrorVideo || isMirrorPending}
             />
-            Mirror my video
+            {t("settings.mirror_my_video")}
           </label>
         </div>
         {!isStartedHardwareAcceleration && (
-          <p className="text-sm text-yellow-600">
-            Note: Hardware acceleration is not currently active. Changes may not take effect until it&apos;s started.
-          </p>
+          <p className="text-sm text-yellow-600">{t("settings.video_hw_accel_note")}</p>
         )}
       </div>
     </div>

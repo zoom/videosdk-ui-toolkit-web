@@ -48,6 +48,7 @@ const ImageWithValidation = ({ src, isActive, onSelect, name }: ImageWithValidat
       <img
         src={src}
         title={name}
+        alt={name || "Background option"}
         className={`rounded-lg w-full h-full object-cover border-2 ${isActive ? "border-blue-500" : "border-gray-200"}`}
       />
     </button>

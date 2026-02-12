@@ -1,4 +1,6 @@
 export { default as UnmuteConsentPanel } from "./UnmuteConsentPanel";
+export { default as CameraControlConsentPanel } from "./CameraControlConsentPanel";
+export { default as RemoteControlNotifications } from "./RemoteControlNotifications";
 export { default as EndNotification } from "./EndNotification";
 export { default as RecordingNotification } from "./RecordingNotification";
 export { default as NotificationsPanel } from "./NotificationsPanel";

@@ -46,7 +46,7 @@ const NotificationsPanel = ({ timeout, isOpen, onClose }: NotificationPanelProps
     };
   }, [isPanelOpen, onPanelClose, timeout]);
 
-  return isPanelOpen ? <div role="dialog" tabIndex={0} ref={refCallback} /> : null;
+  return isPanelOpen ? <div role="dialog" aria-modal="true" tabIndex={-1} ref={refCallback} /> : null;
 };
 
 export default NotificationsPanel;

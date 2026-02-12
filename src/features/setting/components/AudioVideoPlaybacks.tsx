@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommonButton from "@/components/widget/CommonButton";
 import CommonPlaybacks, { Playback } from "./CommonPlaybacks";
 import { StreamContext } from "@/context/stream-context";
@@ -36,10 +37,11 @@ const VideoPlaybacks: React.FC<{
   disabled = false,
   audioVideoPlaybacks,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       <CommonPlaybacks
-        label="Video"
+        label={t("settings.video_playback_label")}
         playbacks={audioVideoPlaybacks}
         selectedPlayback={selectedVideo}
         selectedName={selectedVideoName}
@@ -77,10 +79,11 @@ const AudioPlaybacks: React.FC<{
   disabled = false,
   audioVideoPlaybacks,
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       <CommonPlaybacks
-        label="Audio"
+        label={t("settings.audio_playback_label")}
         playbacks={audioVideoPlaybacks}
         selectedPlayback={selectedAudio}
         selectedName={selectedAudioName}
@@ -106,6 +109,7 @@ const AudioVideoPlaybacks: React.FC<AudioVideoPlaybacksProps> = ({
   showVideoPlaybacks = true,
   showCheckbox = false,
 }) => {
+  const { t } = useTranslation();
   const [customVideoFile, setCustomVideoFile] = useState<File | null>(null);
   const [customAudioFile, setCustomAudioFile] = useState<File | null>(null);
   const [selectedVideoName, setSelectedVideoName] = useState<string>("");
@@ -276,7 +280,7 @@ const AudioVideoPlaybacks: React.FC<AudioVideoPlaybacksProps> = ({
   };
 
   if (!playback.audioVideoPlaybacks.length) {
-    return <div className="space-y-4">Playback files are empty</div>;
+    return <div className="space-y-4">{t("settings.playback_files_empty")}</div>;
   }
   return (
     <div className="space-y-4">
@@ -317,7 +321,7 @@ const AudioVideoPlaybacks: React.FC<AudioVideoPlaybacksProps> = ({
                   onChange={handleApplyBothChange}
                   className="form-checkbox h-4 w-4 text-blue-600"
                 />
-                Apply both audio and video if selected
+                {t("settings.playback_apply_both")}
               </label>
             </div>
           )}
@@ -329,7 +333,7 @@ const AudioVideoPlaybacks: React.FC<AudioVideoPlaybacksProps> = ({
           disabled={!audioPlaybackFile && !videoPlaybackFile}
           className="px-4 py-2 bg-blue-500 text-theme-text-button rounded hover:bg-blue-600"
         >
-          {isMediaFilePlaying ? "Stop Playback" : "Start Playback"}
+          {isMediaFilePlaying ? t("settings.playback_stop") : t("settings.playback_start")}
         </CommonButton>
       </div>
     </div>

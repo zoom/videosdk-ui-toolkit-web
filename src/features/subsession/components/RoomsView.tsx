@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useContext, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/widget/CommonButton";
 import { ChevronDown, ChevronUp, Users, Check, X, XCircle } from "lucide-react";
 import { RoomConfirm } from "./RoomConfirm";
@@ -11,6 +12,7 @@ import sessionAdditionalContext from "@/context/session-additional-context";
 import { Participant } from "@/types";
 import Dropdown from "@/components/widget/Dropdown";
 import { THEME_COLOR_CLASS } from "@/constant/ui-constant";
+import { translateSubsessionName } from "../utils/translateSubsessionName";
 
 interface Room {
   id: string;
@@ -38,6 +40,7 @@ interface RoomsViewProps {
   addLocalRooms: (rooms: Subsession[]) => void;
   removeLocalRoom: (index: number) => void;
   renameLocalRoom: (index: number, name: string) => void;
+  isSelfSelectSubsession?: boolean;
 }
 
 export const RoomsView: React.FC<RoomsViewProps> = ({
@@ -56,7 +59,9 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
   addLocalRooms,
   removeLocalRoom,
   renameLocalRoom,
+  isSelfSelectSubsession = false,
 }) => {
+  const { t } = useTranslation();
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [assignModalOpen, setAssignModalOpen] = useState<Subsession | null>(null);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
@@ -111,11 +116,13 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
     setAssignModalOpen(room);
   };
 
+  const getEditableRoomName = useCallback((roomName: string) => translateSubsessionName(roomName, t), [t]);
+
   const handleRename = (index: number) => {
     const room = rooms[index];
     if (room) {
       setEditingRoomId(room.subsessionId);
-      setEditedRoomName(room.subsessionName);
+      setEditedRoomName(getEditableRoomName(room.subsessionName));
     }
   };
 
@@ -180,25 +187,26 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
     handleActionClick,
   }) => {
     const isEnableEdit = isHostOrManager && !inProgress;
+    const showAssignButton = isHostOrManager && !isSelfSelectSubsession;
     if (isMobileDeviceNotIpad() && isPortrait()) {
       return (
         <Dropdown
           position="bottom-start"
           menuItems={[
             isEnableEdit && {
-              label: "Rename",
+              label: t("subsession.rename_button"),
               onClick: () => handleRename(index),
             },
             isEnableEdit && {
-              label: "Delete",
+              label: t("subsession.delete_button"),
               onClick: () => handleDelete(index),
             },
-            {
-              label: "Assign",
+            showAssignButton && {
+              label: t("subsession.assign_button"),
               onClick: () => handleAssignClick(room),
             },
             inProgress && {
-              label: "Join",
+              label: t("subsession.join_button"),
               onClick: () => handleActionClick(room.subsessionId, "Join"),
             },
           ]}
@@ -214,21 +222,21 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
           editingRoomId !== room.subsessionId && (
             <>
               <Button variant="secondary" size="sm" onClick={() => handleRename(index)} className="mr-2">
-                Rename
+                {t("subsession.rename_button")}
               </Button>
               <Button variant="secondary" size="sm" onClick={() => handleDelete(index)} className="mr-2">
-                Delete
+                {t("subsession.delete_button")}
               </Button>
             </>
           )}
-        {isHostOrManager && (
+        {showAssignButton && (
           <Button variant="secondary" size="sm" onClick={() => handleAssignClick(room)} className="mr-2">
-            Assign
+            {t("subsession.assign_button")}
           </Button>
         )}
         {inProgress && (
           <Button variant="secondary" size="sm" onClick={() => handleActionClick(room.subsessionId, "Join")}>
-            Join
+            {t("subsession.join_button")}
           </Button>
         )}
       </>
@@ -245,9 +253,13 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
       <div className="p-0 border-b border-gray-200">
         <CommonTab
           tabs={[
-            { name: "collapse", title: "Collapse All", id: "uikit-subsession-rooms-view-collapse-tab" },
-            { name: "expand", title: "Expand All", id: "uikit-subsession-rooms-view-expand-tab" },
-            { name: "search", title: "Search", id: "uikit-subsession-rooms-view-search-tab" },
+            {
+              name: "collapse",
+              title: t("subsession.collapse_all_tab"),
+              id: "uikit-subsession-rooms-view-collapse-tab",
+            },
+            { name: "expand", title: t("subsession.expand_all_tab"), id: "uikit-subsession-rooms-view-expand-tab" },
+            { name: "search", title: t("subsession.search_tab"), id: "uikit-subsession-rooms-view-search-tab" },
           ]}
           orientation="horizontal"
           activeTab={isSearching ? "search" : expandedRooms.size === rooms.length + 1 ? "expand" : "collapse"}
@@ -272,7 +284,7 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search participants..."
+            placeholder={t("subsession.search_participants")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-3 py-2 pr-8 border border-gray-300 text-theme-text rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-theme-surface"
@@ -308,7 +320,7 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
                 ) : (
                   <ChevronUp className="w-5 h-5 mr-3 text-theme-text" />
                 )}
-                <span className="text-base font-medium">Unassigned Participants</span>
+                <span className="text-base font-medium">{t("subsession.unassigned_participants")}</span>
               </div>
               <div className="flex items-center">
                 <Users className="w-5 h-5 mr-2 text-theme-text" />
@@ -368,10 +380,16 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
                         handleSaveRename(index);
                       }}
                       className={`ml-2 text-green-600 hover:text-green-700 ${
-                        editedRoomName === room.subsessionName ? "opacity-50 cursor-not-allowed" : ""
+                        editedRoomName === getEditableRoomName(room.subsessionName)
+                          ? "opacity-50 cursor-not-allowed"
+                          : ""
                       }`}
-                      disabled={editedRoomName === room.subsessionName}
-                      title={editedRoomName === room.subsessionName ? "Room name not changed" : ""}
+                      disabled={editedRoomName === getEditableRoomName(room.subsessionName)}
+                      title={
+                        editedRoomName === getEditableRoomName(room.subsessionName)
+                          ? t("subsession.room_name_not_changed")
+                          : ""
+                      }
                     >
                       <Check size={20} />
                     </button>
@@ -386,7 +404,7 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
                     </button>
                   </div>
                 ) : (
-                  <span className="text-base font-medium">{room.subsessionName}</span>
+                  <span className="text-base font-medium">{translateSubsessionName(room.subsessionName, t)}</span>
                 )}
               </div>
               <div className="flex items-center">

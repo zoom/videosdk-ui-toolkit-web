@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppSelector, useSessionSelector, useSessionUISelector, useAppDispatch } from "@/hooks/useAppSelector";
 import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 import { AlertCircle } from "lucide-react";
@@ -8,6 +9,7 @@ import { ClientContext } from "@/context/client-context";
 import { setHasShowRecordingAlert } from "@/store/uiSlice";
 
 const RecordingNotification = () => {
+  const { t } = useTranslation();
   const [isInitialized, setIsInitialized] = useState(false);
   const initializationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -53,15 +55,15 @@ const RecordingNotification = () => {
 
   return (
     <ConfirmDialog
-      title="This meeting is being recorded"
-      message="By staying in the meeting, you consent to being recorded. After the meeting ends, the recording file will be sent to the meeting host and participants who have recording permissions."
+      title={t("recording.notification_title")}
+      message={t("recording.consent_message")}
       icon={<AlertCircle size={26} className="text-red-500 drop-shadow-sm" strokeWidth={1.5} />}
       iconClassName="bg-red-50 dark:bg-red-950/30"
       onCancel={handleLeave}
-      cancelText="Leave"
+      cancelText={t("recording.notification_leave")}
       cancelVariant="secondary"
       onConfirm={handleStay}
-      confirmText="Stay"
+      confirmText={t("recording.notification_stay")}
       confirmVariant="primary"
       id="uikit-recording-notification"
     />

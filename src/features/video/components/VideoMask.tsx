@@ -1,4 +1,5 @@
 import { useRef, useCallback, useContext, useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Draggable from "react-draggable";
 import { CommonPopper } from "@/components/widget/CommonPopper";
 import sessionAdditionalContext from "@/context/session-additional-context";
@@ -44,6 +45,7 @@ const MODEL_CONFIG = {
 const MOVEMENT_STEP = 10; // pixels to move per keypress
 
 export const VideoMask = () => {
+  const { t } = useTranslation();
   // Contexts and selectors
   const { stream } = useContext(StreamContext);
 
@@ -248,7 +250,13 @@ export const VideoMask = () => {
           >
             <div
               ref={clipRef}
+              role="slider"
               tabIndex={0}
+              aria-label={t("video.mask_position")}
+              aria-valuenow={0}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuetext={`Position: ${clipPos.x}, ${clipPos.y}`}
               className={`absolute w-32 h-32 border-2 rounded-full ${
                 isAutoDetect ? "border-green-500" : "border-white cursor-move"
               } focus:outline-none focus:ring-2 focus:ring-blue-500`}
@@ -265,12 +273,12 @@ export const VideoMask = () => {
             onChange={(e) => setIsAutoDetect(e.target.checked)}
             className="form-checkbox h-4 w-4 text-blue-600 rounded"
           />
-          <span className="select-none">Auto-detect position (using AI)</span>
+          <span className="select-none">{t("video.mask_auto_detect")}</span>
         </label>
       </div>
 
       <div>
-        <h3 className="text-lg font-medium mb-3 text-black">Choose background</h3>
+        <h3 className="text-lg font-medium mb-3 text-black">{t("video.mask_choose_background")}</h3>
         <div className="flex gap-4">
           <button
             className={`px-4 py-2 rounded-lg border text-black transition-colors duration-200 ${
@@ -278,7 +286,7 @@ export const VideoMask = () => {
             }`}
             onClick={() => onBackgroundClick("none")}
           >
-            None
+            {t("video.mask_background_none")}
           </button>
           {maskBackgroundList.map((item) => (
             <button
@@ -291,7 +299,7 @@ export const VideoMask = () => {
               <img src={item.url} alt={item.key} className="w-full h-full object-cover" />
               {item.key === "blur" && (
                 <span className="absolute inset-0 flex items-center justify-center text-black bg-white/50 font-medium">
-                  Blur
+                  {t("video.mask_background_blur")}
                 </span>
               )}
             </button>

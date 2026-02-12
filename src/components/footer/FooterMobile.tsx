@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
 import { AudioButton } from "@/features/audio/components/AudioButton";
@@ -32,6 +33,7 @@ export const FooterMobile = ({
   changeMicrophone: (deviceId: string) => Promise<void>;
   changeSpeaker: (deviceId: string) => Promise<void>;
 }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const client = useContext(ClientContext);
   const stream = useContext(StreamContext);
@@ -115,7 +117,7 @@ export const FooterMobile = ({
             disabled={false}
             isLoading={false}
             className="rounded-full text-theme-text"
-            title={"Participants"}
+            title={t("participant.panel_title")}
             count={sessionUI.participantSize}
             id="uikit-footer-participants-button"
             showBorder={true}
@@ -129,7 +131,7 @@ export const FooterMobile = ({
           disabled={false}
           isLoading={false}
           className="rounded-full"
-          title={"More"}
+          title={t("footer.more")}
           id="uikit-footer-more-button"
           showBorder={true}
         />

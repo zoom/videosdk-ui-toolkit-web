@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
 import { EllipsisVertical, Headphones, MicOff, Signal, SignalLow, SignalMedium, VideoOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Participant } from "@/types";
 import Dropdown from "@/components/widget/Dropdown";
 import { useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
@@ -33,6 +34,7 @@ const Avatar = ({
 }: AvatarProps) => {
   const [selectedQuality, setSelectedQuality] = useState("");
   const [isHovered, setIsHovered] = useState(false);
+  const { t } = useTranslation();
   const { userId, isHost, isManager, spotlightUserList, networkQualityMap } = useAppSelector(useSessionSelector);
   const { stream } = useContext(StreamContext);
   const currentUser = useCurrentUser();
@@ -91,7 +93,7 @@ const Avatar = ({
             className="bg-black bg-opacity-50 hover:bg-opacity-70 rounded-full px-3 py-1 text-theme-text-button text-sm"
             onClick={removeSpotlight}
           >
-            Remove spotlight
+            {t("participant.menu_remove_spotlight")}
           </button>
         )}
 
@@ -101,6 +103,7 @@ const Avatar = ({
             wrapperClass="bg-blue-500 bg-opacity-90 hover:bg-opacity-70 rounded-full p-1 ml-auto"
             trigger={<EllipsisVertical color="white" size={14} />}
             position="bottom-start"
+            showCheckboxSpace={false}
           />
         )}
       </div>

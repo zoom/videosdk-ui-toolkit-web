@@ -9,9 +9,10 @@ import {
   setIsSubsessionPoppedOut,
 } from "@/store/uiSlice";
 import { setInviter } from "@/features/subsession/subsessionSlice";
+import { translateSubsessionName } from "../utils/translateSubsessionName";
 
 import ConfirmDialog from "../../../components/widget/dialog/ConfirmDialog";
-import { SubsessionStatus } from "@zoom/videosdk";
+import { SubsessionStatus, SubsessionUserStatus } from "@zoom/videosdk";
 import { usePrevious } from "@/hooks/usePrevious";
 
 const SubsessionConfirmDialogs = ({ subsessionClient }) => {
@@ -34,10 +35,13 @@ const SubsessionConfirmDialogs = ({ subsessionClient }) => {
       dispatch(setIsJoinSubsessionConfirm(false));
       dispatch(setIsJoinSubsessionConfirmRemind(false));
     } else if (subStatus === SubsessionStatus.InProgress && preSubStatus !== subStatus && !isOpenByYourself) {
-      dispatch(setIsJoinSubsessionConfirm(true));
-      dispatch(setIsJoinSubsessionConfirmRemind(true));
+      const isUserAssigned = currentSubRoom?.userStatus === SubsessionUserStatus.Invited;
+      if (isUserAssigned || isSubsessionSelectionEnabled) {
+        dispatch(setIsJoinSubsessionConfirm(true));
+        dispatch(setIsJoinSubsessionConfirmRemind(true));
+      }
     }
-  }, [subStatus, dispatch, preSubStatus, isOpenByYourself]);
+  }, [subStatus, dispatch, preSubStatus, isOpenByYourself, currentSubRoom?.userStatus, isSubsessionSelectionEnabled]);
 
   return (
     <>
@@ -59,7 +63,11 @@ const SubsessionConfirmDialogs = ({ subsessionClient }) => {
           confirmText={t("subsession.join")}
           confirmId="uikit-subsession-join-subsession-join"
           cancelId="uikit-subsession-join-subsession-cancel"
-          message={t("subsession.invite_join_room_tip_content")}
+          message={
+            isSubsessionSelectionEnabled
+              ? t("subsession.invite_join_room_tip_content")
+              : t("subsession.join_room__confirm_tip_sdk", { roomName: currentSubRoom.subsessionName })
+          }
         />
       )}
       {sessionUI.isAskSubsessionHelpConfirm && (
@@ -84,7 +92,7 @@ const SubsessionConfirmDialogs = ({ subsessionClient }) => {
             subsessionInviter.inviterSubsessionId
               ? t("subsession.ask_host_for_help_tip", {
                   inviterName: subsessionInviter.inviterName,
-                  inviterSubsessionName: subsessionInviter.inviterSubsessionName,
+                  inviterSubsessionName: translateSubsessionName(subsessionInviter.inviterSubsessionName || "", t),
                 })
               : t("subsession.ask_for_help_content")
           }

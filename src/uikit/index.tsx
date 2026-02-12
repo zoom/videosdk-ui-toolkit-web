@@ -1,13 +1,23 @@
-import { CustomizationOptions, Participant, SessionClient, SuspensionViewValue, VideoClientEvent } from "@/types";
+import {
+  BroadcastViewerOptions,
+  CustomizationOptions,
+  Participant,
+  SessionClient,
+  SuspensionViewValue,
+  VideoClientEvent,
+} from "@/types";
 import UIToolkit from "./UIToolkit";
-import { migrateConfig } from "./util";
+import { migrateConfig, normalizeJoinConfig, waitForToolkitEvent, withTimeout } from "./util";
 import "./index.css";
 import ZoomVideo, { ExecutedResult, SessionInfo, StatisticOption, VideoStatisticOption } from "@zoom/videosdk";
 import { isMobileDeviceNotIpad, TAILWIND_VERSION, UIKIT_VERSION } from "@/components/util/service";
+import { defaultConfig } from "@/constant";
 
 // Singleton instance management
 let uiToolkitInstance: UIToolkit | null = null;
 let uiToolkitConfig: CustomizationOptions | undefined;
+let destroyInFlight: Promise<void> | null = null;
+let sessionCloseInFlight: Promise<void> | null = null;
 
 type ToolkitEventHandler = {
   (event: VideoClientEvent, callback: (payload: any) => void): void;
@@ -52,27 +62,69 @@ const UIToolkitAPI = {
     toolkit.closePreview(container);
   },
 
-  joinSession: (container: HTMLElement, config: CustomizationOptions): void => {
-    if (usePreviewApi && config.featuresOptions?.preview?.enable) {
-      const newConfig = Object.assign({}, config, {
-        featuresOptions: { ...config?.featuresOptions, preview: { enable: false } },
-      });
-      const toolkit = getOrCreateUIToolkit(newConfig);
-      toolkit.joinSession(container);
-    } else {
-      const toolkit = getOrCreateUIToolkit(config);
-      toolkit.joinSession(container);
+  joinSession: async (container: HTMLElement, config: CustomizationOptions): Promise<void> => {
+    if (destroyInFlight) {
+      await destroyInFlight;
     }
+    if (sessionCloseInFlight) {
+      await sessionCloseInFlight;
+    }
+
+    const migrated = normalizeJoinConfig(config, usePreviewApi);
+    const toolkit = getOrCreateUIToolkit(migrated);
+    toolkit.updateConfig(migrated);
+    if (toolkit.getClient()?.getSessionInfo?.()?.isInMeeting) return;
+
+    const joined = waitForToolkitEvent(
+      (cb) => toolkit.onSessionJoined(cb),
+      (cb) => toolkit.offSessionJoined(cb),
+      60000,
+      "Timed out waiting for session to join",
+    );
+    toolkit.joinSession(container);
+    await joined;
   },
 
-  leaveSession: (): void => {
+  leaveSession: async (): Promise<void> => {
     const toolkit = getOrCreateUIToolkit();
-    toolkit.leaveSession();
+    if (sessionCloseInFlight) {
+      await sessionCloseInFlight;
+      return;
+    }
+    const client = toolkit.getClient();
+    if (client?.getSessionInfo?.()?.isInMeeting) {
+      sessionCloseInFlight = (async () => {
+        try {
+          await withTimeout(toolkit.leaveSession(), 20000, "Timed out waiting for session to leave");
+        } finally {
+          sessionCloseInFlight = null;
+        }
+      })();
+      await sessionCloseInFlight;
+      return;
+    }
+    return;
   },
 
-  closeSession: (): void => {
+  closeSession: async (_container?: HTMLElement): Promise<void> => {
     const toolkit = getOrCreateUIToolkit();
-    toolkit.closeSession();
+    if (sessionCloseInFlight) {
+      await sessionCloseInFlight;
+      return;
+    }
+    const client = toolkit.getClient();
+    if (client?.getSessionInfo?.()?.isInMeeting) {
+      sessionCloseInFlight = (async () => {
+        try {
+          await withTimeout(toolkit.closeSession(), 20000, "Timed out waiting for session to close");
+        } finally {
+          sessionCloseInFlight = null;
+        }
+      })();
+      await sessionCloseInFlight;
+      return;
+    }
+    return;
   },
 
   changeViewType: (viewType: SuspensionViewValue): void => {
@@ -81,12 +133,29 @@ const UIToolkitAPI = {
   },
 
   // off all events callbacks and destroy the toolkit
-  destroy: (): void => {
+  destroy: async (): Promise<void> => {
     const toolkit = getOrCreateUIToolkit();
     if (toolkit) {
-      toolkit.destroy();
-      uiToolkitInstance = null;
-      usePreviewApi = false;
+      if (destroyInFlight) {
+        await destroyInFlight;
+        return;
+      }
+
+      destroyInFlight = (async () => {
+        try {
+          if (sessionCloseInFlight) {
+            await sessionCloseInFlight;
+          }
+          await toolkit.destroy();
+        } finally {
+          destroyInFlight = null;
+          sessionCloseInFlight = null;
+          uiToolkitInstance = null;
+          uiToolkitConfig = undefined;
+          usePreviewApi = false;
+        }
+      })();
+      await destroyInFlight;
     }
   },
 
@@ -127,6 +196,20 @@ const UIToolkitAPI = {
     const toolkit = getOrCreateUIToolkit();
     if (toolkit) {
       toolkit.offViewTypeChange(callback);
+    }
+  },
+
+  // language change event
+  onLanguageChange: (callback: (language: string) => void): void => {
+    const toolkit = getOrCreateUIToolkit();
+    toolkit.onLanguageChange(callback);
+  },
+
+  // off language change event
+  offLanguageChange: (callback: (language: string) => void): void => {
+    const toolkit = getOrCreateUIToolkit();
+    if (toolkit) {
+      toolkit.offLanguageChange(callback);
     }
   },
 
@@ -225,9 +308,199 @@ const UIToolkitAPI = {
     toolkit.hideControlsComponent(container);
   },
 
+  showBroadcastViewerComponent: (container: HTMLElement, options?: BroadcastViewerOptions): void => {
+    const toolkit = getOrCreateUIToolkit(defaultConfig);
+    toolkit.showBroadcastViewerComponent(container, options);
+  },
+
+  hideBroadcastViewerComponent: (container: HTMLElement): void => {
+    const toolkit = getOrCreateUIToolkit();
+    toolkit.hideBroadcastViewerComponent(container);
+  },
+
   mirrorVideo: async (mirrored: boolean) => {
     const toolkit = getOrCreateUIToolkit();
     return toolkit.mirrorVideo(mirrored);
+  },
+
+  /**
+   * Internationalization (i18n) API for language and translation management
+   * @example
+   * ```ts
+   * // Set current language
+   * await UIToolkit.i18n.setLanguage("zh-CN");
+   *
+   * // Set language with inline resources
+   * await UIToolkit.i18n.setLanguage("zh-CN", { hello: "你好", goodbye: "再见" });
+   *
+   * // Set language with URL to resources
+   * await UIToolkit.i18n.setLanguage("zh-CN", "/locales/zh-CN.json");
+   *
+   * // Set available languages
+   * UIToolkit.i18n.setLanguageList(["en-US", "zh-CN", "es-ES"]);
+   *
+   * // Get i18n instance for translations
+   * const i18n = UIToolkit.i18n.getInstance();
+   * const translation = i18n.t("key");
+   *
+   * // Get current language
+   * const currentLang = UIToolkit.i18n.getLanguage();
+   * ```
+   */
+  i18n: {
+    /**
+     * Sets the current UI language
+     * @param language - Language code (e.g., "en-US", "zh-CN")
+     * @param resources - Optional language resources as object or URL to JSON file
+     * @returns Promise that resolves when language is set and resources are loaded
+     */
+    setLanguage: async (language: string, resources?: Record<string, unknown> | string): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      await toolkit.i18n.setLanguage(language, resources);
+    },
+
+    /**
+     * Sets the list of available languages
+     * @param languages - Array of language codes
+     */
+    setLanguageList: (languages: string[]): void => {
+      const toolkit = getOrCreateUIToolkit();
+      toolkit.i18n.setLanguageList(languages);
+    },
+
+    /**
+     * Gets the i18n instance for accessing translations
+     * @returns The i18next instance
+     */
+    getInstance: () => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.i18n.getInstance();
+    },
+
+    /**
+     * Gets the current language
+     * @returns Current language code (e.g., "en-US", "zh-CN")
+     */
+    getLanguage: (): string => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.i18n.getLanguage();
+    },
+
+    /**
+     * Gets the list of available languages
+     * @returns Array of language codes
+     */
+    getLanguageList: (): string[] => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.i18n.getLanguageList();
+    },
+
+    /**
+     * Checks if translation resources exist for a specific language
+     * @param language - Language code to check (e.g., "en-US", "zh-CN")
+     * @returns true if resources exist, false otherwise
+     */
+    hasLanguageResources: (language: string): boolean => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.i18n.hasLanguageResources(language);
+    },
+  },
+
+  /**
+   * PTZ (Pan-Tilt-Zoom) camera control interface
+   * @example
+   * ```ts
+   * // Check browser support
+   * const supported = UIToolkit.ptz.isBrowserSupported();
+   *
+   * // Get local camera PTZ capability
+   * const capability = await UIToolkit.ptz.getCapability();
+   *
+   * // Request control of remote camera
+   * await UIToolkit.ptz.requestControl(userId);
+   *
+   * // Control remote camera
+   * await UIToolkit.ptz.control({ cmd: 1, userId, range: 50 });
+   * ```
+   */
+  ptz: {
+    /**
+     * Checks if the browser supports PTZ camera control
+     * @returns true if PTZ is supported, false otherwise
+     */
+    isBrowserSupported: (): boolean => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.isBrowserSupported();
+    },
+
+    /**
+     * Gets the PTZ capability of the local camera
+     * @returns Promise resolving to the PTZ capability object
+     */
+    getCapability: async (): Promise<unknown> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.getCapability();
+    },
+
+    /**
+     * Gets the PTZ capability of a remote participant's camera
+     * @param userId - The user ID of the participant
+     * @returns Promise resolving to the PTZ capability object
+     */
+    getFarEndCapability: async (userId: number): Promise<unknown> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.getFarEndCapability(userId);
+    },
+
+    /**
+     * Requests control of a remote participant's camera
+     * @param userId - The user ID of the participant
+     * @returns Promise that resolves when the request is sent
+     */
+    requestControl: async (userId: number): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.requestControl(userId);
+    },
+
+    /**
+     * Approves a camera control request from another participant
+     * @param userId - The user ID of the participant requesting control
+     * @returns Promise that resolves when the approval is processed
+     */
+    approveControl: async (userId: number): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.approveControl(userId);
+    },
+
+    /**
+     * Declines a camera control request from another participant
+     * @param userId - The user ID of the participant requesting control
+     * @returns Promise that resolves when the decline is processed
+     */
+    declineControl: async (userId: number): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.declineControl(userId);
+    },
+
+    /**
+     * Gives up control of a remote participant's camera
+     * @param userId - The user ID of the participant whose camera control to release
+     * @returns Promise that resolves when control is released
+     */
+    giveUpControl: async (userId: number): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.giveUpControl(userId);
+    },
+
+    /**
+     * Sends a PTZ control command to a remote participant's camera
+     * @param options - Object containing cmd (command type), userId, and range (magnitude)
+     * @returns Promise that resolves when the command is sent
+     */
+    control: async (options: { cmd: number; userId: number; range?: number }): Promise<void> => {
+      const toolkit = getOrCreateUIToolkit();
+      return toolkit.ptz.control(options);
+    },
   },
 
   // Config helper to convert old config to new config

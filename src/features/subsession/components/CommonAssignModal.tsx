@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Select, { MultiValue } from "react-select";
 import { Button } from "@/components/widget/CommonButton";
 import { SelectOption } from "../subsession-constants";
@@ -24,11 +25,15 @@ export const CommonAssignModal: React.FC<CommonAssignModalProps> = ({
   options,
   onAssign,
   isMulti = false,
-  placeholder = "Select an option",
-  noOptionsMessage = "No options available",
+  placeholder,
+  noOptionsMessage,
   themeName = "light",
 }) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState<SelectOption | MultiValue<SelectOption> | null>(null);
+
+  const defaultPlaceholder = placeholder || t("subsession.select_option_placeholder");
+  const defaultNoOptionsMessage = noOptionsMessage || t("subsession.no_options_available");
 
   const ref = useRef<HTMLDivElement>(null);
   const excludeRef = useRef<HTMLDivElement>(null);
@@ -73,16 +78,16 @@ export const CommonAssignModal: React.FC<CommonAssignModalProps> = ({
           }}
           id={id}
           options={options}
-          placeholder={placeholder}
-          noOptionsMessage={() => noOptionsMessage}
+          placeholder={defaultPlaceholder}
+          noOptionsMessage={() => defaultNoOptionsMessage}
           styles={CommonSelectStyle({ themeName })}
         />
         <div className="flex justify-end space-x-3">
           <Button variant="secondary" size="sm" onClick={onClose} id={`${id}-cancel-button`}>
-            Cancel
+            {t("common.cancel")}
           </Button>
           <Button variant="primary" size="sm" onClick={handleAssign} disabled={!selected} id={`${id}-assign-button`}>
-            Assign
+            {t("subsession.assign")}
           </Button>
         </div>
       </div>

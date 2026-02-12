@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import CommonNotification from "@/components/widget/CommonNotification";
 import { useToggleMic } from "@/features/audio/hooks/useToggleMic";
@@ -5,10 +6,11 @@ import { setShowJoinAudioConsent } from "@/store/uiSlice";
 import { THEME_COLOR_CLASS, THEME_COLOR_CLASS_TOGGLE_BUTTON } from "@/constant/ui-constant";
 
 const JoinAudioConsentPanel = () => {
+  const { t } = useTranslation();
   const { isShowJoinAudioConsent } = useAppSelector(useSessionUISelector);
-  const title = "Enable Audio";
-  const content = "Would you like to enable audio for this session?";
-  const okText = "Enable";
+  const title = t("notification.enable_audio_title");
+  const content = t("notification.enable_audio_content");
+  const okText = t("notification.enable_audio_button");
   const dispatch = useAppDispatch();
   const toggleMic = useToggleMic();
 
@@ -40,7 +42,7 @@ const JoinAudioConsentPanel = () => {
             onClick={() => dispatch(setShowJoinAudioConsent(false))}
             id="uikit-join-audio-consent-not-now"
           >
-            Not Now
+            {t("notification.not_now")}
           </button>
 
           <button

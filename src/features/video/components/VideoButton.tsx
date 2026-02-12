@@ -12,6 +12,7 @@ import {
   setSettingsActiveTab,
   setActiveStatistics,
   setPreviewAVStatus,
+  setActiveVbImage,
 } from "@/store/uiSlice";
 import ToggleButton from "@/components/widget/ToggleButton";
 import { useSnackbar } from "notistack";
@@ -38,9 +39,11 @@ export const VideoButton = ({
   const sessionUI = useAppSelector(useSessionUISelector);
   const {
     videoPlaybackFile,
+    isJoinResolved,
     config: {
       featuresOptions: {
         playback: { audioVideoPlaybacks, enable: isUserEnablePlayback },
+        video: { ptz: isPTZEnabled },
       },
     },
   } = useAppSelector(useSessionSelector);
@@ -62,13 +65,13 @@ export const VideoButton = ({
 
   let waringContext = "";
   if (sessionUI.isShowAudioWarning && sessionUI.isShowVideoWarning) {
-    waringContext = t("join_media_preview_warning_denied_both");
+    waringContext = t("join.media_preview_warning_denied_both");
   } else if (sessionUI.isShowAudioWarning) {
-    waringContext = t("join_media_preview_warning_denied_mic");
+    waringContext = t("join.media_preview_warning_denied_mic");
   } else if (sessionUI.isShowVideoWarning) {
-    waringContext = t("join_media_preview_warning_denied_camera");
+    waringContext = t("join.media_preview_warning_denied_camera");
   } else {
-    waringContext = t("join_media_preview_warning_denied");
+    waringContext = t("join.media_preview_warning_denied");
   }
 
   useEffect(() => {
@@ -84,12 +87,12 @@ export const VideoButton = ({
       if (e?.type === "VIDEO_USER_FORBIDDEN_CAPTURE") {
         throw e;
       } else {
-        const message = getErrorMessageFromApiError(e, "Start video failed");
+        const message = getErrorMessageFromApiError(e, t("video.start_failed"));
         enqueueSnackbar(message, { variant: "error" });
         throw e;
       }
     },
-    [dispatch, enqueueSnackbar],
+    [dispatch, enqueueSnackbar, t],
   );
 
   const toggleVideo = useCallback(async () => {
@@ -113,6 +116,10 @@ export const VideoButton = ({
       if (sessionUI.isSupportVB && sessionUI.activeVbImage) {
         Object.assign(captureOptions, { virtualBackground: { imageUrl: sessionUI.activeVbImage } });
       }
+      // Enable PTZ camera support if configured
+      if (isPTZEnabled) {
+        Object.assign(captureOptions, { ptz: true });
+      }
       try {
         await stream?.startVideo(captureOptions);
         dispatch(setIsStartedVideo(true));
@@ -121,7 +128,7 @@ export const VideoButton = ({
         videoErrorFunc(e);
       }
     }
-  }, [currentUser?.bVideoOn, dispatch, sessionUI, stream, videoErrorFunc]);
+  }, [currentUser?.bVideoOn, dispatch, sessionUI, stream, videoErrorFunc, isPTZEnabled]);
   useEffect(() => {
     setIsVideoOn(client.getCurrentUserInfo()?.bVideoOn);
   }, [client, currentUser?.bVideoOn]);
@@ -151,6 +158,32 @@ export const VideoButton = ({
     dispatch(setIsSettingsOpen(true));
   }, [dispatch, setIsVideoMenuOpen]);
 
+  const updateVirtualBackground = useCallback(
+    async (vbImage: string) => {
+      if (!sessionUI.isSupportVB) {
+        enqueueSnackbar(t("video.virtual_background_not_supported"), { variant: "warning" });
+        return;
+      }
+      if (!stream || typeof stream.updateVirtualBackgroundImage !== "function") {
+        enqueueSnackbar(t("preview.error_update_vb"), { variant: "error" });
+        return;
+      }
+      try {
+        await stream.updateVirtualBackgroundImage(vbImage);
+        dispatch(setActiveVbImage(vbImage));
+        setIsVideoMenuOpen(false);
+      } catch (e) {
+        enqueueSnackbar(t("preview.error_update_vb"), { variant: "error" });
+      }
+    },
+    [dispatch, enqueueSnackbar, sessionUI.isSupportVB, setIsVideoMenuOpen, stream, t],
+  );
+
+  const toggleBlurVirtualBackground = useCallback(async () => {
+    const nextVbImage = sessionUI.activeVbImage === "blur" ? "" : "blur";
+    await updateVirtualBackground(nextVbImage);
+  }, [sessionUI.activeVbImage, updateVirtualBackground]);
+
   const handleMirrorVideo = useCallback(async () => {
     if (isMirrorMenuBusy) return;
     setIsMirrorMenuBusy(true);
@@ -167,15 +200,22 @@ export const VideoButton = ({
   }, [enqueueSnackbar, isMirrorMenuBusy, sessionUI.isMirrorVideo, updateMirrorVideo]);
 
   const isLoading = !videoEncode || !videoDecode || isCameraLoading;
-  const previousLoading = usePrevious(isLoading);
+  const isVideoAutoStartTriggeredRef = useRef(false);
   useEffect(() => {
-    if (sessionUI.previewStatus.isCameraOn && previousLoading && !isLoading && !isVideoOn) {
-      setTimeout(() => {
-        document.getElementById("uikit-footer-video-button")?.click();
-        dispatch(setPreviewAVStatus({ isCameraOn: false }));
-      }, 2000);
+    if (!sessionUI.previewStatus.isCameraOn) {
+      isVideoAutoStartTriggeredRef.current = false;
+      return;
     }
-  }, [sessionUI.previewStatus, cameraList, isLoading, previousLoading, isVideoOn, dispatch]);
+
+    if (isVideoAutoStartTriggeredRef.current || isLoading || isVideoOn || !stream || !isJoinResolved) return;
+
+    isVideoAutoStartTriggeredRef.current = true;
+    dispatch(setPreviewAVStatus({ isCameraOn: false }));
+
+    if (client.getCurrentUserInfo()?.bVideoOn) return;
+
+    void toggleVideo();
+  }, [client, dispatch, isJoinResolved, isLoading, isVideoOn, sessionUI.previewStatus.isCameraOn, stream, toggleVideo]);
 
   const iconColor = sessionUI.themeName === "dark" ? "white" : "black";
 
@@ -198,13 +238,13 @@ export const VideoButton = ({
           e.stopPropagation();
         }}
         isWarning={sessionUI.isShowVideoWarning}
-        title={"video"}
+        title={t("video.button_label")}
         disabled={videoPlaybackFile !== ""}
         orientation={orientation}
         menuContent={
           <FooterMenuOption
             autoClose={autoClose}
-            title="Video settings"
+            title={t("video.settings_title")}
             orientation={orientation}
             activeDevice={{
               Camera: sessionUI.activeCamera,
@@ -223,7 +263,7 @@ export const VideoButton = ({
             }}
             menuName="camera-list"
             labels={{
-              Camera: "Select a camera",
+              Camera: t("video.select_camera"),
             }}
             isOpen={isVideoMenuOpen}
             setIsOpen={(isOpen) => {
@@ -233,14 +273,14 @@ export const VideoButton = ({
             clickSettingsLink={openVideoSettings}
             otherButtons={[
               {
-                text: "Mirror my video",
+                text: t("video.mirror_my_video"),
                 click: handleMirrorVideo,
                 key: "footer-video-menu-mirror",
                 checked: sessionUI.isMirrorVideo,
                 disabled: !canMirrorVideo || isMirrorMenuBusy,
               },
               {
-                text: "Select video playback",
+                text: t("video.select_playback"),
                 click: openSelectVideoPlayback,
                 key: "footer-video-menu-select-video-playback",
                 checked: false,
@@ -248,14 +288,21 @@ export const VideoButton = ({
                   !isSupportVideoPlayback(isVideoOn) || audioVideoPlaybacks?.length === 0 || !isUserEnablePlayback,
               },
               {
-                text: "Blur your background",
-                click: openVirtualBackground,
+                text: t("video.virtual_background_blur"),
+                click: toggleBlurVirtualBackground,
                 key: "footer-video-menu-blur",
-                checked: false,
+                checked: sessionUI.activeVbImage === "blur",
                 disabled: !sessionUI.isSupportVB,
               },
               {
-                text: "Video statistics",
+                text: t("video.virtual_background_choose"),
+                click: openVirtualBackground,
+                key: "footer-video-menu-choose-background",
+                checked: sessionUI.activeVbImage !== "" && sessionUI.activeVbImage !== "blur",
+                disabled: !sessionUI.isSupportVB,
+              },
+              {
+                text: t("video.statistics"),
                 click: () => {
                   openVideoStatistics();
                   setIsVideoMenuOpen(false);

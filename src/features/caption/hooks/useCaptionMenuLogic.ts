@@ -24,10 +24,17 @@ const useCaptionMenuLogic = (setIsMenuOpen) => {
   const getTranslationLanguagesList = useCallback(
     (speakingLanguage) => {
       if (!captionClient) return [];
+      if (!speakingLanguage) return [];
       const { translationLanguage } = captionClient.getLiveTranscriptionStatus();
       if (!translationLanguage) return [];
-      const languageObj = translationLanguage.find((language) => language.speakingLanguage === speakingLanguage);
-      return languageObj ? languageObj.translatedToLanguage.split(";").filter(Boolean) : [];
+      const allLangArrs = translationLanguage?.map((item) =>
+        (item.translatedToLanguage || "").split(";").filter((lang) => !!lang),
+      );
+      const langSet = new Set<string>();
+      allLangArrs?.forEach((arr) => {
+        arr.forEach((lang) => langSet.add(lang));
+      });
+      return Array.from(langSet);
     },
     [captionClient],
   );

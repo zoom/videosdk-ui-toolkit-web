@@ -45,15 +45,15 @@ const RawDataSettings: React.FC = () => {
     if (!isSupportShareProcessor) {
       return (
         <div className="p-4 text-center text-theme-text-secondary">
-          Share processors are not supported in this environment.
+          {t("settings.raw_data_share_processors_not_supported")}
         </div>
       );
     }
     return (
       <div className="space-y-4">
         <div>
-          <h4 className="font-medium text-theme-text">Share Processors</h4>
-          <p className="text-sm text-theme-text-secondary">Apply visual effects to your shared screen</p>
+          <h4 className="font-medium text-theme-text">{t("settings.raw_data_share_processors")}</h4>
+          <p className="text-sm text-theme-text-secondary">{t("settings.raw_data_share_processors_description")}</p>
         </div>
 
         <div className="p-4 bg-gray-50 border border-gray-200 rounded-md dark:bg-gray-900/20 dark:border-gray-700/30">
@@ -61,21 +61,21 @@ const RawDataSettings: React.FC = () => {
         </div>
       </div>
     );
-  }, [isSendingScreenShare, isSupportShareProcessor]);
+  }, [isSendingScreenShare, isSupportShareProcessor, t]);
 
   const renderAudioProcessors = useCallback(() => {
     if (!isSupportAudioProcessor) {
       return (
         <div className="p-4 text-center text-theme-text-secondary">
-          Audio processors are not supported in this environment.
+          {t("settings.raw_data_audio_processors_not_supported")}
         </div>
       );
     }
     return (
       <div className="space-y-4">
         <div>
-          <h4 className="font-medium text-theme-text">Audio Processors</h4>
-          <p className="text-sm text-theme-text-secondary">Apply audio effects and filters to your microphone input</p>
+          <h4 className="font-medium text-theme-text">{t("settings.raw_data_audio_processors")}</h4>
+          <p className="text-sm text-theme-text-secondary">{t("settings.raw_data_audio_processors_description")}</p>
         </div>
 
         <div className="p-4 bg-gray-50 border border-gray-200 rounded-md dark:bg-gray-900/20 dark:border-gray-700/30">
@@ -83,21 +83,21 @@ const RawDataSettings: React.FC = () => {
         </div>
       </div>
     );
-  }, [isStartedAudio, isMuted, isSupportAudioProcessor]);
+  }, [isSupportAudioProcessor, t, isStartedAudio, isMuted]);
 
   const renderVideoProcessors = useCallback(() => {
     if (!isSupportVideoProcessor) {
       return (
         <div className="p-4 text-center text-theme-text-secondary">
-          Video processors are not supported in this environment.
+          {t("settings.raw_data_video_processors_not_supported")}
         </div>
       );
     }
     return (
       <div className="space-y-4">
         <div>
-          <h4 className="font-medium text-theme-text">Video Processors</h4>
-          <p className="text-sm text-theme-text-secondary">Apply visual effects to your camera feed</p>
+          <h4 className="font-medium text-theme-text">{t("settings.raw_data_video_processors")}</h4>
+          <p className="text-sm text-theme-text-secondary">{t("settings.raw_data_video_processors_description")}</p>
         </div>
 
         <div className="p-4 bg-gray-50 border border-gray-200 rounded-md dark:bg-gray-900/20 dark:border-gray-700/30">
@@ -105,7 +105,7 @@ const RawDataSettings: React.FC = () => {
         </div>
       </div>
     );
-  }, [isStartedVideo, isSupportVideoProcessor]);
+  }, [isStartedVideo, isSupportVideoProcessor, t]);
 
   const content = useMemo(() => {
     switch (currentTabId) {
@@ -123,9 +123,7 @@ const RawDataSettings: React.FC = () => {
   if (tabs.length === 0) {
     return (
       <div className="flex flex-col h-full items-center justify-center p-4">
-        <p className="text-theme-text-secondary text-center">
-          No processor capabilities are supported in this environment.
-        </p>
+        <p className="text-theme-text-secondary text-center">{t("settings.raw_data_no_processor_capabilities")}</p>
       </div>
     );
   }

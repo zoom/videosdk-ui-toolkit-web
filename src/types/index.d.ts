@@ -13,6 +13,9 @@ import {
   ConnectionChangePayload as SDKConnectionChangePayload,
   ChatMessage,
   WhiteboardClient as SDKWhiteboardClient,
+  RealTimeMediaStreamsClient as SDKRealTimeMediaStreamsClient,
+  BroadcastStreamingClient as SDKBroadcastStreamingClient,
+  event_chat_file_download_progress,
 } from "@zoom/videosdk";
 
 // BEGIN VideoClientEvent union (auto-generated)
@@ -124,6 +127,8 @@ export type CaptionClient = typeof SDKCaptionClient;
 export type SessionChatMessage = typeof ChatMessage;
 export type ConnectionChangePayload = SDKConnectionChangePayload;
 export type WhiteboardClient = typeof SDKWhiteboardClient;
+export type RealTimeMediaStreamsClient = typeof SDKRealTimeMediaStreamsClient;
+export type BroadcastStreamingClient = typeof SDKBroadcastStreamingClient;
 
 export type RoomParticipant = Pick<Participant, "userId" | "displayName" | "avatar" | "userGuid">[];
 
@@ -166,6 +171,32 @@ export type UIkitFeature =
   | "recording"
   | "livestream"
   | "crc";
+
+/**
+ * Configuration options for the broadcast viewer component.
+ * These map to the broadcast streaming SDK join parameters.
+ */
+export type BroadcastViewerOptions = {
+  /** Broadcast channel ID for the stream. */
+  channelId: string;
+  /**
+   * Signature for the broadcast viewer.
+   */
+  signature: string;
+  /**
+   * UI language for the broadcast viewer. If not provided,
+   * the viewer falls back to the default language ("en-US").
+   */
+  language?: string;
+  /**
+   * Web endpoint for the broadcast viewer.
+   */
+  webEndpoint?: string;
+  /**
+   * Dependent assets for the broadcast viewer.
+   */
+  dependentAssets?: string;
+};
 
 /**
  * List of audio/video playbacks to be used in the playback feature.
@@ -280,6 +311,13 @@ export type CustomizationOptions = {
        * @see https://marketplacefront.zoom.us/sdk/custom/web/interfaces/ZoomVideo.InitOptions.html#enforceMultipleVideos disableRenderLimits
        */
       disableRenderLimits?: boolean;
+      /**
+       * Enables Pan-Tilt-Zoom (PTZ) camera support when capturing video.
+       * Only works with PTZ-capable cameras. Non-PTZ cameras will ignore this setting.
+       * @default false
+       * @see https://developers.zoom.us/docs/video-sdk/web/video-camera-controls/
+       */
+      ptz?: boolean;
     };
     audio?: {
       enable: boolean;
@@ -330,6 +368,7 @@ export type CustomizationOptions = {
     invite?: {
       enable: boolean;
       inviteLink?: string;
+      broadcastLink?: string;
     };
     theme?: {
       enable: boolean;
@@ -436,6 +475,9 @@ export type CustomizationOptions = {
         options: any;
       };
     };
+    realTimeMediaStreams?: {
+      enable: boolean;
+    };
     cameraShare?: {
       enable: boolean;
     };
@@ -519,7 +561,11 @@ export interface ChatFileDownloadProgress {
   senderId: number;
   status: number;
   cancelCallback?: () => void;
+  previewUrl?: string;
 }
+
+// SDK event payload for `chat-file-download-progress` (includes `fileBlob?: Blob` when `downloadFile(..., true)` is used).
+export type ChatFileDownloadProgressEvent = Parameters<typeof event_chat_file_download_progress>[0];
 
 export interface ChatFileUploadProgress {
   fileName: string;
@@ -528,6 +574,7 @@ export interface ChatFileUploadProgress {
   receiverGuid: string;
   receiverId: number;
   status: number;
+  clientUploadId?: string;
 }
 
 export interface networkQualityMapType {

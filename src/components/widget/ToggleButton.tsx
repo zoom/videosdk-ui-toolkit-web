@@ -46,7 +46,6 @@ const ToggleButton = forwardRef<HTMLDivElement, ToggleButtonProps>((props, ref) 
     hoverColor,
     id = "",
     orientation = "horizontal",
-    themeName,
   } = props;
 
   // const bgGroupColor = themeName === "dark" ? "bg-gray-800" : "bg-gray-200";

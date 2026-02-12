@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import ConfirmDialog from "../widget/dialog/ConfirmDialog";
 import { ErrorContainerProps } from "./error-types";
 import { ErrorKeyMap, getKeyByValue } from "./lang-util";
 
 const ErrorContainer = (props: ErrorContainerProps) => {
+  const { t } = useTranslation();
   const {
     onRetry,
     errorStatus: { errorCode, reason, result },
@@ -15,15 +17,15 @@ const ErrorContainer = (props: ErrorContainerProps) => {
   const FREE_SESSION_ENDED = "free session ended";
   const getTitle = () => {
     if (isKicked) {
-      return "You are removed";
+      return t("error.you_are_removed_title");
     } else if (reason === "ended by host") {
-      return "Session ended";
+      return t("error.session_ended_title");
     } else if (reason === FREE_SESSION_ENDED) {
-      return "Free session ended";
+      return t("error.free_session_ended_title");
     } else if (reason === "rejoin_timeout") {
-      return "Network error";
+      return t("error.network_error_title");
     } else {
-      return "Join Session Failed";
+      return t("error.join_session_failed_title");
     }
   };
 
@@ -33,13 +35,13 @@ const ErrorContainer = (props: ErrorContainerProps) => {
       return ErrorKeyMap[errorKey];
     }
     if (isKicked) {
-      return "You have been removed from the session by the host.";
+      return t("error.removed_by_host_message");
     } else if (reason === FREE_SESSION_ENDED) {
-      return "Your free session has ended.";
+      return t("error.free_session_ended_message");
     } else if (reason === "rejoin_timeout") {
-      return "Unable to reconnect to the session due to network issues.";
+      return t("error.network_reconnect_message");
     }
-    return reason || `An error occurred (Error Code: ${errorCode})`;
+    return reason || t("error.occurred_with_code", { errorCode });
   };
   const onOkClick = () => {
     setOpen(false);
@@ -58,8 +60,8 @@ const ErrorContainer = (props: ErrorContainerProps) => {
     ].includes(reason);
 
   const getOkText = () => {
-    if (showRetry) return "Retry";
-    return "OK";
+    if (showRetry) return t("common.retry");
+    return t("common.ok");
   };
 
   if (!open) {
@@ -73,7 +75,7 @@ const ErrorContainer = (props: ErrorContainerProps) => {
       onConfirm={showRetry ? onRetry : onOkClick}
       confirmText={getOkText()}
       onCancel={showSingleOkButton ? undefined : () => setOpen(false)}
-      cancelText={showSingleOkButton ? undefined : "Cancel"}
+      cancelText={showSingleOkButton ? undefined : t("common.cancel")}
     />
   );
 };

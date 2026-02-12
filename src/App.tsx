@@ -6,7 +6,14 @@ import LoadingScreen from "@/components/LoadingScreen";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SessionApp } from "@/features/session-app";
 import { ConnectionChangePayload, CustomizationOptions, SessionClient, SessionStatus } from "./types/index.d";
-import { SessionState, setAvatarUrl, setIsAudioBridge, setSessionInfo, setSessionStatus } from "@/store/sessionSlice";
+import {
+  SessionState,
+  setAvatarUrl,
+  setIsAudioBridge,
+  setIsJoinResolved,
+  setSessionInfo,
+  setSessionStatus,
+} from "@/store/sessionSlice";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useMount } from "@/hooks";
 import {
@@ -17,6 +24,7 @@ import {
   setMaximumVideosInGalleryView,
   setPreviewAVStatus,
   setThemeName,
+  setLanguage,
   setVbImageList,
 } from "@/store/uiSlice";
 
@@ -87,6 +95,8 @@ export const SessionApplication = ({
   const timerRef = useRef(0);
   // Used to delay setting isJoined to false, allowing notifications to show properly
   const onConnectionCloseTimeout = 5000;
+  // Track previous language to only emit event when it actually changes
+  const previousLanguageRef = useRef<string | null>(null);
   // find and disable feature
   useMount(() => {
     Object.keys(config.featuresOptions).forEach((feature) => {
@@ -146,8 +156,30 @@ export const SessionApplication = ({
   }, [status, client, forceUpdate, featuresOptions?.feedback?.enable]);
 
   useEffect(() => {
-    i18n.changeLanguage("en-US");
-  }, [config.language, i18n]);
+    let language: string;
+    if (config.language && i18n.hasResourceBundle(config.language, "translation")) {
+      // eslint-disable-next-line prefer-destructuring
+      language = config.language;
+    } else {
+      language = "en-US";
+    }
+    dispatch(setLanguage(language));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [config.language, dispatch]);
+
+  useEffect(() => {
+    const languageToUse = sessionUI.language;
+    if (languageToUse) {
+      i18n.changeLanguage(languageToUse);
+      // Only emit event when language actually changes (not on initial mount or duplicate calls)
+      if (previousLanguageRef.current !== null && previousLanguageRef.current !== languageToUse) {
+        emit(ExposedEvents.EVENT_LANGUAGE_CHANGE, languageToUse);
+      }
+      // Update previous language reference
+      previousLanguageRef.current = languageToUse;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionUI.language]);
 
   useEffect(() => {
     if (status === SessionStatus.Connected) {
@@ -283,13 +315,14 @@ export const SessionApplication = ({
     selectedSpeaker: string;
   }) => {
     setIsPreview(false);
-    setIsLoading(true);
     config.userName = displayName;
 
     if (hadJoined) {
       return;
     }
 
+    setIsLoading(true);
+    dispatch(setIsJoinResolved(false));
     hadJoined = true;
     await client?.join(
       config.sessionName,
@@ -298,6 +331,7 @@ export const SessionApplication = ({
       config?.sessionPasscode,
       config?.sessionIdleTimeoutMins,
     );
+    dispatch(setIsJoinResolved(true));
 
     if (avatarUrl) dispatch(setAvatarUrl(avatarUrl));
   };
