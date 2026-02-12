@@ -17,6 +17,7 @@ export const defaultConfig: CustomizationOptions = {
     video: {
       enable: true,
       enforceMultipleVideos: false, // only for WASM test
+      ptz: false, // Enable PTZ camera support (only works with PTZ-capable cameras)
     },
     audio: {
       enable: true,
@@ -45,6 +46,7 @@ export const defaultConfig: CustomizationOptions = {
     invite: {
       enable: true,
       inviteLink: "",
+      broadcastLink: "",
     },
     theme: {
       enable: true,
@@ -79,7 +81,7 @@ export const defaultConfig: CustomizationOptions = {
     // };
     // remoteControl?: {
     //   enable: boolean;
-    // };
+    // },
     // annotation?: {
     //   enable: boolean;
     // };
@@ -124,6 +126,9 @@ export const defaultConfig: CustomizationOptions = {
     },
     rawData: {
       enable: false, // Processors are opt-in - see demo app for usage examples
+    },
+    realTimeMediaStreams: {
+      enable: true,
     },
   },
   dependentAssets: "Global",

@@ -1,6 +1,20 @@
 import React, { useCallback, useContext, useEffect, useMemo, useRef } from "react";
 import { Tooltip } from "react-tooltip";
-import { Pencil, Eraser, Circle, Square, Pen, Pipette, FileX, Undo, Redo, MousePointer2, Timer } from "lucide-react";
+import {
+  Pencil,
+  Eraser,
+  Circle,
+  Square,
+  Pen,
+  Pipette,
+  FileX,
+  Undo,
+  Redo,
+  MousePointer2,
+  Timer,
+  Plus,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { StreamContext } from "@/context/stream-context";
 import { AnnotationToolType, AnnotationClearType } from "@zoom/videosdk";
 
@@ -27,6 +41,7 @@ interface AnnotationToolbarProps {
 }
 
 const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
+  const { t } = useTranslation();
   const { stream } = useContext(StreamContext);
   const dispatch = useAppDispatch();
 
@@ -76,23 +91,71 @@ const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
   const toolbarOptions = useMemo(
     () =>
       [
-        { id: "mouse", anchorId: "uikit-annotation-mouse", icon: MousePointer2, label: "Mouse", color: "bg-gray-700" },
-        { id: "eraser", anchorId: "uikit-annotation-eraser", icon: Eraser, label: "Erase", color: "bg-gray-700" },
-        { id: "undo", anchorId: "uikit-annotation-undo", icon: Undo, label: "Undo", color: "bg-gray-500" },
-        { id: "redo", anchorId: "uikit-annotation-redo", icon: Redo, label: "Redo", color: "bg-gray-500" },
-        { id: "pencil", anchorId: "uikit-annotation-pencil", icon: Pencil, label: "Pen", color: "bg-green-500" },
-        { id: "color", anchorId: "uikit-annotation-color", icon: Pipette, label: "Color", color: "bg-gray-100" },
+        {
+          id: "mouse",
+          anchorId: "uikit-annotation-mouse",
+          icon: MousePointer2,
+          label: t("share.annotation_mouse"),
+          color: "bg-gray-700",
+        },
+        {
+          id: "eraser",
+          anchorId: "uikit-annotation-eraser",
+          icon: Eraser,
+          label: t("share.annotation_eraser"),
+          color: "bg-gray-700",
+        },
+        {
+          id: "undo",
+          anchorId: "uikit-annotation-undo",
+          icon: Undo,
+          label: t("share.annotation_undo"),
+          color: "bg-gray-500",
+        },
+        {
+          id: "redo",
+          anchorId: "uikit-annotation-redo",
+          icon: Redo,
+          label: t("share.annotation_redo"),
+          color: "bg-gray-500",
+        },
+        {
+          id: "pencil",
+          anchorId: "uikit-annotation-pencil",
+          icon: Pencil,
+          label: t("share.annotation_pen"),
+          color: "bg-green-500",
+        },
+        {
+          id: "color",
+          anchorId: "uikit-annotation-color",
+          icon: Pipette,
+          label: t("share.annotation_color"),
+          color: "bg-gray-100",
+        },
         isSendingScreenShare && {
           id: "timer",
           anchorId: "uikit-annotation-timer",
           icon: Timer,
-          label: "Vanishing tool timer",
+          label: t("share.annotation_timer"),
           color: "bg-gray-600",
         },
-        { id: "shape", anchorId: "uikit-annotation-shape", icon: Square, label: "Shapes", color: "bg-blue-500" },
-        { id: "clear", anchorId: "uikit-annotation-clear", icon: FileX, label: "Clear", color: "bg-white" },
+        {
+          id: "shape",
+          anchorId: "uikit-annotation-shape",
+          icon: Square,
+          label: t("share.annotation_shapes"),
+          color: "bg-blue-500",
+        },
+        {
+          id: "clear",
+          anchorId: "uikit-annotation-clear",
+          icon: FileX,
+          label: t("share.annotation_clear"),
+          color: "bg-white",
+        },
       ].filter(Boolean),
-    [isSendingScreenShare],
+    [isSendingScreenShare, t],
   );
 
   const { shapeButtonIndex, colorButtonIndex, clearButtonIndex, timerButtonIndex } = useMemo(
@@ -109,54 +172,102 @@ const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
     if (!isAnnotationSupported) return [];
 
     return [
-      { id: "line", label: "Line", toolType: AnnotationToolType.Line },
-      { id: "arrow", label: "Arrow", toolType: AnnotationToolType.Arrow1 },
-      isSendingScreenShare && { id: "spotlight", label: "Spotlight", toolType: AnnotationToolType.Spotlight },
-      { id: "arrow_name", label: "Name Arrow", toolType: AnnotationToolType.Arrow },
-      { id: "rectangle", label: "Rectangle", toolType: AnnotationToolType.Rectangle },
-      { id: "rectangle_semi_fill", label: "Rectangle (Semi Fill)", toolType: AnnotationToolType.RectangleSemiFill },
-      { id: "ellipse", label: "Ellipse", toolType: AnnotationToolType.Ellipse },
-      { id: "ellipse_semi_fill", label: "Ellipse (Semi Fill)", toolType: AnnotationToolType.EllipseSemiFill },
-      { id: "double_arrow", label: "Double Arrow", toolType: AnnotationToolType.DoubleArrow },
-      { id: "rectangle_fill", label: "Rectangle (Fill)", toolType: AnnotationToolType.RectangleFill },
-      { id: "ellipse_fill", label: "Ellipse (Fill)", toolType: AnnotationToolType.EllipseFill },
-      { id: "diamond", label: "Diamond", toolType: AnnotationToolType.Diamond },
-      { id: "diamond_semi_fill", label: "Diamond (Semi Fill)", toolType: AnnotationToolType.DiamondSemiFill },
-      { id: "diamond_fill", label: "Diamond (Fill)", toolType: AnnotationToolType.DiamondFill },
-      { id: "stamp_arrow", label: "Stamp Arrow", toolType: AnnotationToolType.StampArrow },
-      { id: "stamp_check", label: "Stamp Check", toolType: AnnotationToolType.StampCheck },
-      { id: "stamp_x", label: "Stamp X", toolType: AnnotationToolType.StampX },
-      { id: "stamp_star", label: "Stamp Star", toolType: AnnotationToolType.StampStar },
-      { id: "stamp_heart", label: "Stamp Heart", toolType: AnnotationToolType.StampHeart },
-      { id: "stamp_question", label: "Stamp Question", toolType: AnnotationToolType.StampQuestionMark },
-      { id: "vanishing_pen", label: "Vanishing pen", toolType: AnnotationToolType.VanishingPen },
-      { id: "vanishing_rectangle", label: "Vanishing rectangle", toolType: AnnotationToolType.VanishingRectangle },
-      { id: "vanishing_ellipse", label: "Vanishing ellipse", toolType: AnnotationToolType.VanishingEllipse },
-      { id: "vanishing_diamond", label: "Vanishing diamond", toolType: AnnotationToolType.VanishingDiamond },
-      { id: "vanishing_arrow", label: "Vanishing arrow", toolType: AnnotationToolType.VanishingArrow },
+      { id: "line", label: t("share.annotation_shape_line"), toolType: AnnotationToolType.Line },
+      { id: "arrow", label: t("share.annotation_shape_arrow"), toolType: AnnotationToolType.Arrow1 },
+      isSendingScreenShare && {
+        id: "spotlight",
+        label: t("share.annotation_shape_spotlight"),
+        toolType: AnnotationToolType.Spotlight,
+      },
+      { id: "arrow_name", label: t("share.annotation_shape_arrow_name"), toolType: AnnotationToolType.Arrow },
+      { id: "rectangle", label: t("share.annotation_shape_rectangle"), toolType: AnnotationToolType.Rectangle },
+      {
+        id: "rectangle_semi_fill",
+        label: t("share.annotation_shape_rectangle_semi_fill"),
+        toolType: AnnotationToolType.RectangleSemiFill,
+      },
+      { id: "ellipse", label: t("share.annotation_shape_ellipse"), toolType: AnnotationToolType.Ellipse },
+      {
+        id: "ellipse_semi_fill",
+        label: t("share.annotation_shape_ellipse_semi_fill"),
+        toolType: AnnotationToolType.EllipseSemiFill,
+      },
+      { id: "double_arrow", label: t("share.annotation_shape_double_arrow"), toolType: AnnotationToolType.DoubleArrow },
+      {
+        id: "rectangle_fill",
+        label: t("share.annotation_shape_rectangle_fill"),
+        toolType: AnnotationToolType.RectangleFill,
+      },
+      { id: "ellipse_fill", label: t("share.annotation_shape_ellipse_fill"), toolType: AnnotationToolType.EllipseFill },
+      { id: "diamond", label: t("share.annotation_shape_diamond"), toolType: AnnotationToolType.Diamond },
+      {
+        id: "diamond_semi_fill",
+        label: t("share.annotation_shape_diamond_semi_fill"),
+        toolType: AnnotationToolType.DiamondSemiFill,
+      },
+      { id: "diamond_fill", label: t("share.annotation_shape_diamond_fill"), toolType: AnnotationToolType.DiamondFill },
+      { id: "stamp_arrow", label: t("share.annotation_shape_stamp_arrow"), toolType: AnnotationToolType.StampArrow },
+      { id: "stamp_check", label: t("share.annotation_shape_stamp_check"), toolType: AnnotationToolType.StampCheck },
+      { id: "stamp_x", label: t("share.annotation_shape_stamp_x"), toolType: AnnotationToolType.StampX },
+      { id: "stamp_star", label: t("share.annotation_shape_stamp_star"), toolType: AnnotationToolType.StampStar },
+      { id: "stamp_heart", label: t("share.annotation_shape_stamp_heart"), toolType: AnnotationToolType.StampHeart },
+      {
+        id: "stamp_question",
+        label: t("share.annotation_shape_stamp_question"),
+        toolType: AnnotationToolType.StampQuestionMark,
+      },
+      {
+        id: "vanishing_pen",
+        label: t("share.annotation_shape_vanishing_pen"),
+        toolType: AnnotationToolType.VanishingPen,
+      },
+      {
+        id: "vanishing_rectangle",
+        label: t("share.annotation_shape_vanishing_rectangle"),
+        toolType: AnnotationToolType.VanishingRectangle,
+      },
+      {
+        id: "vanishing_ellipse",
+        label: t("share.annotation_shape_vanishing_ellipse"),
+        toolType: AnnotationToolType.VanishingEllipse,
+      },
+      {
+        id: "vanishing_diamond",
+        label: t("share.annotation_shape_vanishing_diamond"),
+        toolType: AnnotationToolType.VanishingDiamond,
+      },
+      {
+        id: "vanishing_arrow",
+        label: t("share.annotation_shape_vanishing_arrow"),
+        toolType: AnnotationToolType.VanishingArrow,
+      },
       {
         id: "vanishing_double_arrow",
-        label: "Vanishing double arrow",
+        label: t("share.annotation_shape_vanishing_double_arrow"),
         toolType: AnnotationToolType.VanishingDoubleArrow,
       },
     ].filter(Boolean);
-  }, [isSendingScreenShare, isAnnotationSupported]);
+  }, [isSendingScreenShare, isAnnotationSupported, t]);
 
   const clearOptions = useMemo(() => {
     if (!isAnnotationSupported) return [];
 
-    const options = [{ id: "clear_mine", value: AnnotationClearType.Mine, label: "Clear mine" }];
+    const options = [{ id: "clear_mine", value: AnnotationClearType.Mine, label: t("share.annotation_clear_mine") }];
 
     if (userId === activeShareId) {
-      options.push({ id: "clear_viewer", value: AnnotationClearType.Viewer, label: "Clear viewer" });
+      options.push({
+        id: "clear_viewer",
+        value: AnnotationClearType.Viewer,
+        label: t("share.annotation_clear_viewer"),
+      });
     }
 
     if (isHost || userId === activeShareId) {
-      options.push({ id: "clear_all", value: AnnotationClearType.All, label: "Clear all" });
+      options.push({ id: "clear_all", value: AnnotationClearType.All, label: t("share.annotation_clear_all") });
     }
 
     return options;
-  }, [isHost, userId, activeShareId, isAnnotationSupported]);
+  }, [isHost, userId, activeShareId, isAnnotationSupported, t]);
 
   const colorOptions = useMemo(
     () => [
@@ -430,24 +541,19 @@ const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
           style={{
             width: isToolBarExpanded ? "24px" : "28px",
             height: isToolBarExpanded ? "24px" : "28px",
-            paddingBottom: isToolBarExpanded ? "4px" : "0px",
           }}
           disabled={isScreenSharePaused || !isAnnotationSupported}
         >
-          {isToolBarExpanded ? (
-            <span className="text-white text-2xl font-bold">+</span>
-          ) : (
-            <Pen className="w-3 h-3 text-white" />
-          )}
+          {isToolBarExpanded ? <Plus className="w-4 h-4 text-white" /> : <Pen className="w-3 h-3 text-white" />}
         </button>
         <Tooltip
           anchorSelect="#uikit-annotation-toolbar-button"
           content={
             !isAnnotationSupported
-              ? "Annotation not supported in this VideoSDK version"
+              ? t("share.annotation_not_supported")
               : isToolBarExpanded
-                ? "Close"
-                : "Annotate"
+                ? t("share.annotation_close")
+                : t("share.annotation_annotate")
           }
           place="right"
           style={{ fontSize: "10px", padding: "0 5px" }}
@@ -613,7 +719,7 @@ const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
                   }}
                 >
                   <div className="flex flex-col justify-center items-center w-[130px] h-[175px] text-sm text-gray-700 dark:text-gray-200">
-                    <span className="text-xs font-semibold text-theme-text">Vanishing Tool Timer</span>
+                    <span className="text-xs font-semibold text-theme-text">{t("share.annotation_timer_title")}</span>
                     <CircularSlider
                       width={120}
                       height={120}
@@ -626,9 +732,11 @@ const AnnotationToolbar = ({ position }: AnnotationToolbarProps) => {
                       }}
                       threshold={(displayTime + vanishingTime) / 1000 - 1}
                       showThreshold={true}
-                      valueText={"Display time(s)"}
+                      valueText={t("share.annotation_timer_display_time")}
                     />
-                    <span className="text-xs font-semibold text-theme-text mt-1">{"Total duration(s)"}</span>
+                    <span className="text-xs font-semibold text-theme-text mt-1">
+                      {t("share.annotation_timer_total_duration")}
+                    </span>
                     <div className="flex items-center space-x-1 bg-theme-surface">
                       <input
                         type="number"

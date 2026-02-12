@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { DialoutState } from "@zoom/videosdk";
 
 interface CallButtonProps {
@@ -14,8 +15,10 @@ export const CallButton: React.FC<CallButtonProps> = ({
   isCallButtonDisabled,
   onCall,
   onCancel,
-  callText = "Call",
+  callText,
 }) => {
+  const { t } = useTranslation();
+  const displayCallText = callText || t("phone.call");
   return (
     <div className="flex gap-2">
       {!isCalling ? (
@@ -26,36 +29,36 @@ export const CallButton: React.FC<CallButtonProps> = ({
           disabled={isCallButtonDisabled}
           onClick={onCall}
         >
-          {callText}
+          {displayCallText}
         </button>
       ) : (
         <button
           className="w-full bg-red-500 text-theme-text-button py-2 px-4 rounded-md hover:bg-red-600 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
           onClick={onCancel}
         >
-          Cancel Call
+          {t("phone.cancel_call")}
         </button>
       )}
     </div>
   );
 };
 
-export const getDialoutStateText = (state: DialoutState | null | any): string => {
+export const getDialoutStateText = (state: DialoutState | null | any, t: (key: string) => string): string => {
   switch (state) {
     case DialoutState.Calling:
-      return "Calling...";
+      return t("phone.calling");
     case DialoutState.Ringing:
-      return "Ringing...";
+      return t("phone.ringing");
     case DialoutState.Accepted:
-      return "Call accepted";
+      return t("phone.call_accepted");
     case DialoutState.Fail:
-      return "Call failed";
+      return t("phone.call_failed");
     case DialoutState.Canceled:
-      return "Call cancelled";
+      return t("phone.call_cancelled");
     case DialoutState.Busy:
-      return "Line is busy";
+      return t("phone.line_busy");
     case DialoutState.Timeout:
-      return "Call timed out";
+      return t("phone.call_timed_out");
     default:
       return state as string;
   }

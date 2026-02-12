@@ -1,5 +1,6 @@
 import React, { useCallback, useContext, useEffect, useState, useRef } from "react";
 import ReactDOM from "react-dom";
+import { useTranslation } from "react-i18next";
 import {
   ArrowLeft,
   Info,
@@ -14,7 +15,11 @@ import {
   FileVideo2,
   Captions,
   Settings,
+  Tv,
+  TvMinimal,
+  Loader,
 } from "lucide-react";
+import { useSnackbar } from "notistack";
 import SelfPreview from "../../../features/video/components/SelfPreview";
 
 import { ParticipantState } from "@/features/participant/participantSlice";
@@ -27,9 +32,10 @@ import {
   useSessionSelector,
   useSessionUISelector,
   useSubsessionSelector,
+  useRtmsSelector,
 } from "@/hooks/useAppSelector";
 import { Participant, SuspensionViewType, RecordingStatus } from "@/types/index.d";
-import { SessionState } from "@/store/sessionSlice";
+import { SessionState, setBroadcastStreamingStatus } from "@/store/sessionSlice";
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
 import {
@@ -48,7 +54,9 @@ import {
   setIsShowStartCaptionsWindow,
   setIsShowAVLearnDialog,
   setIsShowLiveStreamPanel,
+  setIsBroadcastStartPending,
 } from "@/store/uiSlice";
+import { setRtmsLoading } from "@/features/real-time-media-streams/rtmsSlice";
 import { FooterMobile } from "@/components/footer/FooterMobile";
 import { ChatPanel } from "../../../features/chat/ChatPanel";
 import { SettingsPanel } from "@/features/setting/SettingsPanel";
@@ -68,7 +76,13 @@ import RecordingNotification from "@/components/notification/RecordingNotificati
 import { useRecording } from "@/features/recording/hooks/useRecording";
 import ParticipantRenameModal from "@/features/participant/components/ParticipantRenameModal";
 import ParticipantAdjustVolumeModal from "@/features/participant/components/ParticipantAdjustVolumeModal";
-import { LiveStreamStatus, SubsessionStatus, SubsessionUserStatus } from "@zoom/videosdk";
+import {
+  BroadcastStreamingStatus,
+  RealTimeMediaStreamsStatus,
+  LiveStreamStatus,
+  SubsessionStatus,
+  SubsessionUserStatus,
+} from "@zoom/videosdk";
 import MobileMeetingToolbar from "./MobileMeetingToolbar";
 import sessionAdditionalContext from "@/context/session-additional-context";
 import SubsessionConfirmDialogs from "@/features/subsession/components/SubsessionConfirmDialogs";
@@ -82,6 +96,7 @@ import AVLearnMoreDialog from "@/components/warning/AVLearnMoreDialog";
 import { useDevice } from "@/features/setting/hooks/useDevice";
 import JoinAudioConsentPanelWithPEPC from "@/components/notification/JoinAudioConsentPanelWithPEPC";
 import UnmuteConsentPanel from "@/components/notification/UnmuteConsentPanel";
+import CameraControlConsentPanel from "@/components/notification/CameraControlConsentPanel";
 import { THEME_COLOR_CLASS } from "@/constant";
 import RecordingNotificationIcon from "@/components/svg-icon/recordingNotificationIcon";
 import { emit } from "@/events/event-bus";
@@ -130,6 +145,7 @@ const ActionItem = ({
   className = "",
   id,
   textColor = "text-theme-text",
+  disabled = false,
 }: {
   icon: React.ElementType;
   label: string;
@@ -138,8 +154,9 @@ const ActionItem = ({
   className?: string;
   id: string;
   textColor?: string;
+  disabled?: boolean;
 }) => (
-  <button id={id} className={`flex items-center w-full py-3 ${className}`} onClick={onClick}>
+  <button id={id} className={`flex items-center w-full py-3 ${className}`} onClick={onClick} disabled={disabled}>
     <div className="w-8 h-8 mr-4 flex items-center justify-center">
       <Icon size={24} className={`text-theme-text`} color={color} />
     </div>
@@ -148,10 +165,12 @@ const ActionItem = ({
 );
 
 const MobileMeetingUI = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const client = useContext(ClientContext);
   const stream = useContext(StreamContext);
-  const { captionClient, liveStreamClient } = useContext(sessionAdditionalContext);
+  const { captionClient, liveStreamClient, realTimeMediaStreamsClient, broadcastStreamingClient } =
+    useContext(sessionAdditionalContext);
   const timerRef = useRef(0);
 
   const session: SessionState = useAppSelector(useSessionSelector);
@@ -168,12 +187,24 @@ const MobileMeetingUI = () => {
   const { cameraList, microphoneList, speakerList, changeCamera, changeMicrophone, changeSpeaker } = useDevice();
   const mainContentRef = useRef(null);
 
-  const { isActionSheetOpen, isControlsVisible, isShowCaption, isParticipantsPoppedOut, viewType } = sessionUI;
+  const {
+    isActionSheetOpen,
+    isControlsVisible,
+    isShowCaption,
+    isParticipantsPoppedOut,
+    viewType,
+    isBroadcastStartPending,
+    isShowStartCaptionsWindow,
+  } = sessionUI;
 
   const isMinimized = viewType === "minimized";
   const { participants }: ParticipantState = useAppSelector(useParticipantSelector);
-  const { isHost, isManager, liveStreamStatus } = useAppSelector(useSessionSelector);
+  const { isHost, isManager, liveStreamStatus, broadcastStreamingStatus, channelId } =
+    useAppSelector(useSessionSelector);
   const isHostOrManager = isHost || isManager;
+  const { status: rtmsStatus, isLoading: isRtmsLoading } = useAppSelector(useRtmsSelector);
+  const isRtmsActive =
+    rtmsStatus === RealTimeMediaStreamsStatus.Start || rtmsStatus === RealTimeMediaStreamsStatus.Pause;
   const { currentPage, totalPages, currentParticipants, goToNextPage, goToPreviousPage } = usePagination();
   const [offsetX, setOffsetX] = useState(0);
 
@@ -184,6 +215,7 @@ const MobileMeetingUI = () => {
   const [isAdjustVolumeModalOpen, setIsAdjustVolumeModalOpen] = useState<boolean>(false);
 
   useScreenshot();
+  const { enqueueSnackbar } = useSnackbar();
 
   const {
     config: {
@@ -213,7 +245,7 @@ const MobileMeetingUI = () => {
 
   const { isHostDisableCaptions, isTranscriptionFeatureEnabled } = useAppSelector(useCaptionSelector);
 
-  const { handleSendMessage, uploadFileCallback } = useChatMessage();
+  const { handleSendMessage, cancelUpload } = useChatMessage();
   const { startCameraShare, stopShare } = useToggleScreenShare();
 
   useEffect(() => {
@@ -392,6 +424,9 @@ const MobileMeetingUI = () => {
   const isRecordingSupported = session.featuresOptions?.recording?.enable;
   const isSupportLivestream = session.featuresOptions?.livestream?.enable;
   const isSupportMinimizedView = session?.featuresOptions?.viewMode?.viewModes?.includes(SuspensionViewType.Minimized);
+  const isBroadcastDisabled =
+    broadcastStreamingStatus === BroadcastStreamingStatus.Pending ||
+    broadcastStreamingStatus === BroadcastStreamingStatus.Closing;
   const handleCaptionClick = useCallback(async () => {
     if (isHost && isHostDisableCaptions) {
       dispatch(setIsShowHostCaptionSettings(true));
@@ -407,6 +442,125 @@ const MobileMeetingUI = () => {
     }
     dispatch(setIsShowCaption(!isShowCaption));
   }, [closeActionSheet, dispatch, isHost, isHostDisableCaptions, isShowCaption, isTranscriptionInitiated]);
+
+  const handleBroadcastStreamingToggle = useCallback(async () => {
+    if (!broadcastStreamingClient?.isBroadcastStreamingEnable?.()) return;
+    if (isBroadcastDisabled) return;
+
+    closeActionSheet();
+
+    const isLive = broadcastStreamingStatus === BroadcastStreamingStatus.InProgress;
+
+    if (!isLive && !isTranscriptionInitiated) {
+      dispatch(setIsBroadcastStartPending(true));
+      dispatch(setIsShowStartCaptionsWindow(true));
+      return;
+    }
+
+    try {
+      dispatch(
+        setBroadcastStreamingStatus(isLive ? BroadcastStreamingStatus.Closing : BroadcastStreamingStatus.Pending),
+      );
+
+      enqueueSnackbar(isLive ? t("broadcast_streaming_stopping") : t("broadcast_streaming_starting"), {
+        variant: "info",
+        autoHideDuration: 2000,
+      });
+
+      if (isLive) {
+        await broadcastStreamingClient.stopBroadcast(channelId || undefined);
+      } else {
+        await broadcastStreamingClient.startBroadcast();
+      }
+    } catch (error: any) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+
+      const errorCode: number | undefined = error?.errorCode;
+      const reason: string | undefined = error?.reason;
+
+      if (errorCode === 7901 || reason?.toLowerCase().includes("already in progress")) {
+        dispatch(setBroadcastStreamingStatus(BroadcastStreamingStatus.InProgress));
+      } else {
+        enqueueSnackbar(t("broadcast_streaming_action_failed"), {
+          variant: "error",
+          autoHideDuration: 4000,
+        });
+        dispatch(
+          setBroadcastStreamingStatus(isLive ? BroadcastStreamingStatus.InProgress : BroadcastStreamingStatus.Closed),
+        );
+      }
+    }
+  }, [
+    channelId,
+    broadcastStreamingClient,
+    broadcastStreamingStatus,
+    closeActionSheet,
+    dispatch,
+    enqueueSnackbar,
+    isBroadcastDisabled,
+    isTranscriptionInitiated,
+    t,
+  ]);
+
+  const prevIsShowStartCaptionsWindowRef = useRef(isShowStartCaptionsWindow);
+  useEffect(() => {
+    const wasOpen = prevIsShowStartCaptionsWindowRef.current;
+    if (wasOpen && !isShowStartCaptionsWindow && !isTranscriptionInitiated && isBroadcastStartPending) {
+      dispatch(setIsBroadcastStartPending(false));
+    }
+    prevIsShowStartCaptionsWindowRef.current = isShowStartCaptionsWindow;
+  }, [dispatch, isBroadcastStartPending, isShowStartCaptionsWindow, isTranscriptionInitiated]);
+
+  useEffect(() => {
+    if (
+      !broadcastStreamingClient?.isBroadcastStreamingEnable?.() ||
+      !isBroadcastStartPending ||
+      isShowStartCaptionsWindow ||
+      !isTranscriptionInitiated ||
+      isBroadcastDisabled
+    ) {
+      return;
+    }
+
+    const startBroadcast = async () => {
+      try {
+        dispatch(setBroadcastStreamingStatus(BroadcastStreamingStatus.Pending));
+        dispatch(setIsBroadcastStartPending(false));
+
+        enqueueSnackbar(t("broadcast_streaming_starting"), {
+          variant: "info",
+          autoHideDuration: 2000,
+        });
+
+        await broadcastStreamingClient.startBroadcast();
+      } catch (error: any) {
+        const errorCode: number | undefined = error?.errorCode;
+        const reason: string | undefined = error?.reason;
+
+        if (errorCode === 7901 || reason?.toLowerCase().includes("already in progress")) {
+          dispatch(setBroadcastStreamingStatus(BroadcastStreamingStatus.InProgress));
+        } else {
+          enqueueSnackbar(t("broadcast_streaming_action_failed"), {
+            variant: "error",
+            autoHideDuration: 4000,
+          });
+          dispatch(setBroadcastStreamingStatus(BroadcastStreamingStatus.Closed));
+        }
+      }
+    };
+
+    startBroadcast();
+  }, [
+    broadcastStreamingClient,
+    dispatch,
+    enqueueSnackbar,
+    isBroadcastDisabled,
+    isBroadcastStartPending,
+    isShowStartCaptionsWindow,
+    isTranscriptionInitiated,
+    t,
+  ]);
 
   const iconColor = sessionUI.themeName === "dark" ? "white" : "black";
 
@@ -434,6 +588,7 @@ const MobileMeetingUI = () => {
         {/* Toast chat new message container */}
         <NewMessageNotification />
         <UnmuteConsentPanel />
+        <CameraControlConsentPanel />
         <JoinAudioConsentPanelWithPEPC />
         <RecordingNotification />
 
@@ -462,10 +617,27 @@ const MobileMeetingUI = () => {
           </div>
 
           <div className="flex items-center justify-center gap-1">
+            {isHost && broadcastStreamingStatus === BroadcastStreamingStatus.InProgress && (
+              <span
+                title={t("broadcast_streaming_live_indicator")}
+                aria-label={t("broadcast_streaming_live_indicator")}
+              >
+                <Radio className="text-emerald-500 animate-pulse" size={18} />
+              </span>
+            )}
             <h1 className="text-lg font-semibold truncate max-w-[180px]" title={session?.sessionInfo?.topic}>
               {session?.sessionInfo?.topic}
             </h1>
             {liveStreamStatus === LiveStreamStatus.InProgress && <Radio className="text-red-500 animate-pulse mx-2" />}
+            {isRtmsActive && (
+              <span title={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? "RTMS is paused" : "RTMS is active"}>
+                {rtmsStatus === RealTimeMediaStreamsStatus.Pause ? (
+                  <TvMinimal className="text-red-500 mx-1" size={14} />
+                ) : (
+                  <Tv className="text-red-500 animate-pulse mx-1" size={14} />
+                )}
+              </span>
+            )}
             {isInSubsession && (
               <div className="flex items-center space-x-1 max-w-[100px]" title={currentSubRoom.subsessionName}>
                 (<span className="truncate">{currentSubRoom.subsessionName}</span>)
@@ -537,7 +709,7 @@ const MobileMeetingUI = () => {
           handleImageClick={() => {}}
           handleSendMessage={handleSendMessage}
           height={mainContentHeight}
-          uploadFileCallback={uploadFileCallback}
+          cancelUpload={cancelUpload}
         />
         <LinkOpenConfirmDialog />
         <SettingsPanel
@@ -573,7 +745,7 @@ const MobileMeetingUI = () => {
                         onClick={() => {
                           confirmLeaveOrEnd(false);
                         }}
-                        title="Leave Session"
+                        title={t("leave.session")}
                       >
                         Leave
                       </Button>
@@ -584,7 +756,7 @@ const MobileMeetingUI = () => {
                         onClick={() => {
                           confirmLeaveSubsession();
                         }}
-                        title="Go Back to Main Session"
+                        title={t("subsession.go_back_main_session")}
                       >
                         To Main
                       </Button>
@@ -676,7 +848,7 @@ const MobileMeetingUI = () => {
           <ActionItem
             id="uikit-mobile-caption-back"
             icon={ArrowLeft}
-            label="Back"
+            label={t("common.back")}
             color={iconColor}
             onClick={() => {
               setIsCaptionActionSheetOpen(false);
@@ -697,7 +869,7 @@ const MobileMeetingUI = () => {
           <ActionItem
             id="uikit-mobile-caption-set-speaking-language"
             icon={Captions}
-            label={`Set Speaking language (${currentSpeakingLanguage})`}
+            label={`Set Speaking language ${currentSpeakingLanguage ? "(" + currentSpeakingLanguage + ")" : ""}`}
             color={iconColor}
             onClick={() => {
               if (!isTranscriptionInitiated) {
@@ -728,7 +900,7 @@ const MobileMeetingUI = () => {
           <ActionItem
             id="uikit-mobile-caption-view-full-transcript"
             icon={Captions}
-            label="View Full Transcript"
+            label={t("caption.view_full_transcript")}
             color={iconColor}
             onClick={() => {
               setIsCaptionActionSheetOpen(false);
@@ -754,7 +926,7 @@ const MobileMeetingUI = () => {
             <ActionItem
               id="uikit-mobile-caption-host-caption-settings"
               icon={Captions}
-              label="Host Caption Settings"
+              label={t("caption.host_settings_label")}
               color={iconColor}
               className=""
               onClick={() => {
@@ -773,7 +945,7 @@ const MobileMeetingUI = () => {
           <ActionItem
             id="uikit-mobile-caption-back-to-speaking-language"
             icon={ArrowLeft}
-            label="Back"
+            label={t("common.back")}
             color={iconColor}
             onClick={() => {
               setShowSpeakingLanguagesMenu(false);
@@ -796,7 +968,7 @@ const MobileMeetingUI = () => {
           <ActionItem
             id="uikit-translate-action-sheet-back"
             icon={ArrowLeft}
-            label="Back"
+            label={t("common.back")}
             color={iconColor}
             onClick={() => {
               setShowTranslateLanguagesMenu(false);
@@ -815,7 +987,7 @@ const MobileMeetingUI = () => {
             <ActionItem
               id="uikit-mobile-captions"
               icon={Captions}
-              label="Captions"
+              label={t("caption.label")}
               color={iconColor}
               onClick={() => {
                 setIsCaptionActionSheetOpen(true);
@@ -829,7 +1001,7 @@ const MobileMeetingUI = () => {
               <ActionItem
                 id="uikit-mobile-subsession"
                 icon={SubsessionIcon}
-                label="Subsession"
+                label={t("subsession.label")}
                 color={iconColor}
                 className="border-b border-theme-border"
                 onClick={() => {
@@ -843,7 +1015,7 @@ const MobileMeetingUI = () => {
             <ActionItem
               id="uikit-mobile-ask-for-help"
               icon={BadgeHelp}
-              label="Ask for Help"
+              label={t("subsession.ask_for_help_label")}
               color={iconColor}
               onClick={() => {
                 dispatch(setIsAskSubsessionHelpConfirm(!sessionUI.isAskSubsessionHelpConfirm));
@@ -885,11 +1057,62 @@ const MobileMeetingUI = () => {
               )}
             </>
           )}
+          {isHost && realTimeMediaStreamsClient?.isSupportRealTimeMediaStreams() && (
+            <>
+              {/* Show Start RTMS only when not active */}
+              {!isRtmsActive && (
+                <ActionItem
+                  id="uikit-mobile-rtms-start"
+                  icon={isRtmsLoading ? Loader : Tv}
+                  label={isRtmsLoading ? "Starting RTMS..." : "Start RTMS"}
+                  color={iconColor}
+                  onClick={async () => {
+                    if (isRtmsLoading) return;
+                    dispatch(setRtmsLoading(true));
+                    closeActionSheet();
+                    await realTimeMediaStreamsClient?.startRealTimeMediaStreams();
+                  }}
+                  disabled={isRtmsLoading}
+                  className={`border-b border-theme-border ${isRtmsLoading ? "opacity-50" : ""}`}
+                />
+              )}
+              {/* Show Stop/Pause/Resume when RTMS is active */}
+              {isRtmsActive && (
+                <>
+                  <ActionItem
+                    id="uikit-mobile-rtms-stop"
+                    icon={Square}
+                    label="Stop RTMS"
+                    color={iconColor}
+                    onClick={async () => {
+                      closeActionSheet();
+                      await realTimeMediaStreamsClient?.stopRealTimeMediaStreams();
+                    }}
+                    className="border-b border-theme-border"
+                  />
+                  <ActionItem
+                    id="uikit-mobile-rtms-pause"
+                    icon={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? TvMinimal : Pause}
+                    label={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? "Resume RTMS" : "Pause RTMS"}
+                    color={iconColor}
+                    onClick={async () => {
+                      closeActionSheet();
+                      if (rtmsStatus === RealTimeMediaStreamsStatus.Pause) {
+                        await realTimeMediaStreamsClient?.resumeRealTimeMediaStreams();
+                      } else {
+                        await realTimeMediaStreamsClient?.pauseRealTimeMediaStreams();
+                      }
+                    }}
+                  />
+                </>
+              )}
+            </>
+          )}
           {isSupportLivestream && isHost && liveStreamClient?.isLiveStreamEnabled() && (
             <ActionItem
               id="uikit-mobile-live-stream"
               icon={Radio}
-              label="Live stream"
+              label={t("livestream.label")}
               color={iconColor}
               onClick={() => {
                 dispatch(setIsShowLiveStreamPanel(true));
@@ -898,11 +1121,31 @@ const MobileMeetingUI = () => {
               className="border-b border-theme-border"
             />
           )}
+
+          {broadcastStreamingClient?.isBroadcastStreamingEnable?.() && isHost && (
+            <button
+              id="uikit-mobile-broadcast-stream"
+              className="flex items-center w-full py-3 border-b border-theme-border disabled:opacity-60 disabled:cursor-not-allowed"
+              onClick={handleBroadcastStreamingToggle}
+              disabled={isBroadcastDisabled}
+              aria-busy={isBroadcastDisabled}
+            >
+              <div className="w-8 h-8 mr-4 flex items-center justify-center">
+                <Radio size={24} className="text-theme-text" color={iconColor} />
+              </div>
+              <span className="text-theme-text text-lg">
+                {broadcastStreamingStatus === BroadcastStreamingStatus.InProgress ||
+                broadcastStreamingStatus === BroadcastStreamingStatus.Closing
+                  ? t("broadcast_streaming_stop")
+                  : t("broadcast_streaming_start")}
+              </span>
+            </button>
+          )}
           {(session.featuresOptions as any)?.cameraShare?.enable && !session.isSendingScreenShare && (
             <ActionItem
               id="uikit-mobile-share-camera"
               icon={FileVideo2}
-              label="Share camera"
+              label={t("share.camera_label")}
               color={iconColor}
               className=""
               onClick={async () => {
@@ -915,7 +1158,7 @@ const MobileMeetingUI = () => {
             <ActionItem
               id="uikit-mobile-share-camera"
               icon={FileVideo2}
-              label="Stop share"
+              label={t("share.stop_label")}
               color={"red"}
               className=""
               onClick={async () => {
@@ -929,7 +1172,7 @@ const MobileMeetingUI = () => {
             <ActionItem
               id="uikit-mobile-settings"
               icon={Settings}
-              label="Settings"
+              label={t("settings.label")}
               color={iconColor}
               className=""
               onClick={() => {

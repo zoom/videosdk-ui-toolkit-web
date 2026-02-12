@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import CommonTab from "../../../components/widget/CommonTab";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { StreamContext } from "@/context/stream-context";
@@ -11,6 +12,7 @@ interface RoomSystemTabProps {
 }
 
 export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) => {
+  const { t } = useTranslation();
   const [roomSystemTab, setRoomSystemTab] = useState<"dialIn" | "callOut">("callOut");
   const [ipAddress, setIpAddress] = useState("");
   const [h323Selected, setH323Selected] = useState(true);
@@ -105,9 +107,9 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
 
   const dialInTab = (
     <div className="space-y-4">
-      <p className={`text-sm ${darkModeTextClasses}`}>Dial In from a H.323/SIP Room System</p>
+      <p className={`text-sm ${darkModeTextClasses}`}>{t("room.system_dial_in_label")}</p>
       <div>
-        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>Dial</label>
+        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>{t("room.system_dial_label")}</label>
         <input
           type="text"
           value="127.0.0.1 (US West)"
@@ -116,7 +118,9 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
         />
       </div>
       <div>
-        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>Enter Meeting ID</label>
+        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>
+          {t("room.system_meeting_id_label")}
+        </label>
         <input
           type="text"
           value={callInInfo?.meetingId}
@@ -125,7 +129,9 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
         />
       </div>
       <div>
-        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>Passcode</label>
+        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>
+          {t("room.system_passcode_label")}
+        </label>
         <input
           type="text"
           value={callInInfo?.password}
@@ -137,13 +143,13 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
   );
   const callOutTab = (
     <div className="space-y-4">
-      <p className={`text-sm text-theme-text`}>Call a H.323/SIP Room System:</p>
+      <p className={`text-sm text-theme-text`}>{t("room.system_call_out_label")}</p>
       <div>
         <input
           type="text"
           value={ipAddress}
           onChange={(e) => setIpAddress(e.target.value)}
-          placeholder="IP address"
+          placeholder={t("room.system_ip_placeholder")}
           className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none text-gray-500`}
           disabled={isCalling}
         />
@@ -178,7 +184,9 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
         onCancel={handleCancel}
       />
 
-      {dialoutState && <div className={`text-center ${darkModeTextClasses}`}>{getDialoutStateText(dialoutState)}</div>}
+      {dialoutState && (
+        <div className={`text-center ${darkModeTextClasses}`}>{getDialoutStateText(dialoutState, t)}</div>
+      )}
     </div>
   );
   return (
@@ -186,8 +194,8 @@ export const RoomSystemTab: React.FC<RoomSystemTabProps> = ({ inputClasses }) =>
       <div className="flex justify-center mb-4">
         <CommonTab
           tabs={[
-            // { name: "dialIn", title: "Dial In" },
-            { name: "callOut", title: "Call Out" },
+            // { name: "dialIn", title: t("room.system_tab_dial_in") },
+            { name: "callOut", title: t("room.system_tab_call_out") },
           ]}
           orientation="horizontal"
           className="justify-center px-2 rounded-lg"

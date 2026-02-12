@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Search, Phone, Mic, MicOff } from "lucide-react";
 import { AutoSizer, List } from "react-virtualized";
 import ParticipantItem from "./ParticipantItem";
@@ -34,6 +35,7 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
   isControlByCustomizeLayout,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const { isHost } = useAppSelector(useSessionSelector);
   const { isParticipantsPoppedOut, activeSidePanel } = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
@@ -67,7 +69,7 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
       className="flex items-center space-x-2 px-3 py-2 bg-theme-surface hover:bg-theme-background border border-theme-border rounded-md transition-colors duration-200 text-theme-text"
     >
       <Mic size={18} className="text-theme-text" />
-      <span>Mute All</span>
+      <span>{t("participant.mute_all")}</span>
     </button>
   );
 
@@ -77,14 +79,14 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
       className="flex items-center space-x-2 px-3 py-2 bg-theme-surface hover:bg-theme-background border border-theme-border rounded-md transition-colors duration-200 text-theme-text"
     >
       <Phone size={18} className="text-theme-text" />
-      <span>Invite</span>
+      <span>{t("common.invite")}</span>
     </button>
   );
 
   return (
     <CommonPopper
       isOpen={onClose ? isControlByCustomizeLayout : isParticipantsPoppedOut || activeSidePanel === "participants"}
-      title="Participants"
+      title={t("participant.panel_title")}
       onClose={onClose || (() => dispatch(setIsParticipantsPoppedOut(false)))}
       width={width}
       height={height}
@@ -98,14 +100,14 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
-              placeholder="Search participants"
+              placeholder={t("participant.search_placeholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             />
           </div>
           <h3 className="text-xs font-semibold mb-2 uppercase tracking-wider">
-            In this session • {filteredParticipants.length}
+            {t("participant.in_session")} • {filteredParticipants.length}
           </h3>
         </div>
         <div className="flex-grow uikit-custom-scrollbar">

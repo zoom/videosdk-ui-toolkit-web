@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useMemo, DOMAttributes, DetailedHTMLProps, HTMLAttributes } from "react";
+import { useTranslation } from "react-i18next";
 import { Participant } from "@/types";
 import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
 import { setCurrentPage } from "@/store/uiSlice";
@@ -38,6 +39,7 @@ export const GalleryViewMobile = ({
   currentUser,
   avatarUrl,
 }: GalleryViewMobileProps) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const videoPlayerRefList = useRef<Record<string, VideoPlayer>>({});
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -119,6 +121,7 @@ export const GalleryViewMobile = ({
                       {isShowAvatar(participant, currentUser, avatarUrl) ? (
                         <img
                           title={participant.displayName}
+                          alt={`${participant.displayName}'s avatar`}
                           className="w-full h-full"
                           src={avatarUrl || participant?.avatar}
                         />
@@ -136,7 +139,7 @@ export const GalleryViewMobile = ({
           <div className={`${defaultGridClassName} absolute top-0 left-0`}>
             {currentParticipants?.length === 0 && (
               <div className="flex justify-center items-center text-2xl font-semibold m-2 text-theme-text">
-                <span>No other participants</span>
+                <span>{t("gallery.no_other_participants")}</span>
               </div>
             )}
             {currentParticipants.map((participant: Participant, index: number) => (

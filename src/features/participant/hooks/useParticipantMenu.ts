@@ -6,9 +6,12 @@ import {
   setParticipantToRemove,
   setIsMakeHostDialogOpen,
   setParticipantToMakeHost,
+  setIsPTZControlPadOpen,
+  setPTZControlTargetUser,
 } from "@/store/uiSlice";
 import { Participant } from "@/types";
 import { useCallback, useContext, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function useParticipantMenu(
   participant: Participant,
@@ -16,6 +19,7 @@ export function useParticipantMenu(
   onRenameClick?: (participant: Participant) => void,
   onAdjustLocalVolumeClick?: (participant: Participant) => void,
 ) {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const { stream } = useContext(StreamContext);
   const dispatch = useAppDispatch();
@@ -26,20 +30,20 @@ export function useParticipantMenu(
   const isHostOrManager = isHost || isManager;
   const isSelf = currentUserId === participant?.userId;
 
-  const CHANGE_NAME_TEXT = "Change name";
-  const ASK_TO_UNMUTE_TEXT = "Ask to unmute";
-  const REMOVE_FROM_SESSION_TEXT = "Remove";
-  const MUTE_TEXT = "Mute";
-  const MAKE_HOST_TEXT = "Make host";
-  const MAKE_MANAGER_TEXT = "Make manager";
-  const REVOKE_MANAGER_TEXT = "Revoke manager";
-  const SPOTLIGHT = "Spotlight"; // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#spotlightVideo
-  const REMOVE_SPOTLIGHT = "Remove spotlight"; //https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#removeSpotlightedVideo
-  const REPLACE_SPOTLIGHT = "Replace spotlight";
-  const ADJUST_AUDIO_LOCAL = "Adjust audio locally"; //https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#adjustUserAudioVolumeLocally
-  const CONTROL_FAR_END_CAMERA = "Control far end camera"; // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#getCameraPTZCapability
-  const GIVE_UP_CAMERA_CONTROL = "Give up camera control"; // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#giveUpFarEndCameraControl
-  const SCREENSHOT_TEXT = "Screenshot Video"; // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#screenshotVideo
+  const CHANGE_NAME_TEXT = t("participant.menu_change_name");
+  const ASK_TO_UNMUTE_TEXT = t("participant.menu_ask_to_unmute");
+  const REMOVE_FROM_SESSION_TEXT = t("participant.menu_remove");
+  const MUTE_TEXT = t("participant.menu_mute");
+  const MAKE_HOST_TEXT = t("participant.menu_make_host");
+  const MAKE_MANAGER_TEXT = t("participant.menu_make_manager");
+  const REVOKE_MANAGER_TEXT = t("participant.menu_revoke_manager");
+  const SPOTLIGHT = t("participant.menu_spotlight"); // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#spotlightVideo
+  const REMOVE_SPOTLIGHT = t("participant.menu_remove_spotlight"); //https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#removeSpotlightedVideo
+  const REPLACE_SPOTLIGHT = t("participant.menu_replace_spotlight");
+  const ADJUST_AUDIO_LOCAL = t("participant.menu_adjust_audio_local"); //https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#adjustUserAudioVolumeLocally
+  const REQUEST_CAMERA_CONTROL = t("participant.menu_request_camera_control"); // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#requestFarEndCameraControl
+  const GIVE_UP_CAMERA_CONTROL = t("participant.menu_give_up_camera_control"); // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#giveUpFarEndCameraControl
+  const SCREENSHOT_TEXT = t("participant.menu_screenshot"); // https://marketplacefront.zoom.us/sdk/custom/web/modules/Stream.html#screenshotVideo
 
   const { featuresOptions } = useAppSelector(useSessionSelector);
   const isVideoScreenshotEnabled = featuresOptions?.screenshot?.video?.enable;
@@ -147,9 +151,21 @@ export function useParticipantMenu(
             onAdjustLocalVolumeClick(participant);
           }
           break;
-        case CONTROL_FAR_END_CAMERA:
+        case REQUEST_CAMERA_CONTROL:
+          if (participant) {
+            dispatch(setPTZControlTargetUser(participant));
+            dispatch(setIsPTZControlPadOpen(true));
+          }
           break;
         case GIVE_UP_CAMERA_CONTROL:
+          if (stream && participant?.userId) {
+            try {
+              await (stream as any).giveUpFarEndCameraControl(participant.userId);
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.error("Failed to give up camera control:", error);
+            }
+          }
           break;
         case SCREENSHOT_TEXT: {
           takeVideoScreenshot();
@@ -171,6 +187,19 @@ export function useParticipantMenu(
       onAdjustLocalVolumeClick,
       takeVideoScreenshot,
       dispatch,
+      CHANGE_NAME_TEXT,
+      ASK_TO_UNMUTE_TEXT,
+      REMOVE_FROM_SESSION_TEXT,
+      MUTE_TEXT,
+      MAKE_HOST_TEXT,
+      MAKE_MANAGER_TEXT,
+      REVOKE_MANAGER_TEXT,
+      SPOTLIGHT,
+      REMOVE_SPOTLIGHT,
+      ADJUST_AUDIO_LOCAL,
+      REQUEST_CAMERA_CONTROL,
+      GIVE_UP_CAMERA_CONTROL,
+      SCREENSHOT_TEXT,
     ],
   );
 
@@ -208,6 +237,7 @@ export function useParticipantMenu(
         participant?.bVideoOn &&
         !isScreenshotCapturing &&
         getButtonLayoutData(SCREENSHOT_TEXT),
+      participant?.bVideoOn && getButtonLayoutData(REQUEST_CAMERA_CONTROL),
       getButtonLayoutData(REMOVE_FROM_SESSION_TEXT, "text-red-500"),
     ].filter(Boolean);
 
@@ -226,6 +256,7 @@ export function useParticipantMenu(
         participant?.bVideoOn &&
         !isScreenshotCapturing &&
         getButtonLayoutData(SCREENSHOT_TEXT),
+      participant?.bVideoOn && getButtonLayoutData(REQUEST_CAMERA_CONTROL),
       !participant?.isHost && getButtonLayoutData(REMOVE_FROM_SESSION_TEXT, "text-red-500"),
       canShowAdjustLocalVolumeDialog,
     ].filter(Boolean);
@@ -269,6 +300,19 @@ export function useParticipantMenu(
     isSelf,
     isScreenshotCapturing,
     isVideoScreenshotEnabled,
+    CHANGE_NAME_TEXT,
+    ASK_TO_UNMUTE_TEXT,
+    REMOVE_FROM_SESSION_TEXT,
+    MUTE_TEXT,
+    MAKE_HOST_TEXT,
+    MAKE_MANAGER_TEXT,
+    REVOKE_MANAGER_TEXT,
+    SPOTLIGHT,
+    REMOVE_SPOTLIGHT,
+    REPLACE_SPOTLIGHT,
+    ADJUST_AUDIO_LOCAL,
+    REQUEST_CAMERA_CONTROL,
+    SCREENSHOT_TEXT,
   ]);
 
   return {

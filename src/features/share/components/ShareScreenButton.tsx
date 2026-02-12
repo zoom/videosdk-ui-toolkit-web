@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MonitorUp } from "lucide-react";
 import { ShareMenuOption } from "./ShareMenuOption";
 import {
@@ -32,6 +33,7 @@ export const ShareScreenButton: React.FC<ShareScreenButtonProps> = ({
   setIsMenuOpen: setIsShareMenuOpen,
   orientation = "horizontal",
 }) => {
+  const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLDivElement>(null);
@@ -214,7 +216,7 @@ export const ShareScreenButton: React.FC<ShareScreenButtonProps> = ({
         disabled={!isPresentingWhiteboard && isViewingWhiteboard && isHostOrManager}
         menuContent={
           <ShareMenuOption
-            title="Share Screen Settings"
+            title={t("share.screen_settings_title")}
             orientation={orientation}
             privilege={sharePrivilege}
             onPrivilegeChange={handlePrivilegeChange}
@@ -232,7 +234,7 @@ export const ShareScreenButton: React.FC<ShareScreenButtonProps> = ({
             setPendingShareToSubsession(undefined);
           }}
           onConfirm={handleConfirmStartScreenShare}
-          title="Stop Whiteboard?"
+          title={t("share.stop_whiteboard_title")}
           message={
             isHostOrManager
               ? "Starting screen share will stop the current whiteboard session. Do you want to continue?"

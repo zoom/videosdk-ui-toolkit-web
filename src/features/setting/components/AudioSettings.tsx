@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StreamContext } from "@/context/stream-context";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { ChevronDown } from "lucide-react";
@@ -21,6 +22,7 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
   microphoneList,
   speakerList,
 }) => {
+  const { t } = useTranslation();
   const sessionUI = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
   const { audioPlaybackFile, isMuted } = useAppSelector(useSessionSelector);
@@ -109,7 +111,7 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
       <div className={`space-y-4`}>
         <div className="flex items-center">
           <label htmlFor="microphone" className="w-1/4 text-sm font-medium">
-            Microphone:
+            {t("settings.microphone")}:
           </label>
           <div className={`w-3/4 relative ${isOtherOptionsDisabledClass}`}>
             <select
@@ -133,7 +135,7 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
 
         <div className="flex items-center">
           <label htmlFor="speaker" className="w-1/4 text-sm font-medium ">
-            Speaker:
+            {t("settings.speaker")}:
           </label>
           <div className={`w-3/4 relative ${isOtherOptionsDisabledClass}`}>
             <select id="speaker" value={sessionUI.activeSpeaker} onChange={handleSpeakerChange} className={selectClass}>
@@ -153,12 +155,12 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
       {/* Desktop-only Options */}
       {!isMobileDevice() && (
         <>
-          <div className="border-t border-gray-200 pt-4 mt-4"></div>
+          {/* <div className="border-t border-gray-200 pt-4 mt-4"></div> */}
 
           {/* Additional Options Section */}
           {/* <div className="space-y-4">
             <div className="flex items-center">
-              <label className="w-1/4 text-sm font-medium ">Additional Options:</label>
+              <label className="w-1/4 text-sm font-medium ">{t("settings.additional_options")}</label>
               <div className={`w-3/4 space-y-2 ${isOtherOptionsDisabledClass}`}>
                 <div className="flex items-center">
                   <input
@@ -171,9 +173,9 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
                   <label
                     htmlFor="syncButtonsOnHeadset"
                     className="ml-2 block text-sm "
-                    title="Sync mute or unmute state for the audio devices made by these manufacturers: AVer, Crestron, Jabra, Logitech, Plantronics, Polycom, Shure, Yamaha, and Yealink."
+                    title={t("settings.audio_sync_devices_tooltip")}
                   >
-                    Sync buttons on headset
+                    {t("settings.sync_buttons_on_headset")}
                   </label>
                 </div>
 
@@ -186,7 +188,7 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
                     className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
                   <label htmlFor="highBitrate" className="ml-2 block text-sm ">
-                    High bitrate
+                    {t("settings.high_bitrate")}
                   </label>
                 </div>
               </div>
@@ -195,78 +197,81 @@ const AudioSettings: React.FC<AudioSettingsProps> = ({
 
           {/* <div className="border-t border-gray-200 pt-4 mt-4"></div> */}
           {/* Audio Processing Section */}
-          <div className="space-y-4">
-            <div className="flex items-start">
-              {" "}
-              {/* Changed to items-start for better alignment */}
-              <label className="w-1/4 text-sm font-medium  pt-1">Audio Processing:</label>
-              <div className={`w-3/4 ${isOtherOptionsDisabledClass}`}>
-                <div className={radioGroupClass}>
-                  {/* Original Sound Option */}
-                  <div className={radioOptionClass}>
-                    <input
-                      type="radio"
-                      id="originalSound"
-                      name="audioProcessing"
-                      value="originalSound"
-                      checked={audioProcessing === "originalSound"}
-                      onChange={() => handleAudioProcessingChange("originalSound")}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <label htmlFor="originalSound" className="text-sm ">
-                      Original Sound
-                    </label>
-                  </div>
-
-                  {/* Original Sound Options */}
-                  {audioProcessing === "originalSound" && (
-                    <div className={subOptionsClass}>
-                      <div className={radioOptionClass}>
-                        <input
-                          type="checkbox"
-                          id="hifi"
-                          checked={originalSoundOptions.hifi}
-                          onChange={() => handleOriginalSoundOptionChange("hifi")}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="hifi" className="text-sm ">
-                          High Fidelity Audio
-                        </label>
-                      </div>
-                      <div className={radioOptionClass}>
-                        <input
-                          type="checkbox"
-                          id="stereo"
-                          checked={originalSoundOptions.stereo}
-                          onChange={() => handleOriginalSoundOptionChange("stereo")}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                        <label htmlFor="stereo" className="text-sm ">
-                          Stereo Audio
-                        </label>
-                      </div>
+          {stream?.isSupportBackgroundNoiseSuppression?.() && (
+            <div className="space-y-4 pt-4 mt-4">
+              <div className="border-t border-gray-200"></div>
+              <div className="flex items-start">
+                {" "}
+                {/* Changed to items-start for better alignment */}
+                <label className="w-1/4 text-sm font-medium  pt-1">{t("settings.audio_processing")}</label>
+                <div className={`w-3/4 ${isOtherOptionsDisabledClass}`}>
+                  <div className={radioGroupClass}>
+                    {/* Original Sound Option */}
+                    <div className={radioOptionClass}>
+                      <input
+                        type="radio"
+                        id="originalSound"
+                        name="audioProcessing"
+                        value="originalSound"
+                        checked={audioProcessing === "originalSound"}
+                        onChange={() => handleAudioProcessingChange("originalSound")}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      />
+                      <label htmlFor="originalSound" className="text-sm ">
+                        {t("settings.original_sound")}
+                      </label>
                     </div>
-                  )}
 
-                  {/* Background Noise Suppression Option */}
-                  <div className={radioOptionClass}>
-                    <input
-                      type="radio"
-                      id="backgroundNoiseSuppression"
-                      name="audioProcessing"
-                      value="backgroundNoiseSuppression"
-                      checked={audioProcessing === "backgroundNoiseSuppression"}
-                      onChange={() => handleAudioProcessingChange("backgroundNoiseSuppression")}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                    />
-                    <label htmlFor="backgroundNoiseSuppression" className="text-sm ">
-                      Background Noise Suppression
-                    </label>
+                    {/* Original Sound Options */}
+                    {audioProcessing === "originalSound" && (
+                      <div className={subOptionsClass}>
+                        <div className={radioOptionClass}>
+                          <input
+                            type="checkbox"
+                            id="hifi"
+                            checked={originalSoundOptions.hifi}
+                            onChange={() => handleOriginalSoundOptionChange("hifi")}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="hifi" className="text-sm ">
+                            {t("settings.high_fidelity_audio")}
+                          </label>
+                        </div>
+                        <div className={radioOptionClass}>
+                          <input
+                            type="checkbox"
+                            id="stereo"
+                            checked={originalSoundOptions.stereo}
+                            onChange={() => handleOriginalSoundOptionChange("stereo")}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <label htmlFor="stereo" className="text-sm ">
+                            {t("settings.stereo_audio")}
+                          </label>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Background Noise Suppression Option */}
+                    <div className={radioOptionClass}>
+                      <input
+                        type="radio"
+                        id="backgroundNoiseSuppression"
+                        name="audioProcessing"
+                        value="backgroundNoiseSuppression"
+                        checked={audioProcessing === "backgroundNoiseSuppression"}
+                        onChange={() => handleAudioProcessingChange("backgroundNoiseSuppression")}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                      />
+                      <label htmlFor="backgroundNoiseSuppression" className="text-sm ">
+                        {t("settings.background_noise_suppression")}
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </>
       )}
     </div>

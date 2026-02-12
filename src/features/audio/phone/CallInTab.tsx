@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import { Phone, Hash, Users, Lock } from "lucide-react";
 import { TollNumber } from "./types";
@@ -40,6 +41,7 @@ interface CallInTabProps {
 }
 
 export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
+  const { t } = useTranslation();
   const { callInInfo } = useAppSelector(useSessionSelector);
   const { themeName } = useAppSelector(useSessionUISelector);
 
@@ -72,7 +74,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
   const defaultNumber = defaultCountry?.numbers?.[0]
     ? {
         value: defaultCountry.numbers[0].number,
-        label: `${defaultCountry.numbers[0].displayNumber} (${defaultCountry.numbers[0].dc}) ${defaultCountry.numbers[0].free ? "(Toll-Free)" : ""}`,
+        label: `${defaultCountry.numbers[0].displayNumber} (${defaultCountry.numbers[0].dc}) ${defaultCountry.numbers[0].free ? t("call.in_toll_free") : ""}`,
         dc: defaultCountry.numbers[0].dc,
         country: defaultCountry.numbers[0].country,
         countryName: defaultCountry.numbers[0].countryName,
@@ -88,7 +90,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
     ? selectedCountry.numbers.map((num) => ({
         value: num.number,
         // Include location (dc) more prominently in the label
-        label: `${num.displayNumber} - ${num.dc} ${num.free ? "(Toll-Free)" : ""}`,
+        label: `${num.displayNumber} - ${num.dc} ${num.free ? t("call.in_toll_free") : ""}`,
         dc: num.dc,
       }))
     : [];
@@ -100,7 +102,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
             <StepNumber number={1} />
-            <h2 className="text-sm font-medium ">Select your location</h2>
+            <h2 className="text-sm font-medium ">{t("call.in_select_location")}</h2>
           </div>
           <div className="space-y-3 flex relative w-full">
             <span className="flex w-full items-center px-2 text-gray-400">
@@ -113,7 +115,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
                     const firstNumber = {
                       value: option.numbers[0].number,
                       // Updated label format for better clarity
-                      label: `${option.numbers[0].displayNumber} - ${option.numbers[0].dc} ${option.numbers[0].free ? "(Toll-Free)" : ""}`,
+                      label: `${option.numbers[0].displayNumber} - ${option.numbers[0].dc} ${option.numbers[0].free ? t("call.in_toll_free") : ""}`,
                       dc: option.numbers[0].dc,
                       country: option.numbers[0].country,
                       countryName: option.numbers[0].countryName,
@@ -126,7 +128,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
                     setSelectedNumber(null);
                   }
                 }}
-                placeholder="Search for a country..."
+                placeholder={t("phone.search_country_placeholder")}
                 className={inputClasses + "w-1/2 flex-1 mr-2"}
                 classNamePrefix="uikit-custom-scrollbar"
                 styles={CommonSelectStyle({ themeName })}
@@ -136,7 +138,7 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
                 value={selectedNumber}
                 onChange={setSelectedNumber}
                 className={`${inputClasses} ${THEME_COLOR_CLASS} w-1/2 flex-1 ml-2`}
-                placeholder={selectedCountry ? "Select a number" : "select a country first"}
+                placeholder={selectedCountry ? t("phone.select_number_placeholder") : t("phone.select_country_first")}
                 isDisabled={!selectedCountry}
                 classNamePrefix="uikit-custom-scrollbar"
                 styles={CommonSelectStyle({ themeName })}
@@ -149,22 +151,19 @@ export const CallInTab: React.FC<CallInTabProps> = ({ inputClasses }) => {
         <div className="space-y-4">
           <div className="flex items-center space-x-3">
             <StepNumber number={2} />
-            <h2 className="text-sm font-medium text-theme-text">Enter the following information</h2>
+            <h2 className="text-sm font-medium text-theme-text">{t("call.in_enter_information")}</h2>
           </div>
 
           <div className="space-y-3">
-            <InfoRow label="Meeting ID" value={callInInfo.meetingId} icon={Phone} />
-            <InfoRow label="Participant ID" value={callInInfo.participantId} icon={Users} />
-            <InfoRow label="Passcode" value={callInInfo.password} icon={Lock} />
+            <InfoRow label={t("phone.meeting_id_label")} value={callInInfo.meetingId} icon={Phone} />
+            <InfoRow label={t("phone.participant_id_label")} value={callInInfo.participantId} icon={Users} />
+            <InfoRow label={t("phone.passcode_label")} value={callInInfo.password} icon={Lock} />
           </div>
         </div>
 
         {/* Instructions Card */}
         <div className="bg-theme-background rounded-xl p-4">
-          <p className="text-xs text-theme-text leading-relaxed">
-            After dialing in, you&apos;ll be prompted to enter each piece of information above. Remember to press the #
-            key after entering each number.
-          </p>
+          <p className="text-xs text-theme-text leading-relaxed">{t("call.in_instructions")}</p>
         </div>
       </div>
     </div>

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/widget/CommonButton";
 import { SubsessionAllocationPattern } from "../subsession-constants";
 
@@ -15,6 +16,7 @@ const SubsessionChoice = ({
   onSubmit: (initialRoomCount: number, subsessionType: SubsessionAllocationPattern) => void;
   subsessionType: SubsessionAllocationPattern;
 }) => {
+  const { t } = useTranslation();
   const [roomCount, setRoomCount] = useState(initialRoomCount);
   const [assignmentOption, setAssignmentOption] = useState(subsessionType);
 
@@ -28,7 +30,7 @@ const SubsessionChoice = ({
     <>
       <div className="p-6 space-y-6 text-lg">
         <div className="flex items-center space-x-2">
-          <span className="text-xl font-semibold">Create</span>
+          <span className="text-xl font-semibold">{t("subsession.create_text")}</span>
           <input
             type="number"
             min="1"
@@ -42,7 +44,7 @@ const SubsessionChoice = ({
             className="w-16 px-2 py-1 border border-gray-300 rounded bg-theme-background"
             id={`uikit-subsession-choice-room-count-input`}
           />
-          <span className="text-xl font-semibold">subsession rooms</span>
+          <span className="text-xl font-semibold">{t("subsession.subsession_rooms_text")}</span>
         </div>
 
         <div className="space-y-2">
@@ -55,7 +57,7 @@ const SubsessionChoice = ({
               onChange={() => setAssignmentOption(SubsessionAllocationPattern.Automatically)}
               id={`uikit-subsession-choice-automatically-radio`}
             />
-            <span>Assign automatically</span>
+            <span>{t("subsession.choice_assign_auto")}</span>
           </label>
           <label className="flex items-center space-x-2">
             <input
@@ -66,7 +68,7 @@ const SubsessionChoice = ({
               onChange={() => setAssignmentOption(SubsessionAllocationPattern.Manually)}
               id={`uikit-subsession-choice-manually-radio`}
             />
-            <span>Assign manually</span>
+            <span>{t("subsession.choice_assign_manually")}</span>
           </label>
           <label className="flex items-center space-x-2">
             <input
@@ -77,17 +79,17 @@ const SubsessionChoice = ({
               onChange={() => setAssignmentOption(SubsessionAllocationPattern.SelfSelect)}
               id={`uikit-subsession-choice-self-select-radio`}
             />
-            <span>Let participants choose subsession room</span>
+            <span>{t("subsession.choice_let_choose")}</span>
           </label>
         </div>
       </div>
 
       <div className="absolute bottom-4 right-4 space-x-2">
         <Button variant="secondary" onClick={onClose} id={`uikit-subsession-choice-cancel-button`}>
-          Cancel
+          {t("common.cancel")}
         </Button>
         <Button variant="primary" onClick={handleCreate} id={`uikit-subsession-choice-create-button`}>
-          Create
+          {t("subsession.create_button")}
         </Button>
       </div>
     </>

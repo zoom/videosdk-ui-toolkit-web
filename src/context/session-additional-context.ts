@@ -6,6 +6,8 @@ import {
   SubsessionClient,
   LiveStreamClient,
   WhiteboardClient,
+  RealTimeMediaStreamsClient,
+  BroadcastStreamingClient,
 } from "@/types";
 
 interface SessionAdditionalClientContext {
@@ -15,6 +17,8 @@ interface SessionAdditionalClientContext {
   subsessionClient?: SubsessionClient;
   liveStreamClient?: LiveStreamClient;
   whiteboardClient?: WhiteboardClient;
+  realTimeMediaStreamsClient?: RealTimeMediaStreamsClient;
+  broadcastStreamingClient?: BroadcastStreamingClient;
 }
 
 export default React.createContext<SessionAdditionalClientContext>(null as any);

@@ -9,7 +9,7 @@ const ChatKit: React.FC<{ options: any }> = ({ options }) => {
     // Image click handler
   };
 
-  const { handleSendMessage, uploadFileCallback } = useChatMessage();
+  const { handleSendMessage, cancelUpload } = useChatMessage();
 
   const [isChatOpen, setIsChatOpen] = useState(true);
 
@@ -17,7 +17,7 @@ const ChatKit: React.FC<{ options: any }> = ({ options }) => {
     <ChatPanel
       handleImageClick={handleImageClick}
       handleSendMessage={handleSendMessage}
-      uploadFileCallback={uploadFileCallback}
+      cancelUpload={cancelUpload}
       isControlByCustomizeLayout={isChatOpen}
       onClose={() => setIsChatOpen(false)}
       isDraggable={options?.draggable || false}

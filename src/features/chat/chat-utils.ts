@@ -1,4 +1,5 @@
 import { ChatFileDownloadStatus, ChatFileUploadStatus, FileInfo } from "@zoom/videosdk";
+import type { ChatFileUploadProgress } from "@/types";
 
 export const getFileExtension = (fileName: string) => {
   const [ext] = fileName.split(".").reverse();
@@ -6,7 +7,7 @@ export const getFileExtension = (fileName: string) => {
 };
 export const isImageFile = (fileName: string) => {
   const [ext] = fileName.split(".").reverse();
-  return ["png", "jpg", "jpeg", "gif", "webp"].includes(ext);
+  return ["png", "jpg", "jpeg", "gif", "webp"].includes(ext?.toLowerCase());
 };
 export const isExcelFile = (fileName: string) => {
   const [ext] = fileName.split(".").reverse();
@@ -54,4 +55,19 @@ export const getFileInProgress = (file: FileInfo, id?: string) => {
     progress = file.download.progress;
   }
   return [isInProgress, progress];
+};
+
+export const isSameUpload = (a: Partial<ChatFileUploadProgress>, b: Partial<ChatFileUploadProgress>) => {
+  if (a.fileName !== b.fileName) return false;
+  if (a.receiverId !== b.receiverId) return false;
+
+  const aGuid = typeof a.receiverGuid === "string" ? a.receiverGuid : "";
+  const bGuid = typeof b.receiverGuid === "string" ? b.receiverGuid : "";
+  if (aGuid && bGuid && aGuid !== bGuid) return false;
+
+  const aSize = typeof a.fileSize === "number" && Number.isFinite(a.fileSize) ? a.fileSize : null;
+  const bSize = typeof b.fileSize === "number" && Number.isFinite(b.fileSize) ? b.fileSize : null;
+  if (aSize !== null && bSize !== null && aSize !== bSize) return false;
+
+  return true;
 };

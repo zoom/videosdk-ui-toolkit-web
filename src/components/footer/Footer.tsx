@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Users, MessageSquare, BadgeHelp } from "lucide-react";
 import { AudioButton } from "../../features/audio/components/AudioButton";
 import { ShareScreenButton } from "../../features/share/components/ShareScreenButton";
@@ -10,6 +11,7 @@ import { LeaveButton } from "./LeaveButton";
 import CaptionButton from "@/features/caption/components/CaptionButton";
 import { MoreButton } from "./MoreButton";
 import { VideoButton } from "@/features/video/components/VideoButton";
+import { RealTimeMediaStreamsButton } from "@/features/real-time-media-streams/components/RealTimeMediaStreamsButton";
 import {
   useAppDispatch,
   useAppSelector,
@@ -70,6 +72,7 @@ export const Footer: React.FC<FooterProps> = ({
   autoClose = true,
   // setActiveSidePanel,
 }) => {
+  const { t } = useTranslation();
   const {
     participantSize,
     isParticipantsPoppedOut,
@@ -97,6 +100,7 @@ export const Footer: React.FC<FooterProps> = ({
         whiteboard: { enable: isSupportWhiteboardFeature },
         subsession: { enable: isSupportSubsessionFeature },
         settings: { enable: isSupportSettingsFeature },
+        realTimeMediaStreams: { enable: isSupportRealTimeMediaStreamsFeature },
       },
     },
     status,
@@ -249,6 +253,7 @@ export const Footer: React.FC<FooterProps> = ({
             />
           )}
           {isHostOrManager && !isInSubsession && <RecordButton orientation={orientation} />}
+          {isSupportRealTimeMediaStreamsFeature && <RealTimeMediaStreamsButton orientation={orientation} />}
           {isSupportUserFeature && (
             <IconCountButton
               icon={Users}
@@ -334,7 +339,7 @@ export const Footer: React.FC<FooterProps> = ({
 
         {isShowCaptionTimeoutError && (
           <DraggableToast
-            message="Please contract your administrator to purchase the caption plan."
+            message={t("caption.purchase_plan_message")}
             type="error"
             onClose={() => setIsShowCaptionTimeoutError(false)}
             isVisible={true}

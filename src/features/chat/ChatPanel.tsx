@@ -1,11 +1,12 @@
 import { CellMeasurer, ListRowProps, AutoSizer, List, CellMeasurerCache } from "react-virtualized";
 import React, { useRef, useEffect, useState, useCallback, useContext, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import ChatMessage from "./ChatMessage";
-import EmojiPicker, { EmojiClickData } from "emoji-picker-react";
+import EmojiPicker, { EmojiClickData, Categories } from "emoji-picker-react";
 
 import { Send, Paperclip, SmileIcon, ChevronDown, MoreHorizontalIcon } from "lucide-react";
-import { ChatFileDownloadProgress, Participant, SessionChatMessage } from "@/types";
+import { ChatFileDownloadProgress, ChatFileUploadProgress, Participant, SessionChatMessage } from "@/types";
 import { isImageType, isMobileDevice } from "@/components/util/service";
 import { CommonPopper } from "@/components/widget/CommonPopper";
 import { setChatLinkUrl, setIsChatPoppedOut } from "@/store/uiSlice";
@@ -107,7 +108,7 @@ const customSelectStyles = {
 export const ChatPanel: React.FC<{
   handleImageClick: (image: string) => void;
   handleSendMessage: (message: string, file?: File) => void;
-  uploadFileCallback: any[];
+  cancelUpload?: (file: ChatFileUploadProgress) => void;
   width?: number;
   height?: number;
   isDraggable?: boolean;
@@ -116,13 +117,14 @@ export const ChatPanel: React.FC<{
 }> = ({
   handleImageClick,
   handleSendMessage,
-  uploadFileCallback,
+  cancelUpload,
   width = 400,
   height = 600,
   isDraggable,
   isControlByCustomizeLayout,
   onClose,
 }) => {
+  const { t } = useTranslation();
   const listRef = useRef<List>(null);
   const scrollPositionRef = useRef(0);
   const { participants } = useAppSelector(useParticipantSelector);
@@ -244,6 +246,7 @@ export const ChatPanel: React.FC<{
               onImageClick={handleImageClick}
               onClickLink={handleClickLink}
               downloadProgress={tmpDownloadProgress || null}
+              measure={measure}
             />
           </div>
         )}
@@ -253,7 +256,7 @@ export const ChatPanel: React.FC<{
 
   const receiverOptions = [
     {
-      label: "Everyone",
+      label: t("chat.receiver_everyone"),
       value: ChatMsgType.All,
       userGuid: "",
       id: "uikit-chat-receiver-everyone",
@@ -365,7 +368,7 @@ export const ChatPanel: React.FC<{
   const optionsClassName = "text-sm w-full";
   const optionsMenuItems = [
     {
-      label: "Everyone",
+      label: t("chat.privilege_everyone"),
       onClick: () => {
         chatClient?.setPrivilege(ChatPrivilege.All);
       },
@@ -376,10 +379,10 @@ export const ChatPanel: React.FC<{
       group: "chat-privilege",
     },
     {
-      label: "Public",
+      label: t("chat.privilege_public"),
       onClick: () => {
         chatClient?.setPrivilege(ChatPrivilege.EveryonePublicly);
-        dispatch(setChatReceive({ userId: ChatPrivilege.All, name: "Everyone", userGuid: "" }));
+        dispatch(setChatReceive({ userId: ChatPrivilege.All, name: t("chat.receiver_everyone"), userGuid: "" }));
       },
       enabled: isHostOrManager,
       checked: chatPrivilege === ChatPrivilege.EveryonePublicly,
@@ -388,7 +391,7 @@ export const ChatPanel: React.FC<{
       group: "chat-privilege",
     },
     {
-      label: "Disable Chat",
+      label: t("chat.privilege_disable"),
       onClick: () => {
         chatClient?.setPrivilege(ChatPrivilege.NoOne);
       },
@@ -400,7 +403,7 @@ export const ChatPanel: React.FC<{
     },
 
     {
-      label: "Notifications",
+      label: t("chat.option_notifications"),
       onClick: () => {
         dispatch(setIsEnabledChatInSessionNotifications(!isEnabledChatInSessionNotifications));
       },
@@ -415,7 +418,7 @@ export const ChatPanel: React.FC<{
   return (
     <CommonPopper
       isOpen={isControlByCustomizeLayout ? isControlByCustomizeLayout : isChatPoppedOut || activeSidePanel === "chat"}
-      title="Chat"
+      title={t("chat.panel_title")}
       onClose={
         onClose ||
         (() => {
@@ -452,24 +455,22 @@ export const ChatPanel: React.FC<{
 
         {chatFileUploadProgress?.length > 0 && (
           <div className="px-3 py-1.5 w-full">
-            {chatFileUploadProgress.map((file, index) => (
-              <FileUpload
-                key={`file-upload-${index}`}
-                file={file}
-                cancelCallback={() => {
-                  if (uploadFileCallback?.length) {
-                    return uploadFileCallback.filter(
-                      (item: any) =>
-                        item.fileName === file.fileName &&
-                        item.fileSize === file.fileSize &&
-                        item.fileType === file.fileType &&
-                        item.receiverId === file.receiverId,
-                    )[0];
+            {chatFileUploadProgress.map((file, index) => {
+              const canCancel = typeof cancelUpload === "function" && !!file.clientUploadId;
+              return (
+                <FileUpload
+                  key={`file-upload-${index}`}
+                  file={file}
+                  onCancel={
+                    canCancel
+                      ? () => {
+                          cancelUpload?.(file);
+                        }
+                      : null
                   }
-                  return null;
-                }}
-              />
-            ))}
+                />
+              );
+            })}
           </div>
         )}
 
@@ -478,7 +479,7 @@ export const ChatPanel: React.FC<{
             {isEnabledChatInSession && (
               <>
                 <div className={`flex justify-start gap-2 w-4/5`}>
-                  <span className="text-sm  w-1/10">To:</span>
+                  <span className="text-sm  w-1/10">{t("chat.to_label")}</span>
                   <Select
                     id="uikit-chat-receiver-select"
                     options={receiverOptions}
@@ -501,7 +502,7 @@ export const ChatPanel: React.FC<{
                     components={{
                       IndicatorSeparator: null,
                     }}
-                    noOptionsMessage={() => "No participants found"}
+                    noOptionsMessage={() => t("chat.receiver_no_participants")}
                   />
                 </div>
                 <div className="flex justify-end w-1/5" ref={optionsRef} id="uikit-chat-option-dropdown">
@@ -519,7 +520,7 @@ export const ChatPanel: React.FC<{
                 }}
                 id="uikit-chat-enable-chat"
               >
-                <span className="text-sm">Enable Chat</span>
+                <span className="text-sm">{t("chat.enable_button")}</span>
               </div>
             )}
           </div>
@@ -533,9 +534,9 @@ export const ChatPanel: React.FC<{
             placeholder={
               isEnabledChatInSession
                 ? selectedFile
-                  ? "File selected for upload"
-                  : "Type message here..."
-                : "Chat is currently disabled by the host"
+                  ? t("chat.file_selected")
+                  : t("chat.message_placeholder")
+                : t("chat.disabled_message")
             }
             className={`w-full px-3 py-2 text-sm bg-theme-background border border-theme-border text-theme-text focus:outline-none resize-none uikit-custom-scrollbar ${
               !isEnabledChatInSession ? "bg-gray-100 cursor-not-allowed" : ""
@@ -630,6 +631,18 @@ export const ChatPanel: React.FC<{
                     width={300}
                     height={400}
                     className="uikit-custom-scrollbar text-theme-text bg-theme-surface"
+                    searchPlaceholder={t("emoji.search_placeholder")}
+                    categories={[
+                      { category: Categories.SUGGESTED, name: t("emoji.category_suggested") },
+                      { category: Categories.SMILEYS_PEOPLE, name: t("emoji.category_smileys") },
+                      { category: Categories.ANIMALS_NATURE, name: t("emoji.category_animals") },
+                      { category: Categories.FOOD_DRINK, name: t("emoji.category_food") },
+                      { category: Categories.TRAVEL_PLACES, name: t("emoji.category_travel") },
+                      { category: Categories.ACTIVITIES, name: t("emoji.category_activities") },
+                      { category: Categories.OBJECTS, name: t("emoji.category_objects") },
+                      { category: Categories.SYMBOLS, name: t("emoji.category_symbols") },
+                      { category: Categories.FLAGS, name: t("emoji.category_flags") },
+                    ]}
                   />
                 </div>
               )}

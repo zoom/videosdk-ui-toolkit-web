@@ -10,11 +10,12 @@ import {
   // RecordingStatus, // Removed
 } from "@/types/index.d";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { LiveStreamStatus, SessionInfo, SharePrivilege } from "@zoom/videosdk";
+import { LiveStreamStatus, SessionInfo, SharePrivilege, BroadcastStreamingStatus } from "@zoom/videosdk";
 
 export interface SessionState {
   debug: boolean;
   isJoined: boolean;
+  isJoinResolved: boolean;
   sessionId: string | null;
   userId: number;
   status: SessionStatus;
@@ -64,6 +65,8 @@ export interface SessionState {
   activeSpeakerId: number;
   liveStreamStatus: LiveStreamStatus;
   liveStreamConfig: { streamUrl: string; streamKey: string; broadcastUrl: string };
+  broadcastStreamingStatus: BroadcastStreamingStatus;
+  channelId: string;
   isAnnotationStarted: boolean;
   isEnableViewerAnnotation: boolean;
   sharePrivilege: SharePrivilege;
@@ -72,6 +75,7 @@ export interface SessionState {
 const initialState: SessionState = {
   debug: false,
   isJoined: false,
+  isJoinResolved: false,
   sessionId: null,
   userId: 0,
   status: SessionStatus.Default,
@@ -122,6 +126,8 @@ const initialState: SessionState = {
   activeSpeakerId: 0,
   liveStreamStatus: LiveStreamStatus.Ended,
   liveStreamConfig: { streamUrl: "", streamKey: "", broadcastUrl: "" },
+  broadcastStreamingStatus: BroadcastStreamingStatus.Init,
+  channelId: "",
   isAnnotationStarted: false,
   isEnableViewerAnnotation: true,
   sharePrivilege: SharePrivilege.MultipleShare,
@@ -146,6 +152,9 @@ export const sessionSlice = createSlice({
     leaveSession: (state) => {
       state.isJoined = false;
       state.sessionId = null;
+    },
+    setIsJoinResolved: (state, action: PayloadAction<boolean>) => {
+      state.isJoinResolved = action.payload;
     },
     setUserId: (state, action: PayloadAction<number>) => {
       state.userId = action.payload;
@@ -322,6 +331,12 @@ export const sessionSlice = createSlice({
     ) => {
       state.liveStreamConfig = action.payload;
     },
+    setBroadcastStreamingStatus: (state, action: PayloadAction<BroadcastStreamingStatus>) => {
+      state.broadcastStreamingStatus = action.payload;
+    },
+    setChannelId: (state, action: PayloadAction<string>) => {
+      state.channelId = action.payload;
+    },
     setIsAnnotationStarted: (state, action: PayloadAction<boolean>) => {
       state.isAnnotationStarted = action.payload;
     },
@@ -345,6 +360,7 @@ export const {
   setIsHost,
   setIsOriginHost,
   setIsManager,
+  setIsJoinResolved,
   setIsStartedAudio,
   setIsStartedVideo,
   setIsShareAudioMuted,
@@ -389,6 +405,8 @@ export const {
   setActiveSpeakerId,
   setLiveStreamStatus,
   setLiveStreamConfig,
+  setBroadcastStreamingStatus,
+  setChannelId,
   setIsAnnotationStarted,
   setIsEnableViewerAnnotation,
   setSharePrivilege,

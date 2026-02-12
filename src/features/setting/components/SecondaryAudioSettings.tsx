@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useDevice } from "@/features/setting/hooks/useDevice";
 import { ChevronDown } from "lucide-react";
@@ -9,6 +10,7 @@ import { useSnackbar } from "notistack";
 import { setActiveSecondaryMicrophone, setSelectedSecondaryMicrophone } from "@/store/uiSlice";
 
 const SecondaryAudioSettings: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { activeSecondaryMicrophone, selectedSecondaryMicrophone, noiseCancellationOptions, activeMicrophone } =
     useAppSelector(useSessionUISelector);
@@ -19,9 +21,9 @@ const SecondaryAudioSettings: React.FC = () => {
   const [isUpdatingOptions, setIsUpdatingOptions] = useState(false);
 
   const noiseOptions = [
-    { key: "autoGainControl", label: "Automatic Gain Control" },
-    { key: "noiseSuppression", label: "Noise Suppression" },
-    { key: "echoCancellation", label: "Echo Cancellation" },
+    { key: "autoGainControl", label: t("settings.secondary_mic_agc") },
+    { key: "noiseSuppression", label: t("settings.secondary_mic_noise_suppression") },
+    { key: "echoCancellation", label: t("settings.secondary_mic_echo_cancellation") },
   ] as const;
 
   const handleSecondMicrophoneChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -75,7 +77,7 @@ const SecondaryAudioSettings: React.FC = () => {
           {/* Second Microphone Selection */}
           <div className="flex items-center">
             <label htmlFor="secondMicrophone" className="w-1/4 text-sm font-medium ">
-              Second Microphone:
+              {t("settings.secondary_mic_label")}
             </label>
             <div className="w-3/4 flex gap-2">
               <div className="relative flex-1">
@@ -86,7 +88,7 @@ const SecondaryAudioSettings: React.FC = () => {
                   className={selectClass}
                 >
                   <option value="" id="uikit-secondary-microphone-default-option">
-                    Select a second microphone
+                    {t("settings.secondary_mic_select")}
                   </option>
                   {availableSecondMicrophones.map((mic) => (
                     <option
@@ -122,9 +124,9 @@ const SecondaryAudioSettings: React.FC = () => {
                     />
                   </svg>
                 ) : activeSecondaryMicrophone ? (
-                  "Stop"
+                  t("settings.secondary_mic_stop")
                 ) : (
-                  "Start"
+                  t("settings.secondary_mic_start")
                 )}
               </button>
             </div>
@@ -133,7 +135,7 @@ const SecondaryAudioSettings: React.FC = () => {
           {/* Noise Cancellation Options */}
           <div className="flex items-center">
             <label id="uikit-noise-cancellation-label" className="w-1/4 text-sm font-medium">
-              Noise Cancellation:
+              {t("settings.secondary_mic_noise_cancellation")}
             </label>
             <div className="w-3/4 space-y-2">
               {noiseOptions.map(({ key, label }) => (
@@ -160,7 +162,7 @@ const SecondaryAudioSettings: React.FC = () => {
         </div>
       ) : (
         <div className="flex items-center justify-center h-full">
-          <span className="text-sm ">Second microphone is not supported or not connected audio</span>
+          <span className="text-sm ">{t("settings.secondary_mic_not_supported")}</span>
         </div>
       )}
     </div>

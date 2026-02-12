@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import AudioVideoPlaybacks from "./AudioVideoPlaybacks";
 import { useCurrentUser } from "@/features/participant/hooks";
 import { isSupportVideoPlayback } from "@/components/util/service";
@@ -7,6 +8,7 @@ import { setAudioPlaybackFile, setIsUseVideoFileAudio, setVideoPlaybackFile } fr
 import { THEME_COLOR_CLASS } from "@/constant";
 
 const PlaybackSettings = () => {
+  const { t } = useTranslation();
   const currentUser = useCurrentUser();
   const isStartedVideo = currentUser?.bVideoOn;
   const isMuted = currentUser?.muted === undefined ? true : currentUser?.muted;
@@ -28,7 +30,7 @@ const PlaybackSettings = () => {
   if (!isStartedVideo && isMuted) {
     return (
       <div className="flex items-center justify-center h-full">
-        <span className="text-sm ">Please turn on your mic or camera to access this feature</span>
+        <span className="text-sm ">{t("settings.playback_media_access_required")}</span>
       </div>
     );
   }
@@ -40,7 +42,7 @@ const PlaybackSettings = () => {
         showCheckbox={!isMuted && isSupportVideoPlayback(isStartedVideo)}
       />
       <div className="flex items-center justify-center mt-10 px-4">
-        <span className="text-sm ">Note: Mic and Camera buttons will be disabled when media file is selected.</span>
+        <span className="text-sm ">{t("settings.playback_media_disabled_note")}</span>
       </div>
     </div>
   );

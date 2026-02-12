@@ -1,137 +1,18 @@
-import React, { useEffect, useContext, useCallback, useRef, useState } from "react";
-import ReactDOM from "react-dom";
-import MoveIcon from "./move-icon.svg";
-import { StreamContext } from "@/context/stream-context";
-import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
-import { useToggleScreenShare } from "../hooks";
-import { setIsScreenSharePaused, setIsAnnotationStarted, setIsEnableViewerAnnotation } from "@/store/sessionSlice";
-import { useDrag } from "@/hooks/useDrag";
-import { Pause, Pen, PenOff, Play } from "lucide-react";
-import { SharePrivilege } from "@/constant/stream-constant";
+import { getRemoteControlEnabled } from "@/components/util/util";
+import { useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
+
+import ShareBarBase from "@/features/share/components/ShareBarBase";
+import ShareBarRemoteControl from "@/features/share/components/ShareBarRemoteControl";
 
 const ShareBar = () => {
-  const { stream } = useContext(StreamContext);
-  const { isScreenSharePaused, isEnableViewerAnnotation, sharePrivilege } = useAppSelector(useSessionSelector);
-  const dispatch = useAppDispatch();
-  const [isSupportOptimizeVideo, setIsSupportOptimizeVideo] = useState(false);
-  const [isOptimizeEnabled, setIsOptimizeEnabled] = useState(false);
-  const shareBarRef = useRef(null);
-  const { canDoAnnotation } = useAppSelector(useSessionUISelector);
-  const { toggleScreenShare } = useToggleScreenShare();
-  const { position, handleMouseDown } = useDrag(shareBarRef, { y: 100 });
+  const { featuresOptions } = useAppSelector(useSessionSelector);
+  const isRemoteControlFeatureEnabled = getRemoteControlEnabled(featuresOptions);
 
-  const onPauseClick = useCallback(async () => {
-    if (stream) {
-      try {
-        if (!isScreenSharePaused) {
-          await stream.pauseShareScreen();
-          dispatch(setIsScreenSharePaused(true));
-        } else {
-          await stream.resumeShareScreen();
-          dispatch(setIsScreenSharePaused(false));
-        }
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.warn(e);
-      }
-    }
-  }, [dispatch, isScreenSharePaused, stream]);
+  if (isRemoteControlFeatureEnabled) {
+    return <ShareBarRemoteControl />;
+  }
 
-  const onOptimizeCheck = useCallback(async () => {
-    if (stream) {
-      if (!isOptimizeEnabled) {
-        await stream.enableOptimizeForSharedVideo(true);
-        setIsOptimizeEnabled(stream.isOptimizeForSharedVideoEnabled());
-      } else {
-        await stream.enableOptimizeForSharedVideo(false);
-        setIsOptimizeEnabled(stream.isOptimizeForSharedVideoEnabled());
-      }
-    }
-  }, [isOptimizeEnabled, stream]);
-
-  const handleAnnotationPrivilegeChange = useCallback(async () => {
-    await stream?.changeAnnotationPrivilege(!isEnableViewerAnnotation);
-    dispatch(setIsEnableViewerAnnotation(!isEnableViewerAnnotation));
-  }, [dispatch, isEnableViewerAnnotation, stream]);
-
-  useEffect(() => {
-    if (stream) {
-      setIsSupportOptimizeVideo(stream.isSupportOptimizedForSharedVideo());
-    }
-  }, [stream]);
-
-  const shareBarText = isScreenSharePaused ? "You screen sharing is paused" : "You're screen sharing";
-  const stopShareButtonText = "Stop sharing";
-  const playPauseButtonClass = isScreenSharePaused
-    ? "bg-blue-500 hover:bg-blue-600 text-theme-text-button py-2 px-4 rounded-lg text-sm"
-    : "bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm";
-
-  return ReactDOM.createPortal(
-    <div className="zoom-ui-toolkit-root">
-      <div
-        className="fixed flex items-center justify-between bg-theme-background rounded-lg shadow-lg p-2 w-[650px] z-50"
-        id="screen-share-bar"
-        ref={shareBarRef}
-        style={{ left: `${position.x}px`, top: `${position.y}px` }}
-      >
-        <div className="flex items-center space-x-3">
-          <button className="text-gray-600 hover:text-gray-800 p-1 cursor-move" onMouseDown={handleMouseDown}>
-            <svg className="w-4 h-4 text-theme-text">
-              <MoveIcon />
-            </svg>
-          </button>
-          <span className="text-sm font-semibold text-theme-text" id="share-bar-text">
-            {shareBarText}
-          </span>
-        </div>
-        <div className="flex space-x-2 items-center">
-          {stream?.isSupportOptimizedForSharedVideo() && sharePrivilege !== SharePrivilege.MultipleShare && (
-            <div className="flex space-x-2 items-center text-sm text-gray-700">
-              <input
-                type="checkbox"
-                name="optimize video"
-                id="share-bar-optimize-video"
-                checked={isOptimizeEnabled}
-                onChange={onOptimizeCheck}
-                disabled={isScreenSharePaused}
-              />
-              <label htmlFor="optimize video" className="text-theme-text">
-                Optimize video
-              </label>
-            </div>
-          )}
-          {canDoAnnotation && (
-            <button
-              onClick={handleAnnotationPrivilegeChange}
-              className={`relative w-12 h-8 rounded-full transition-colors duration-100 ${isEnableViewerAnnotation ? "bg-green-200" : "bg-gray-300"}`}
-            >
-              <div
-                className={`absolute top-0 left-0 w-8 h-8 rounded-full shadow-md flex items-center justify-center transform transition-transform duration-100 text-theme-text ${isEnableViewerAnnotation ? "translate-x-4 bg-green-500 hover:bg-green-600" : "translate-x-0 bg-gray-300 hover:bg-gray-400"}`}
-                style={{
-                  boxShadow: isEnableViewerAnnotation
-                    ? "-4px 0 8px rgba(0, 0, 0, 0.25)"
-                    : "4px 0 8px rgba(0, 0, 0, 0.25)",
-                }}
-              >
-                {isEnableViewerAnnotation ? <Pen size={15} /> : <PenOff size={15} />}
-              </div>
-            </button>
-          )}
-          <button className={playPauseButtonClass} onClick={onPauseClick} id="pause-screen-share-btn">
-            {isScreenSharePaused ? <Play size={20} /> : <Pause size={20} />}
-          </button>
-          <button
-            className="bg-red-500 hover:bg-red-600 text-theme-text-button py-2 px-4 rounded-lg text-sm"
-            id="stop-screen-share-btn"
-            onClick={() => toggleScreenShare()}
-          >
-            {stopShareButtonText}
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
-  );
+  return <ShareBarBase />;
 };
 
 export default ShareBar;

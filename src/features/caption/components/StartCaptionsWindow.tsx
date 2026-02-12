@@ -1,8 +1,9 @@
 import { CommonPopper } from "@/components/widget/CommonPopper";
 import { useAppDispatch, useAppSelector, useCaptionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { setIsShowStartCaptionsWindow, setIsShowCaption } from "@/store/uiSlice";
-import { LANGUAGE_CODES } from "../caption-constant";
+import { getLocalizedLanguageName } from "../caption-constant";
 import { LiveTranscriptionLanguage } from "@zoom/videosdk";
 import {
   setIsTranscriptionInitiated,
@@ -16,6 +17,7 @@ import { enqueueSnackbar } from "notistack";
 import { CommonSelectStyle } from "@/components/widget/CommonSelectStyle";
 
 const StartCaptionsWindow = () => {
+  const { t } = useTranslation();
   const { isShowStartCaptionsWindow, themeName } = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
   const { captionClient } = useContext(sessionAdditionalContext);
@@ -126,8 +128,8 @@ const StartCaptionsWindow = () => {
       }}
       title={
         selectedLocalTranslationLanguage
-          ? "You've enabled Translation. Select the language you will read and speak in this session."
-          : "Set the caption language for this session"
+          ? t("caption.start_window_title_with_translation")
+          : t("caption.start_window_title")
       }
       width={500}
       height={selectedLocalTranslationLanguage ? 430 : 275}
@@ -135,16 +137,19 @@ const StartCaptionsWindow = () => {
       <div className="p-6 max-w-xl mx-auto space-y-6">
         {/* Speaking Language Section */}
         <div>
-          <h3 className=" font-semibold">My Speaking Language</h3>
-          <p className=" text-sm mb-2">Select the language you will be speaking in for this session</p>
+          <h3 className=" font-semibold">{t("caption.speaking_language_title")}</h3>
+          <p className=" text-sm mb-2">{t("caption.speaking_language_subtitle")}</p>
           <Select
-            value={{ value: selectedLocalSpeakingLanguage, label: LANGUAGE_CODES[selectedLocalSpeakingLanguage] }}
+            value={{
+              value: selectedLocalSpeakingLanguage,
+              label: getLocalizedLanguageName(selectedLocalSpeakingLanguage, t),
+            }}
             onChange={handleSpeakingLanguageSelect}
             className="w-full p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             classNamePrefix="uikit-custom-scrollbar"
             options={getSpeakingLanguagesList().map((lang: LiveTranscriptionLanguage) => ({
               value: lang,
-              label: LANGUAGE_CODES[lang],
+              label: getLocalizedLanguageName(lang, t),
             }))}
             menuPortalTarget={document.body}
             styles={CommonSelectStyle({ themeName })}
@@ -154,12 +159,12 @@ const StartCaptionsWindow = () => {
         {/* Caption Language Section */}
         {selectedLocalTranslationLanguage && (
           <div>
-            <h3 className="font-semibold">My Caption Language</h3>
-            <p className="text-sm mb-2">Captions will appear in and translated to this language for you</p>
+            <h3 className="font-semibold">{t("caption.translation_language_title")}</h3>
+            <p className="text-sm mb-2">{t("caption.translation_language_subtitle")}</p>
             <Select
               value={{
                 value: selectedLocalTranslationLanguage,
-                label: LANGUAGE_CODES[selectedLocalTranslationLanguage],
+                label: getLocalizedLanguageName(selectedLocalTranslationLanguage, t),
               }}
               onChange={handleTranslationLanguageSelect}
               className=" w-full p-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -167,7 +172,7 @@ const StartCaptionsWindow = () => {
               options={getTranslationLanguagesList(selectedLocalSpeakingLanguage).map(
                 (lang: LiveTranscriptionLanguage) => ({
                   value: lang,
-                  label: LANGUAGE_CODES[lang],
+                  label: getLocalizedLanguageName(lang, t),
                 }),
               )}
               menuPortalTarget={document.body}
@@ -186,7 +191,7 @@ const StartCaptionsWindow = () => {
                 onChange={onToggleTranslations}
                 className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
               />
-              <span className="ml-2 text-sm">Enable Translation</span>
+              <span className="ml-2 text-sm">{t("caption.enable_translation")}</span>
             </label>
           )}
           <div className="flex space-x-4 ml-auto">
@@ -194,14 +199,14 @@ const StartCaptionsWindow = () => {
               className="px-4 py-1  font-medium rounded-lg border border-gray-300 hover:bg-theme-background transition"
               onClick={onCloseCaptionStartWindow}
             >
-              Cancel
+              {t("caption.start_window_cancel")}
             </button>
             <button
               id="uikit-caption-start-captions-from-modal"
               className="px-4 py-1 bg-blue-500 text-theme-text-button font-medium rounded-lg hover:bg-blue-600 transition"
               onClick={onStartCaptions}
             >
-              Save
+              {t("caption.start_window_save")}
             </button>
           </div>
         </div>

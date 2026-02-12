@@ -1,4 +1,5 @@
 import { StreamContext } from "@/context/stream-context";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { setActiveVbImage, setIsMirrorVideo } from "@/store/uiSlice";
 import { Loader } from "lucide-react";
@@ -14,7 +15,7 @@ import React, {
 } from "react";
 import { type VideoPlayer, type VideoPlayerContainer } from "@zoom/videosdk";
 import ImageWithValidation from "./ImageWithValidation";
-import { getZoomImgPath } from "@/components/util/service";
+import BlurThumbnailButton from "./BlurThumbnailButton";
 type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
 
 declare global {
@@ -31,6 +32,7 @@ interface BackgroundSettingsProps {
 }
 
 const BackgroundSettings = ({ isActive }: BackgroundSettingsProps) => {
+  const { t } = useTranslation();
   const { vbImageList, activeVbImage, isSettingsOpen, isMirrorVideo } = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
   const { stream } = useContext(StreamContext);
@@ -117,20 +119,20 @@ const BackgroundSettings = ({ isActive }: BackgroundSettingsProps) => {
           </video-player-container>
         </div>
       </div>
-      <h3 className="text-lg font-semibold m-2 ">Virtual Background</h3>
+      <h3 className="text-lg font-semibold m-2 ">{t("settings.virtual_background")}</h3>
       <div className="grid grid-cols-4 gap-4">
         <button
           className={`border-2 ${activeVbImage === "" ? "border-blue-500" : "border-gray-200"} rounded-lg p-2 text-theme-text font-medium aspect-video text-theme-color`}
           onClick={() => onSelectImage("")}
         >
-          None
+          {t("settings.vb_none")}
         </button>
-        <button
-          className={`border-2 ${activeVbImage === "blur" ? "border-blue-500" : "border-gray-200"} rounded-lg p-2 text-theme-text font-medium aspect-video text-theme-color bg-gray-300 text-white`}
-          onClick={() => onSelectImage("blur")}
-        >
-          Blur
-        </button>
+        <BlurThumbnailButton
+          isActive={activeVbImage === "blur"}
+          label={t("settings.blur_text")}
+          labelClassName="text-base font-medium text-white/95"
+          onSelect={() => onSelectImage("blur")}
+        />
         {vbImageList?.map((image, i) => (
           <ImageWithValidation
             key={i}
@@ -149,7 +151,7 @@ const BackgroundSettings = ({ isActive }: BackgroundSettingsProps) => {
           checked={isMirrorVideo}
           onChange={handleMirrorVideo}
         />
-        <label htmlFor="mirror-video">Mirror my video</label>
+        <label htmlFor="mirror-video">{t("settings.mirror_my_video")}</label>
       </div>
     </div>
   );

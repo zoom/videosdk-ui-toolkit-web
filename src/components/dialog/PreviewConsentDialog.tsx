@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import { isPEPCSupported, canUsePEPCPermissionQuery } from "@/components/util/pepcDetection";
 import PermissionElement from "@/components/widget/PermissionElement";
 import { setPreviewAVStatus } from "@/store/uiSlice";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
+import { permissionStateLabel } from "@/components/util/permissionStateLabel";
 
 interface PEPCPermissionStatus {
   camera: {
@@ -22,6 +24,7 @@ interface PreviewPEPCDialogProps {
 }
 
 const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent }) => {
+  const { t } = useTranslation();
   const [permissionStatus, setPermissionStatus] = useState<PEPCPermissionStatus>({
     camera: { state: "prompt" },
     microphone: { state: "prompt" },
@@ -118,12 +121,8 @@ const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent
           {/* Header */}
           <div className="text-center space-y-4">
             <div>
-              <h3 className="text-lg font-semibold text-theme-text mb-2">
-                Do you want people to see you in the session?
-              </h3>
-              <p className="text-sm text-theme-text leading-relaxed opacity-75">
-                You can still turn off your microphone and camera anytime in the session
-              </p>
+              <h3 className="text-lg font-semibold text-theme-text mb-2">{t("preview.consent_title")}</h3>
+              <p className="text-sm text-theme-text leading-relaxed opacity-75">{t("preview.consent_subtitle")}</p>
             </div>
           </div>
 
@@ -133,7 +132,7 @@ const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent
           {/* Current Permission Status */}
           <div className="space-y-3">
             <h4 className="text-xs font-medium text-theme-text opacity-60 uppercase tracking-wider">
-              Current Permissions
+              {t("preview.consent_current_permissions")}
             </h4>
 
             <div className="space-y-3">
@@ -155,10 +154,10 @@ const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent
                       />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-theme-text">Camera</span>
+                  <span className="text-sm font-medium text-theme-text">{t("preview.consent_camera")}</span>
                 </div>
                 <span className="px-3 py-1 text-xs font-medium bg-orange-500 bg-opacity-20 text-orange-600 dark:text-orange-400 rounded capitalize">
-                  {permissionStatus.camera.state}
+                  {permissionStateLabel(t, permissionStatus.camera.state)}
                 </span>
               </div>
 
@@ -180,10 +179,10 @@ const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent
                       />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-theme-text">Microphone</span>
+                  <span className="text-sm font-medium text-theme-text">{t("preview.consent_microphone")}</span>
                 </div>
                 <span className="px-3 py-1 text-xs font-medium bg-orange-500 bg-opacity-20 text-orange-600 dark:text-orange-400 rounded capitalize">
-                  {permissionStatus.microphone.state}
+                  {permissionStateLabel(t, permissionStatus.microphone.state)}
                 </span>
               </div>
             </div>
@@ -217,13 +216,13 @@ const PreviewPEPCDialog: React.FC<PreviewPEPCDialogProps> = ({ isOpen, onConsent
               onClick={handleContinueWithoutMedia}
               className="w-full px-4 py-2 bg-theme-surface-elevated border border-theme-divider text-blue-600 dark:text-blue-400 hover:bg-theme-background rounded-lg font-medium transition-colors"
             >
-              Continue without microphone and camera
+              {t("preview.consent_continue_without")}
             </button>
           </div>
 
           {/* PEPC Info */}
           <div className="text-xs text-theme-text opacity-60 text-center">
-            <p>Permissions granted will last for this browser session and can be revoked anytime.</p>
+            <p>{t("preview.consent_permission_info")}</p>
           </div>
         </div>
       </div>
@@ -240,6 +239,7 @@ interface StandardPreviewDialogProps {
 }
 
 const StandardPreviewDialog: React.FC<StandardPreviewDialogProps> = ({ isOpen, onConsent }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -252,12 +252,8 @@ const StandardPreviewDialog: React.FC<StandardPreviewDialogProps> = ({ isOpen, o
         <div className="p-6 space-y-6">
           {/* Header */}
           <div className="text-center">
-            <h3 className="text-lg font-semibold text-theme-text mb-2">
-              Do you want people to see you in the session?
-            </h3>
-            <p className="text-sm text-theme-text leading-relaxed opacity-75">
-              You can still turn off your microphone and camera anytime in the session
-            </p>
+            <h3 className="text-lg font-semibold text-theme-text mb-2">{t("preview.consent_title")}</h3>
+            <p className="text-sm text-theme-text leading-relaxed opacity-75">{t("preview.consent_subtitle")}</p>
           </div>
 
           {/* Buttons */}
@@ -266,14 +262,14 @@ const StandardPreviewDialog: React.FC<StandardPreviewDialogProps> = ({ isOpen, o
               onClick={() => onConsent({ camera: true, microphone: true })}
               className="w-full px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
             >
-              Use microphone and camera
+              {t("preview.consent_use_media")}
             </button>
 
             <button
               onClick={() => onConsent({ camera: false, microphone: false })}
               className="w-full px-4 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg font-medium transition-colors"
             >
-              Continue without microphone and camera
+              {t("preview.consent_continue_without")}
             </button>
           </div>
         </div>

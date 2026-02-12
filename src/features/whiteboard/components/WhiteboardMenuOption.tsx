@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { CommonMenuButton } from "../../../components/widget/CommonMenuButton";
 import { useAppSelector, useWhiteboardSelector } from "@/hooks/useAppSelector";
 import { useCurrentUser } from "@/features/participant/hooks";
@@ -23,6 +24,7 @@ export const WhiteboardMenuOption: React.FC<WhiteboardMenuOptionProps> = ({
   orientation = "horizontal",
   excludeRefs,
 }) => {
+  const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
   const { whiteboardClient } = useContext(SessionAdditionalClientContext);
   const whiteboard = useAppSelector(useWhiteboardSelector);
@@ -71,14 +73,14 @@ export const WhiteboardMenuOption: React.FC<WhiteboardMenuOptionProps> = ({
 
   const menuItems = [
     {
-      label: "Only the host or manager can start whiteboard",
+      label: t("whiteboard.privilege_only_host"),
       onClick: () => onPrivilegeChange(true),
       checked: isLock,
       id: "only-host-whiteboard",
       className: "w-full text-left px-4 py-2 whitespace-normal",
     },
     {
-      label: "All participants can start whiteboard",
+      label: t("whiteboard.privilege_all_participants"),
       onClick: () => onPrivilegeChange(false),
       checked: !isLock,
       id: "one-participant-whiteboard",

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Grid, UserSquare, ChevronDown, Minimize2 } from "lucide-react";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { SuspensionViewValue, SuspensionViewType } from "@/types/index.d";
@@ -8,6 +9,7 @@ import { ExposedEvents } from "@/events/event-constant";
 import { emit } from "@/events/event-bus";
 
 export default function ViewToggleDropdown() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -105,7 +107,7 @@ export default function ViewToggleDropdown() {
               onClick={() => handleViewChange(SuspensionViewType.Gallery)}
             >
               <Grid size={20} />
-              <span>Gallery</span>
+              <span>{t("view.toggle_gallery")}</span>
             </button>
           )}
           {isSupportSpeakerView && (
@@ -113,10 +115,10 @@ export default function ViewToggleDropdown() {
               className={`${dropdownButtonClass} ${viewType === SuspensionViewType.Speaker ? activeClass : iconColor}`}
               onClick={() => handleViewChange(SuspensionViewType.Speaker)}
               disabled={isScreenShare}
-              title={isScreenShare ? "Can't use speaker view when screen sharing" : ""}
+              title={isScreenShare ? t("view.toggle_speaker_disabled_tooltip") : ""}
             >
               <UserSquare size={20} />
-              <span>Speaker</span>
+              <span>{t("view.toggle_speaker")}</span>
             </button>
           )}
 
@@ -125,10 +127,10 @@ export default function ViewToggleDropdown() {
               className={`${dropdownButtonClass} ${viewType === SuspensionViewType.Minimized ? activeClass : iconColor}`}
               onClick={() => handleViewChange(SuspensionViewType.Minimized)}
               disabled={isScreenShare}
-              title={isScreenShare ? "Can't use minimized view when screen sharing" : ""}
+              title={isScreenShare ? t("view.toggle_minimized_disabled_tooltip") : ""}
             >
               <Minimize2 size={20} />
-              <span>Minimize</span>
+              <span>{t("view.toggle_minimize")}</span>
             </button>
           )}
         </div>
