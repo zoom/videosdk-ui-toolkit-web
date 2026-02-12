@@ -114,5 +114,5 @@
     "test:ci": "vitest run"
   },
   "type": "module",
-  "version": "2.3.5-1"
+  "version": "2.3.14-1"
 }
