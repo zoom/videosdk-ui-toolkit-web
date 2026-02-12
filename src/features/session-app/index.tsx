@@ -11,6 +11,8 @@ import {
   SubsessionClient,
   LiveStreamClient,
   WhiteboardClient,
+  RealTimeMediaStreamsClient,
+  BroadcastStreamingClient,
 } from "@/types/index.d";
 import { useMount, useParticipantsChange } from "../../hooks";
 import i18n from "../../i18n";
@@ -42,6 +44,8 @@ import { useConnectionChange, useMediaSDKChange, useNetworkQuality, useSharePriv
 import { useRecordingChange } from "../recording/hooks/useRecordingChange";
 import { useCaption } from "../caption/hooks/useCaption";
 import { useWhiteboardEvents } from "../whiteboard/hooks/useWhiteboardEvents";
+import { useRealTimeMediaStreamsEvents } from "../real-time-media-streams/hooks/useRealTimeMediaStreamsEvents";
+import { useBroadcastStreaming } from "@/features/broadcast-streaming/hooks";
 
 import {
   useAppDispatch,
@@ -64,6 +68,7 @@ import {
   setViewType,
 } from "@/store/uiSlice";
 import { resetWhiteboard, setIsDisableExport, setWhiteboardEnabled } from "../whiteboard/whiteboardSlice";
+import { resetRtms } from "../real-time-media-streams/rtmsSlice";
 import { resetMedia } from "../media/mediaSlice";
 import { setParticipants } from "../participant/participantSlice";
 import { checkIsFeatureEnable, decodeJWTPlayload } from "@/components/util/util";
@@ -82,7 +87,7 @@ declare global {
   }
 }
 
-export const SessionApp = (props: SessionAppProps) => {
+const SessionAppInner = (props: SessionAppProps) => {
   const { client, children, config } = props;
   const dispatch = useAppDispatch();
 
@@ -96,6 +101,8 @@ export const SessionApp = (props: SessionAppProps) => {
   const [subsessionClient, setSubsessionClient] = useState<SubsessionClient>();
   const [liveStreamClient, setLiveStreamClient] = useState<LiveStreamClient>();
   const [whiteboardClient, setWhiteboardClient] = useState<WhiteboardClient>();
+  const [realTimeMediaStreamsClient, setRealTimeMediaStreamsClient] = useState<RealTimeMediaStreamsClient>();
+  const [broadcastStreamingClient, setBroadcastStreamingClient] = useState<BroadcastStreamingClient>();
   const [stream, setStream] = useState<MediaStream | undefined>(undefined);
 
   const streamContextValue = useMemo(() => ({ ...mediaState, stream }), [stream, mediaState]);
@@ -108,8 +115,19 @@ export const SessionApp = (props: SessionAppProps) => {
       subsessionClient,
       liveStreamClient,
       whiteboardClient,
+      realTimeMediaStreamsClient,
+      broadcastStreamingClient,
     }),
-    [chatClient, recordingClient, captionClient, subsessionClient, liveStreamClient, whiteboardClient],
+    [
+      chatClient,
+      recordingClient,
+      captionClient,
+      subsessionClient,
+      liveStreamClient,
+      whiteboardClient,
+      realTimeMediaStreamsClient,
+      broadcastStreamingClient,
+    ],
   );
 
   const setupApp = useCallback(() => {
@@ -176,6 +194,14 @@ export const SessionApp = (props: SessionAppProps) => {
       dispatch(setWhiteboardEnabled(false));
     }
 
+    const realTimeMediaStreamsClient: RealTimeMediaStreamsClient | undefined =
+      typeof (client as any)?.getRealTimeMediaStreamsClient === "function"
+        ? (client as any).getRealTimeMediaStreamsClient()
+        : undefined;
+    if (realTimeMediaStreamsClient) {
+      setRealTimeMediaStreamsClient(realTimeMediaStreamsClient);
+    }
+
     const subsessionClient = client.getSubsessionClient();
     if (subsessionClient) {
       setSubsessionClient(subsessionClient);
@@ -186,6 +212,13 @@ export const SessionApp = (props: SessionAppProps) => {
       setLiveStreamStatus(liveStreamClient.getLiveStreamStatus());
     } else {
       setLiveStreamClient(liveStreamClient);
+    }
+
+    const broadcastClient = (client as any)?.getBroadcastStreamingClient?.();
+    if (broadcastClient && broadcastClient?.isBroadcastStreamingEnable?.()) {
+      setBroadcastStreamingClient(broadcastClient);
+    } else {
+      setBroadcastStreamingClient(undefined);
     }
 
     dispatch(setConfig(config));
@@ -245,6 +278,7 @@ export const SessionApp = (props: SessionAppProps) => {
     dispatch(resetSessionUI());
     dispatch(resetMedia());
     dispatch(resetWhiteboard());
+    dispatch(resetRtms());
     setStream(undefined);
     setChatClient(undefined);
     setRecordingClient(undefined);
@@ -258,6 +292,7 @@ export const SessionApp = (props: SessionAppProps) => {
   useRecordingChange(client, dispatch);
   useCaption(client, captionClient, setCaptionClient);
   useWhiteboardEvents(client, whiteboardClient);
+  useRealTimeMediaStreamsEvents(client, realTimeMediaStreamsClient);
 
   useMount(() => {
     const sessionInfo = client?.getSessionInfo();
@@ -284,21 +319,35 @@ export const SessionApp = (props: SessionAppProps) => {
 
   useNetworkQuality(client, dispatch);
   useSharePrivilege(client, dispatch);
+  useBroadcastStreaming(client, dispatch);
 
   return (
     <ClientContext.Provider value={client}>
       <StreamContext.Provider value={streamContextValue}>
         <SessionAdditionalContext.Provider value={sessionAdditionalContextValue}>
-          <SnackbarProvider
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "center",
-            }}
-          >
-            {children}
-          </SnackbarProvider>
+          {children}
         </SessionAdditionalContext.Provider>
       </StreamContext.Provider>
     </ClientContext.Provider>
+  );
+};
+
+export const SessionApp = (props: SessionAppProps) => {
+  return (
+    <SnackbarProvider
+      anchorOrigin={{
+        vertical: "top",
+        horizontal: "center",
+      }}
+      Components={{
+        success: MaterialDesignContent,
+        warning: MaterialDesignContent,
+        info: MaterialDesignContent,
+        error: MaterialDesignContent,
+        default: MaterialDesignContent,
+      }}
+    >
+      <SessionAppInner {...props} />
+    </SnackbarProvider>
   );
 };

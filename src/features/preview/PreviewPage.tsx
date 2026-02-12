@@ -15,12 +15,14 @@ import Button from "../../components/widget/CommonButton";
 import { GRANT_PERMISSION_MESSAGE, LOCALSTORAGE_KEYS, THEME_COLOR_CLASS } from "@/constant";
 import { isMobileDevice, isMobileLandscape, isPortrait } from "../../components/util/service";
 import { useSnackbar } from "notistack";
+import { useTranslation } from "react-i18next";
 import DeviceManager, { DeviceManagerEvents } from "@/components/util/DeviceManager";
 import {
   setActiveVbImage,
   setIsMirrorVideo,
   setIsShowAVLearnDialog,
   setPreviewAVStatus,
+  setIsAudioConsentInitialized,
   setShowJoinAudioConsent,
 } from "@/store/uiSlice";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
@@ -78,8 +80,52 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
   isAllowModifyName,
   isClientInit,
 }) => {
+  const { t } = useTranslation();
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useAppDispatch();
+
+  const isAudioAlreadyUnmutedError = useCallback((error: unknown): boolean => {
+    const name = (error as any)?.name;
+    const message = (error as any)?.message ?? String(error);
+    return (
+      name === "AudioAlreadyUnmutedError" ||
+      (typeof message === "string" && message.includes("AudioAlreadyUnmutedError"))
+    );
+  }, []);
+
+  const isAudioAlreadyMutedError = useCallback((error: unknown): boolean => {
+    const name = (error as any)?.name;
+    const message = (error as any)?.message ?? String(error);
+    return (
+      name === "AudioAlreadyMutedError" || (typeof message === "string" && message.includes("AudioAlreadyMutedError"))
+    );
+  }, []);
+
+  const safeMuteLocalAudio = useCallback(async (): Promise<void> => {
+    try {
+      const result = await localAudio.mute();
+      if (result) {
+        if (isAudioAlreadyMutedError(result)) return;
+        throw result;
+      }
+    } catch (error) {
+      if (isAudioAlreadyMutedError(error)) return;
+      throw error;
+    }
+  }, [isAudioAlreadyMutedError]);
+
+  const safeUnmuteLocalAudio = useCallback(async (): Promise<void> => {
+    try {
+      const result = await localAudio.unmute();
+      if (result) {
+        if (isAudioAlreadyUnmutedError(result)) return;
+        throw result;
+      }
+    } catch (error) {
+      if (isAudioAlreadyUnmutedError(error)) return;
+      throw error;
+    }
+  }, [isAudioAlreadyUnmutedError]);
 
   // State management
   const [name, setName] = useState(displayName);
@@ -179,7 +225,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
     DeviceManager.on(DeviceManagerEvents.INIT_FAIL, (deviceState) => {
       // eslint-disable-next-line no-console
       console.log("INIT_FAIL", deviceState);
-      enqueueSnackbar("Failed to initialize devices. Please check device permissions.", {
+      enqueueSnackbar(t("preview.error_init_devices"), {
         variant: "error",
         autoHideDuration: 5000,
       });
@@ -202,7 +248,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
       //   autoHideDuration: 3000,
       // });
     });
-  }, [enqueueSnackbar, onDeviceChange]);
+  }, [enqueueSnackbar, onDeviceChange, t]);
 
   // Initialize devices
   const initializeDevices = useCallback(async () => {
@@ -211,9 +257,9 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         onDeviceChange(deviceState);
       });
     } catch (error) {
-      enqueueSnackbar("Failed to initialize devices", { variant: "error" });
+      enqueueSnackbar(t("preview.error_init_devices_short"), { variant: "error" });
     }
-  }, [enqueueSnackbar, onDeviceChange]);
+  }, [enqueueSnackbar, onDeviceChange, t]);
 
   useEffect(() => {
     initializeDevices();
@@ -331,10 +377,10 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         }
         await localVideo.updateVirtualBackground(imageUrl);
       } catch (error) {
-        enqueueSnackbar("Failed to update virtual background", { variant: "error" });
+        enqueueSnackbar(t("preview.error_update_vb"), { variant: "error" });
       }
     },
-    [videoState.isStarted, enqueueSnackbar],
+    [videoState.isStarted, enqueueSnackbar, t],
   );
 
   useEffect(() => {
@@ -369,7 +415,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         }
         setVideoState((prev) => ({ ...prev, isStarted: true }));
       } catch (error) {
-        enqueueSnackbar("Failed to start camera:" + error, { variant: "error" });
+        enqueueSnackbar(t("preview.error_start_camera") + error, { variant: "error" });
       }
     }
   }, [
@@ -379,6 +425,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
     dispatch,
     activeVbImage,
     enqueueSnackbar,
+    t,
   ]);
 
   // Handle audio toggle
@@ -394,18 +441,22 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         }
         await localAudio.start();
         setAudioState((prev) => ({ ...prev, isStarted: true, isMuted: true }));
-        await localAudio.unmute();
+        await safeUnmuteLocalAudio();
         setAudioState((prev) => ({ ...prev, isMuted: false }));
       } catch (error) {
-        enqueueSnackbar("Failed to start microphone", { variant: "error" });
+        enqueueSnackbar(t("preview.error_start_mic"), { variant: "error" });
       }
     } else {
-      if (audioState.isMuted) {
-        await localAudio.unmute();
-        setAudioState((prev) => ({ ...prev, isMuted: false }));
-      } else {
-        await localAudio.mute();
-        setAudioState((prev) => ({ ...prev, isMuted: true }));
+      try {
+        if (audioState.isMuted) {
+          await safeUnmuteLocalAudio();
+          setAudioState((prev) => ({ ...prev, isMuted: false }));
+        } else {
+          await safeMuteLocalAudio();
+          setAudioState((prev) => ({ ...prev, isMuted: true }));
+        }
+      } catch (error) {
+        enqueueSnackbar(t("preview.error_start_mic"), { variant: "error" });
       }
     }
   }, [
@@ -415,6 +466,9 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
     audioState.isMuted,
     dispatch,
     enqueueSnackbar,
+    safeMuteLocalAudio,
+    safeUnmuteLocalAudio,
+    t,
   ]);
 
   // Handle device changes
@@ -425,7 +479,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
       setVideoState((prev) => ({ ...prev, selectedCamera: deviceId }));
       DeviceManager.manuallySelectCamera(deviceId);
     } catch (error) {
-      enqueueSnackbar("Failed to switch camera", { variant: "error" });
+      enqueueSnackbar(t("preview.error_switch_camera"), { variant: "error" });
     }
   };
 
@@ -443,20 +497,20 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
       if (audioState.isStarted) {
         await localAudio.start();
         if (!audioState.isMuted) {
-          await localAudio.unmute();
+          await safeUnmuteLocalAudio();
           setAudioState((prev) => ({ ...prev, isMuted: false }));
         }
       }
 
       setAudioState((prev) => ({ ...prev, selectedMic: deviceId }));
     } catch (error) {
-      enqueueSnackbar("Failed to switch microphone", { variant: "error" });
+      enqueueSnackbar(t("preview.error_switch_mic"), { variant: "error" });
     }
   };
 
   const handleJoinSession = () => {
     if (name.trim() === "") {
-      enqueueSnackbar("Please enter your name before joining", { variant: "warning" });
+      enqueueSnackbar(t("preview.error_name_required"), { variant: "warning" });
       return;
     }
 
@@ -514,14 +568,14 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         }
         await localAudio.start();
         setAudioState((prev) => ({ ...prev, isStarted: true, isMuted: true }));
-        await localAudio.unmute();
+        await safeUnmuteLocalAudio();
         setAudioState((prev) => ({ ...prev, isMuted: false }));
       } else if (!permissions.microphone && audioState.isStarted) {
         await localAudio.stop();
         setAudioState((prev) => ({ ...prev, isStarted: false }));
       }
     } catch (error) {
-      enqueueSnackbar("Failed to start devices: " + error, { variant: "error" });
+      enqueueSnackbar(t("preview.error_start_devices") + error, { variant: "error" });
     }
 
     // Don't proceed with joining - user will click "Join Session" button when ready
@@ -535,10 +589,19 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
 
   useEffect(() => {
     if (isTestSpeaker && audioState.isStarted && !audioState.isMuted && localAudio) {
-      localAudio.mute();
+      void safeMuteLocalAudio().catch(() => {
+        // Ignore non-critical errors when forcing mute during speaker testing
+      });
       setAudioState((prev) => ({ ...prev, isMuted: true }));
     }
-  }, [audioState.isMuted, audioState.isStarted, isPlayingRecording, isRecordingVoice, isTestSpeaker]);
+  }, [
+    audioState.isMuted,
+    audioState.isStarted,
+    isPlayingRecording,
+    isRecordingVoice,
+    isTestSpeaker,
+    safeMuteLocalAudio,
+  ]);
 
   const themeColorClass = themeName === "dark" ? "bg-theme-surface" : "text-black bg-theme-surface";
   const borderColor = themeName === "dark" ? "border-solid border border-gray-100 rounded-lg" : "border-gray-200";
@@ -548,7 +611,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         ref={avatarButtonRef}
         onClick={() => setIsVBListOpen(!isVBListOpen)}
         className={`hover:cursor-pointer inline-flex border w-8 h-8  items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none ring-offset-background p-1 `}
-        title="Change virtual background"
+        title={t("preview.change_virtual_background")}
         id="uikit-preview-vb-button"
       >
         <ImageIcon className="h-6 w-6 text-theme-text" />
@@ -597,7 +660,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         className={`rounded-lg shadow-lg py-4 px-6 w-full ${isMobileDevice() ? "max-w-md" : "max-w-[800px] min-w-[300px]"} max-h-[100dvh] overflow-y-auto my-auto ${borderColor}`}
       >
         <h2 className="text-2xl font-bold mb-4 text-center" id="uikit-preview-title">
-          What&apos;s your name?
+          {t("preview.title")}
         </h2>
         {/* Name and Avatar Input */}
         <div className="mb-4 flex items-center justify-center">
@@ -606,7 +669,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name"
+              placeholder={t("preview.name_placeholder")}
               className={`w-full p-2 pl-10 pr-10 border rounded focus:ring-2 focus:ring-blue-500 ${themeColorClass}`}
               id="uikit-preview-name-input"
               maxLength={300}
@@ -689,10 +752,10 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
                 id="uikit-preview-mic-button"
                 title={
                   isPlayingRecording || isRecordingVoice
-                    ? "You can click on the microphone button when you are testing your microphone, please stop testing and wait for an moment"
+                    ? t("preview.mic_test_disabled")
                     : isGrantPermission.microphone
                       ? ""
-                      : GRANT_PERMISSION_MESSAGE.microphone
+                      : GRANT_PERMISSION_MESSAGE(t).microphone
                 }
                 className={`text-white bg-red-500/100 hover:bg-red-600/100`}
                 disabled={isPlayingRecording || isRecordingVoice}
@@ -712,7 +775,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
                 variant="danger"
                 size="md"
                 id="uikit-preview-camera-button"
-                title={isGrantPermission.camera ? "" : GRANT_PERMISSION_MESSAGE.camera}
+                title={isGrantPermission.camera ? "" : GRANT_PERMISSION_MESSAGE(t).camera}
                 className={`text-white bg-red-500/100 hover:bg-red-600/100`}
               >
                 {!isGrantPermission.camera ? (
@@ -738,8 +801,8 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
             }}
             devices={devices.speakers}
             disabled={isPlayingRecording || isRecordingVoice || isTestSpeaker}
-            testTitle={isTestSpeaker ? "Stop" : "Test speaker"}
-            deviceType="Speaker"
+            testTitle={isTestSpeaker ? t("preview.speaker_stop") : t("preview.speaker_test")}
+            deviceType={t("preview.speaker_label")}
             id="uikit-preview-speaker-select"
             themeColorClass={themeColorClass}
             iconId="uikit-preview-test-speaker"
@@ -766,10 +829,14 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
             onChange={handleMicChange}
             devices={devices.microphones}
             testTitle={
-              isPlayingRecording ? "Playing recording" : isRecordingVoice ? "Mic recording" : "Test microphone"
+              isPlayingRecording
+                ? t("preview.mic_playing")
+                : isRecordingVoice
+                  ? t("preview.mic_recording")
+                  : t("preview.mic_test")
             }
             disabled={isPlayingRecording || isRecordingVoice}
-            deviceType="Microphone"
+            deviceType={t("preview.mic_label")}
             id="uikit-preview-mic-select"
             themeColorClass={themeColorClass}
             iconId="uikit-preview-test-microphone"
@@ -809,7 +876,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
             value={videoState.selectedCamera}
             onChange={handleCameraChange}
             devices={devices.cameras}
-            deviceType="Camera"
+            deviceType={t("preview.camera_label")}
             id="uikit-preview-camera-select"
             themeColorClass={themeColorClass}
           />
@@ -822,10 +889,12 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
                   isCameraOn: videoState.isStarted,
                   isAudioOn: audioState.isStarted,
                   isMicMuted: audioState.isMuted,
+                  auto: false,
                 }),
               );
               if (audioState.isStarted) {
                 dispatch(setShowJoinAudioConsent(false));
+                dispatch(setIsAudioConsentInitialized(true));
               }
               handleJoinSession();
             }}
@@ -835,7 +904,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
             title={grantPermissionMessage}
             autoFocus={!isAllowModifyName}
           >
-            Join Session
+            {t("preview.join_button")}
           </Button>
         </div>
       </div>
@@ -863,7 +932,7 @@ const PreviewPage: React.FC<PreviewPageProps> = ({
         height={isMobileLandscape() ? window.innerHeight : 610}
         isOpen={isAvatarPickerOpen}
         onClose={() => setIsAvatarPickerOpen(false)}
-        title="Choose Avatar"
+        title={t("preview.choose_avatar")}
         id="uikit-preview-avatar-popper"
       >
         <AvatarPicker

@@ -2,6 +2,7 @@ import { ChatMsgType, ChatPrivilege } from "@/constant";
 import { ChatFileDownloadProgress, ChatFileUploadProgress, SessionChatMessage } from "@/types";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { FileTransferSetting } from "@zoom/videosdk";
+import { isSameUpload } from "./chat-utils";
 
 export interface ChatReceive {
   name: string;
@@ -19,7 +20,7 @@ export interface ChatState {
   unreadCount: number;
   chatPrivilege: ChatPrivilege;
   chatFileDownloadProgress: ChatFileDownloadProgress[];
-  chatFileUploadProgress: SessionChatMessage[];
+  chatFileUploadProgress: ChatFileUploadProgress[];
   isFileTransferEnabled: boolean;
   fileSetting: FileTransferSetting;
 }
@@ -94,26 +95,39 @@ export const chatSlice = createSlice({
     updateChatFileDownloadProgress: (state, action: PayloadAction<ChatFileDownloadProgress>) => {
       if (state.chatFileDownloadProgress.find((item) => item.id === action.payload.id)) {
         state.chatFileDownloadProgress = state.chatFileDownloadProgress.map((item) =>
-          item.id === action.payload.id ? action.payload : item,
+          item.id === action.payload.id ? { ...item, ...action.payload } : item,
         );
       } else {
         state.chatFileDownloadProgress.push(action.payload);
       }
     },
-    setChatFileUploadProgress: (state, action: PayloadAction<SessionChatMessage>) => {
+    setChatFileUploadProgress: (state, action: PayloadAction<ChatFileUploadProgress>) => {
+      const existingIndex = state.chatFileUploadProgress.findIndex((item) => isSameUpload(item, action.payload));
+      if (existingIndex >= 0) {
+        const existing = state.chatFileUploadProgress[existingIndex];
+        state.chatFileUploadProgress[existingIndex] = {
+          ...existing,
+          clientUploadId: action.payload.clientUploadId ?? existing.clientUploadId,
+        };
+        return;
+      }
+
       state.chatFileUploadProgress.push(action.payload);
     },
     updateChatFileUploadProgress: (state, action: PayloadAction<ChatFileUploadProgress>) => {
-      state.chatFileUploadProgress = state.chatFileUploadProgress.map((item: ChatFileUploadProgress) =>
-        item.fileName === action.payload.fileName && item.receiverId === action.payload.receiverId
-          ? action.payload
-          : item,
-      );
+      if (state.chatFileUploadProgress.some((item) => isSameUpload(item, action.payload))) {
+        state.chatFileUploadProgress = state.chatFileUploadProgress.map((item) =>
+          isSameUpload(item, action.payload)
+            ? { ...action.payload, clientUploadId: item.clientUploadId ?? action.payload.clientUploadId }
+            : item,
+        );
+      } else {
+        state.chatFileUploadProgress.push(action.payload);
+      }
     },
     removeChatFileUploadProgress: (state, action: PayloadAction<ChatFileUploadProgress>) => {
       state.chatFileUploadProgress = state.chatFileUploadProgress.filter(
-        (item: ChatFileUploadProgress) =>
-          item.fileName !== action.payload.fileName && item.receiverId !== action.payload.receiverId,
+        (item: ChatFileUploadProgress) => !isSameUpload(item, action.payload),
       );
     },
     setFileTransferEnabled: (state, action: PayloadAction<boolean>) => {

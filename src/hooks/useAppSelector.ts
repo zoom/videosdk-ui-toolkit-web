@@ -39,3 +39,7 @@ export const useSubsessionSelector = (state: RootState) => {
 export const useWhiteboardSelector = (state: RootState) => {
   return state?.whiteboard;
 };
+
+export const useRtmsSelector = (state: RootState) => {
+  return state?.rtms;
+};

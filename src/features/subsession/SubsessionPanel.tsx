@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/widget/CommonButton";
 import { CommonPopper } from "@/components/widget/CommonPopper";
@@ -33,6 +34,7 @@ import { THEME_COLOR_CLASS } from "@/constant/ui-constant";
 import { usePrevious } from "@/hooks/usePrevious";
 
 export const SubsessionPanel = ({ participants }: { participants: Participant[] }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { subsessionClient } = useContext(sessionAdditionalContext);
   const { isHost, isManager, userId } = useAppSelector(useSessionSelector);
@@ -117,7 +119,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
       await handleOpenSubsession(localSubsessionRoomList);
       dispatch(setSubStatus(SubsessionStatus.InProgress));
     } catch (e) {
-      enqueueSnackbar("Failed to open subsession rooms", { variant: "error" });
+      enqueueSnackbar(t("subsession.open_failed"), { variant: "error" });
     }
   };
 
@@ -126,7 +128,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
       await handleCloseSubsession();
       dispatch(setSubStatus(SubsessionStatus.Closed));
     } catch (e) {
-      enqueueSnackbar("Failed to close subsession rooms", { variant: "error" });
+      enqueueSnackbar(t("subsession.close_failed"), { variant: "error" });
     }
   };
 
@@ -167,6 +169,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
           removeLocalRoom={removeLocalRoom}
           renameLocalRoom={renameLocalRoom}
           unassignedParticipants={unassignedParticipants}
+          isSelfSelectSubsession={subsessionType === SubsessionAllocationPattern.SelfSelect}
         />
 
         <div className="flex flex-col sm:flex-row justify-between  items-center border-gray-200 space-y-2 sm:space-y-0 flex-shrink-0 absolute bottom-0 w-full">
@@ -182,7 +185,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                   onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                   id="uikit-subsession-settings-button"
                 >
-                  Settings
+                  {t("settings")}
                 </Button>
                 <div className={`flex space-x-3 ${THEME_COLOR_CLASS}`}>
                   <Button
@@ -196,7 +199,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                     }}
                     id="uikit-subsession-recreate-button"
                   >
-                    Recreate
+                    {t("subsession.recreate")}
                   </Button>
                   <Button
                     variant="outline"
@@ -207,7 +210,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                     onClick={addRoom}
                     id="uikit-subsession-add-room-button"
                   >
-                    Add Room
+                    {t("subsession.add_room")}
                   </Button>
                   <Button
                     variant="primary"
@@ -217,7 +220,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                     onClick={openAllRooms}
                     id="uikit-subsession-open-all-rooms-button"
                   >
-                    Open All Rooms
+                    {t("subsession.open_all_rooms")}
                   </Button>
                 </div>
               </div>
@@ -232,7 +235,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                 onClick={() => setIsBroadcastOpen(true)}
                 id="uikit-subsession-broadcast-button"
               >
-                Broadcast
+                {t("subsession.broadcast")}
               </Button>
               <Button
                 variant="danger"
@@ -241,7 +244,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
                 onClick={closeAllRooms}
                 id="uikit-subsession-close-all-rooms-button"
               >
-                Close All Rooms
+                {t("subsession.close_all_rooms")}
               </Button>
             </div>
           )}
@@ -263,7 +266,7 @@ export const SubsessionPanel = ({ participants }: { participants: Participant[] 
       <CommonPopper
         isOpen={isSubsessionPoppedOut}
         onClose={() => dispatch(setIsSubsessionPoppedOut(false))}
-        title={`Subsession Rooms - ${inProgress ? "In Progress" : "Not Started"}`}
+        title={inProgress ? t("subsession.panel_title_in_progress") : t("subsession.panel_title_not_started")}
         width={500}
         height={500}
         id="uikit-subsession-popper"

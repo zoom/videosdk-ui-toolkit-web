@@ -2,6 +2,8 @@ import { Participant } from "@/types";
 import { CommonAssignModal } from "./CommonAssignModal";
 import { MultiValue } from "react-select";
 import { SelectOption } from "../subsession-constants";
+import { useTranslation } from "react-i18next";
+import { translateSubsessionName } from "../utils/translateSubsessionName";
 
 export const AssignParticipantsModal: React.FC<{
   roomId: string;
@@ -11,6 +13,7 @@ export const AssignParticipantsModal: React.FC<{
   assignParticipant: (participantId: number | number[], roomId: string) => void;
   themeName: string;
 }> = ({ roomId, roomName, onClose, unassignedParticipants, assignParticipant, themeName }) => {
+  const { t } = useTranslation();
   const participantOptions = unassignedParticipants.map((participant) => ({
     value: participant.userId,
     label: participant.displayName,
@@ -25,12 +28,14 @@ export const AssignParticipantsModal: React.FC<{
     }
   };
 
+  const translatedRoomName = translateSubsessionName(roomName, t);
+
   return (
     <CommonAssignModal
       id={`uikit-subsession-assign-participants-modal`}
-      title={`Assign Participants to ${roomName}`}
-      placeholder="Select participants"
-      noOptionsMessage="No other participants"
+      title={t("subsession.assign_participants_to", { roomName: translatedRoomName })}
+      placeholder={t("subsession.select_participants_placeholder")}
+      noOptionsMessage={t("subsession.no_other_participants")}
       onClose={onClose}
       options={participantOptions}
       onAssign={handleAssign}

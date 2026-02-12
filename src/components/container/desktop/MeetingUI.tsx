@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import ReactDOM from "react-dom";
-import { Radio } from "lucide-react";
+import { Radio, Tv, TvMinimal } from "lucide-react";
 import ConfirmDialog from "../../widget/dialog/ConfirmDialog";
 import ViewToggleDropdown from "../../header/ViewToggleDropdown";
 import SessionInfoDropdown from "../../header/SessionInfoDropdown";
@@ -19,6 +19,7 @@ import {
   useSessionSelector,
   useSessionUISelector,
   useSubsessionSelector,
+  useRtmsSelector,
 } from "@/hooks/useAppSelector";
 import { SessionState } from "@/store/sessionSlice";
 import {
@@ -34,6 +35,8 @@ import {
   setParticipantToRename,
   setParticipantToAdjustVolume,
   setIsAdjustVolumeModalOpen,
+  setIsPTZControlPadOpen,
+  setPTZControlTargetUser,
 } from "@/store/uiSlice";
 import { ParticipantState } from "@/features/participant/participantSlice";
 import { ClientContext } from "@/context/client-context";
@@ -43,6 +46,8 @@ import AVLearnMoreDialog from "@/components/warning/AVLearnMoreDialog";
 import ShareBar from "@/features/share/components/ShareBar";
 import {
   UnmuteConsentPanel,
+  CameraControlConsentPanel,
+  RemoteControlNotifications,
   RecordingNotification,
   ShareScreenToSubsessionPanel,
   JoinAudioConsentPanelWithPEPC,
@@ -56,7 +61,12 @@ import SessionInfoButton from "@/components/header/SessionInfoButton";
 import MobileMeetingToolbar from "../mobile/MobileMeetingToolbar";
 import sessionAdditionalContext from "@/context/session-additional-context";
 import { useTranslation } from "react-i18next";
-import { LiveStreamStatus, SubsessionUserStatus } from "@zoom/videosdk";
+import {
+  BroadcastStreamingStatus,
+  LiveStreamStatus,
+  RealTimeMediaStreamsStatus,
+  SubsessionUserStatus,
+} from "@zoom/videosdk";
 import SubsessionConfirmDialogs from "../../../features/subsession/components/SubsessionConfirmDialogs";
 import InviteAudioPanel from "@/features/audio/components/InviteAudioPanel";
 import { SIDE_PANEL_HEADER_HEIGHT, THEME_COLOR_CLASS } from "@/constant/ui-constant";
@@ -71,6 +81,7 @@ import ShareIndicatorBar from "@/features/share/components/ShareIndicatorBar";
 import LiveStreamPanel from "@/features/live-stream/LiveStreamPanel";
 import { useScreenshot } from "@/features/session-app/hooks";
 import { DialogContainer } from "@/components/widget/dialog/DialogContainer";
+import PTZControlPad from "@/features/video/components/PTZControlPad";
 import SelfPreview from "@/features/video/components/SelfPreview";
 
 const MOBILE_BREAKPOINT = 768;
@@ -86,8 +97,11 @@ const MeetingUI = () => {
 
   const session: SessionState = useAppSelector(useSessionSelector);
   const whiteboard = useAppSelector((state) => state.whiteboard);
+  const { status: rtmsStatus } = useAppSelector(useRtmsSelector);
 
   const currentUser: Participant = client.getCurrentUserInfo();
+  const isRtmsActive =
+    rtmsStatus === RealTimeMediaStreamsStatus.Start || rtmsStatus === RealTimeMediaStreamsStatus.Pause;
 
   useScreenshot();
 
@@ -99,6 +113,8 @@ const MeetingUI = () => {
     participantToRename,
     participantToAdjustVolume,
     isAdjustVolumeModalOpen,
+    isPTZControlPadOpen,
+    ptzControlTargetUser,
   } = sessionUI;
   let HEADER_AND_FOOTER_HEIGHT = isHeaderEnable ? HEADER_HEIGHT : 0;
   if (isFooterEnable) {
@@ -136,7 +152,7 @@ const MeetingUI = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const { handleSendMessage, uploadFileCallback } = useChatMessage();
+  const { handleSendMessage, cancelUpload } = useChatMessage();
 
   useEffect(() => {
     if (windowWidth < MOBILE_BREAKPOINT) {
@@ -252,7 +268,7 @@ const MeetingUI = () => {
         <ChatPanel
           handleImageClick={handleImageClick}
           handleSendMessage={handleSendMessage}
-          uploadFileCallback={uploadFileCallback}
+          cancelUpload={cancelUpload}
         />
       )}
       {!isSidePanelOpen && (
@@ -273,9 +289,19 @@ const MeetingUI = () => {
         changeMicrophone={changeMicrophone}
         changeSpeaker={changeSpeaker}
       />
-      {/* <PTZControlPad /> */}
+      {isPTZControlPadOpen && ptzControlTargetUser && (
+        <PTZControlPad
+          targetUserId={ptzControlTargetUser.userId}
+          onClose={() => {
+            dispatch(setIsPTZControlPadOpen(false));
+            dispatch(setPTZControlTargetUser(null));
+          }}
+        />
+      )}
       <RecordingNotification />
       <UnmuteConsentPanel />
+      <CameraControlConsentPanel />
+      <RemoteControlNotifications />
       <ShareScreenToSubsessionPanel />
       <JoinAudioConsentPanelWithPEPC />
       {isConfirmDialogOpen &&
@@ -284,8 +310,8 @@ const MeetingUI = () => {
             <ConfirmDialog
               onClose={() => setIsConfirmDialogOpen(false)}
               onConfirm={confirmEndMeeting}
-              title="End Meeting for All"
-              message="Are you sure you want to end the meeting for all participants? This action cannot be undone."
+              title={t("meeting.ui_end_for_all_title")}
+              message={t("meeting.ui_end_for_all_message")}
             />
           </div>,
           document.body,
@@ -344,6 +370,14 @@ const MeetingUI = () => {
 
             <div className="w-1/2 flex justify-center items-center">
               <div className="flex items-center">
+                {session.isHost && session.broadcastStreamingStatus === BroadcastStreamingStatus.InProgress && (
+                  <span
+                    title={t("broadcast_streaming_live_indicator")}
+                    aria-label={t("broadcast_streaming_live_indicator")}
+                  >
+                    <Radio className="text-emerald-500 animate-pulse mr-2" />
+                  </span>
+                )}
                 <h1 className="text-xl font-semibold truncate flex items-center" id="uikit-header-session-info">
                   <span className="truncate max-w-[400px] inline-block">{session?.sessionInfo?.topic}</span>
                   {session?.debug && session?.isVideoWebRTC && <span className="text-red-500"> (WebRTC)</span>}
@@ -360,6 +394,16 @@ const MeetingUI = () => {
                   )}
                   {isRecording && <RecordingNotificationIcon className="text-red-500 animate-pulse" size="sm" />}
                 </div>
+
+                {isRtmsActive && (
+                  <span title={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? "RTMS is paused" : "RTMS is active"}>
+                    {rtmsStatus === RealTimeMediaStreamsStatus.Pause ? (
+                      <TvMinimal className="text-red-500 mx-2" size={14} />
+                    ) : (
+                      <Tv className="text-red-500 animate-pulse mx-2" size={14} />
+                    )}
+                  </span>
+                )}
               </div>
             </div>
             <div className="w-1/4 flex justify-end">
@@ -416,7 +460,7 @@ const MeetingUI = () => {
                       handleImageClick={handleImageClick}
                       height={mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}
                       handleSendMessage={handleSendMessage}
-                      uploadFileCallback={uploadFileCallback}
+                      cancelUpload={cancelUpload}
                     />
                   )}
                 </div>

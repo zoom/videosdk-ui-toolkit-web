@@ -1,7 +1,8 @@
 import { ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
 
-import { LANGUAGE_CODES } from "../caption-constant";
+import { getLocalizedLanguageName } from "../caption-constant";
 import SelectLanguageMenu from "./SelectLanguageMenu";
 import { setIsShowStartCaptionsWindow } from "@/store/uiSlice";
 import useCaptionMenuLogic from "../hooks/useCaptionMenuLogic";
@@ -16,6 +17,7 @@ const buttonStyles =
 const buttonStylesWithDivider = `${buttonStyles} ${dividerStyles}`;
 
 export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings }) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { isHost } = useAppSelector(useSessionSelector);
   const {
@@ -59,7 +61,7 @@ export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings
   return (
     <div id="uikit-caption-menu" className={menuStyles}>
       <div className="py-1 px-2">
-        <h3 className={headerStyles}>Captions</h3>
+        <h3 className={headerStyles}>{t("caption.menu_title")}</h3>
 
         <button
           id="uikit-caption-menu-speaking-language"
@@ -74,8 +76,8 @@ export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings
           }}
         >
           <div className="flex-1">
-            <div className="text-theme-text/70">Speaking language</div>
-            <div className="font-medium">{LANGUAGE_CODES[currentSpeakingLanguage]}</div>
+            <div className="text-theme-text/70">{t("caption.menu_speaking_language")}</div>
+            <div className="font-medium">{getLocalizedLanguageName(currentSpeakingLanguage, t)}</div>
           </div>
           <ChevronRight size={16} className="text-theme-text/50" />
         </button>
@@ -87,8 +89,8 @@ export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings
             onClick={() => setShowTranslateLanguagesMenu(true)}
           >
             <div className="flex-1">
-              <div className="text-theme-text/70">Translate to</div>
-              <div className="font-medium">{LANGUAGE_CODES[currentTranslationLanguage]}</div>
+              <div className="text-theme-text/70">{t("caption.menu_translate_to")}</div>
+              <div className="font-medium">{getLocalizedLanguageName(currentTranslationLanguage, t)}</div>
             </div>
             <ChevronRight size={16} className="text-theme-text/50" />
           </button>
@@ -101,7 +103,7 @@ export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings
           }
           onClick={onViewTranscript}
         >
-          View full transcript
+          {t("caption.menu_view_transcript")}
         </button>
 
         {isTranslationFeatureEnabled && getTranslationLanguagesList(currentSpeakingLanguage).length > 0 && (
@@ -110,13 +112,15 @@ export const CaptionMenu = ({ setIsMenuOpen, onViewTranscript, onCaptionSettings
             className={isHost ? buttonStylesWithDivider : buttonStyles}
             onClick={toggleIsTranslationOn}
           >
-            {currentTranslationLanguage !== undefined ? "Turn off translation" : "Turn on translation"}
+            {currentTranslationLanguage !== undefined
+              ? t("caption.menu_turn_off_translation")
+              : t("caption.menu_turn_on_translation")}
           </button>
         )}
 
         {isHost && (
           <button id="uikit-caption-menu-host-settings" className={buttonStyles} onClick={onCaptionSettings}>
-            Host caption control settings
+            {t("caption.menu_host_settings")}
           </button>
         )}
       </div>

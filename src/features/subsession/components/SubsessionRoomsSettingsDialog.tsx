@@ -1,4 +1,5 @@
 import React, { RefObject, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import Select from "react-select";
 import { CommonCheckbox } from "@/components/widget/CommonCheckbox";
 import { CommonInput } from "@/components/widget/CommonInput";
@@ -8,6 +9,7 @@ import { useClickOutside } from "@/hooks/useClickOutside";
 import { CommonSelectStyle } from "@/components/widget/CommonSelectStyle";
 
 const SubsessionRoomsSettingsDialog = ({ isOpen, onClose, themeName }) => {
+  const { t } = useTranslation();
   const settingRef = useRef<HTMLDivElement>(null);
   const [isCountdownOpen, setIsCountdownOpen] = useState(false);
   const { subsessionOptions, subsessionType } = useAppSelector(useSubsessionSelector);
@@ -40,9 +42,9 @@ const SubsessionRoomsSettingsDialog = ({ isOpen, onClose, themeName }) => {
   const menuRef = useClickOutside({ callback: handleClickOutside, excludeRefs: [settingRef] });
 
   const countdownOptions = [
-    { value: 30, label: "30 seconds" },
-    { value: 60, label: "60 seconds" },
-    { value: 90, label: "90 seconds" },
+    { value: 30, label: t("subsession.countdown_30_seconds") },
+    { value: 60, label: t("subsession.countdown_60_seconds") },
+    { value: 90, label: t("subsession.countdown_90_seconds") },
   ];
   if (!isOpen) return null;
 
@@ -50,7 +52,7 @@ const SubsessionRoomsSettingsDialog = ({ isOpen, onClose, themeName }) => {
     <div
       className="absolute flex bottom-10 text-theme-text sm:justify-center space-x-2 w-full p-4 left-0 bg-theme-surface border border-theme-border rounded-md shadow-lg"
       ref={menuRef as RefObject<HTMLDivElement>}
-      title="Subsession Rooms Settings"
+      title={t("subsession.rooms_settings_title")}
       id="uikit-subsession-rooms-settings-dialog"
     >
       <div className="space-y-4">
@@ -67,26 +69,26 @@ const SubsessionRoomsSettingsDialog = ({ isOpen, onClose, themeName }) => {
         <CommonCheckbox
           checked={settings.isBackToMainSessionEnabled}
           onChange={() => toggleSetting("isBackToMainSessionEnabled")}
-          label="Allow participants to return to the main session at any time"
+          label={t("subsession.allow_return_main_session")}
           id="uikit-subsession-rooms-settings-dialog-back-to-main-session-checkbox"
         />
         <CommonCheckbox
           checked={settings.isAutoJoinSubsession}
           onChange={() => toggleSetting("isAutoJoinSubsession")}
-          label="Automatically move all assigned participants into subsession rooms"
+          label={t("subsession.auto_move_participants")}
           id="uikit-subsession-rooms-settings-dialog-auto-join-subsession-checkbox"
         />
         <CommonCheckbox
           checked={settings.isAutoMoveBackToMainSession}
           onChange={() => toggleSetting("isAutoMoveBackToMainSession")}
-          label="Automatically move all selected participants in subsession rooms to main meeting"
+          label={t("subsession.auto_move_to_main")}
           id="uikit-subsession-rooms-settings-dialog-auto-move-back-to-main-session-checkbox"
         />
         <div className="flex items-center space-x-2">
           <CommonCheckbox
             checked={settings.isTimerAutoEnabled}
             onChange={() => toggleSetting("isTimerAutoEnabled")}
-            label="Auto close subsession rooms after"
+            label={t("subsession.auto_close_after")}
             id="uikit-subsession-rooms-settings-dialog-auto-close-subsession-rooms-checkbox"
           />
           <CommonInput
@@ -96,19 +98,19 @@ const SubsessionRoomsSettingsDialog = ({ isOpen, onClose, themeName }) => {
             className="w-20"
             id="uikit-subsession-rooms-settings-dialog-auto-close-subsession-rooms-input"
           />
-          <span>minutes</span>
+          <span>{t("subsession.minutes")}</span>
         </div>
         <CommonCheckbox
           checked={settings.waitSeconds !== 0}
           onChange={({ target }) => {
             updateSettingValue("waitSeconds", target.checked ? 30 : 0);
           }}
-          label="Countdown after closing subsession room"
+          label={t("subsession.countdown_after_closing")}
           id="uikit-subsession-rooms-settings-dialog-countdown-after-closing-subsession-room-checkbox"
         />
         {settings.waitSeconds !== 0 && (
           <div className="flex items-center space-x-2 ml-6">
-            <span>Set Countdown timer</span>
+            <span>{t("subsession.set_countdown_timer")}</span>
             <Select
               value={countdownOptions.find((option) => option.value === settings.waitSeconds)}
               onChange={(selectedOption) => updateSettingValue("waitSeconds", selectedOption.value)}

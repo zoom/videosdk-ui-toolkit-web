@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Crown, User } from "lucide-react";
 import { Participant } from "@/types";
 import { Button } from "@/components/widget/CommonButton";
@@ -17,6 +18,7 @@ const SubsessionParticipantItem: React.FC<{
   isJoinSubsession: boolean;
   themeName: string;
 }> = ({ participant, style, rooms, isUnassigned, roomId, assignRoom, isJoinSubsession, themeName }) => {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
@@ -37,18 +39,18 @@ const SubsessionParticipantItem: React.FC<{
           <div className="ml-3 flex-grow w-3/5 overflow-hidden">
             <p className="text-sm font-medium  w-full text-ellipsis overflow-hidden">
               {participant.displayName}
-              {!isJoinSubsession && <span className="text-xs ml-2"> (No Join)</span>}
+              {!isJoinSubsession && <span className="text-xs ml-2">{t("subsession.no_join_suffix")}</span>}
             </p>
             {participant.isHost && (
               <p className="text-xs flex items-center">
                 <Crown size={10} className="mr-1" />
-                Host
+                {t("participant.host_label")}
               </p>
             )}
             {participant.isManager && !participant.isHost && (
               <p className="text-xs flex items-center">
                 <User size={10} className="mr-1" />
-                Manager
+                {t("participant.manager_label")}
               </p>
             )}
           </div>
@@ -81,7 +83,7 @@ const SubsessionParticipantItem: React.FC<{
                   className="mr-2"
                   id={`uikit-subsession-participant-item-${participant.userId}-assign-button`}
                 >
-                  {isUnassigned ? "Assign" : "Move to"}
+                  {isUnassigned ? t("subsession.assign") : t("subsession.move_to_button")}
                 </Button>
               </>
             )}

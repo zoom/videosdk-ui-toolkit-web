@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import CommonNotification from "../widget/CommonNotification";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import {
@@ -11,6 +12,7 @@ import { THEME_COLOR_CLASS_TOGGLE_BUTTON } from "@/constant/ui-constant";
 import { StreamContext } from "@/context/stream-context";
 
 const ShareScreenToSubsessionModal: React.FC = () => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { isShowShareScreenToSubsessionModal, shareScreenToSubsessionDontShowAgain } =
     useAppSelector(useSessionUISelector);
@@ -39,12 +41,12 @@ const ShareScreenToSubsessionModal: React.FC = () => {
       allowClose={true}
     >
       <div className={`space-y-4 ${THEME_COLOR_CLASS_TOGGLE_BUTTON} text-theme-text`}>
-        <h2 className="text-lg font-semibold text-theme-text">Share screen to all subsessions</h2>
+        <h2 className="text-lg font-semibold text-theme-text">{t("notification.share_screen_subsession_title")}</h2>
 
         <ul className="space-y-3 list-disc pl-5 ">
-          <li>Your screen will be shared in the main session and in all subsessions</li>
-          <li>Your video and audio will not be shared with subsessions</li>
-          <li>Screens that others are sharing in the rooms will be stopped</li>
+          <li>{t("notification.share_screen_subsession_info1")}</li>
+          <li>{t("notification.share_screen_subsession_info2")}</li>
+          <li>{t("notification.share_screen_subsession_info3")}</li>
         </ul>
 
         <div className="flex items-center justify-between mt-4">
@@ -57,7 +59,7 @@ const ShareScreenToSubsessionModal: React.FC = () => {
               className="mr-2"
             />
             <label htmlFor="dontShowAgain" className="select-none">
-              Don&apos;t show this again
+              {t("notification.dont_show_again")}
             </label>
           </div>
 
@@ -66,13 +68,13 @@ const ShareScreenToSubsessionModal: React.FC = () => {
               onClick={handleClose}
               className="px-4 py-2 rounded border border-theme-border text-theme-text hover:bg-theme-background"
             >
-              Cancel
+              {t("common.cancel")}
             </button>
             <button
               onClick={handleShare}
               className="px-4 py-2 rounded bg-blue-600 text-theme-text-button hover:bg-blue-700 border border-theme-border"
             >
-              Share
+              {t("notification.share_button")}
             </button>
           </div>
         </div>

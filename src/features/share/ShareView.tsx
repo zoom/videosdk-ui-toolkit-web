@@ -1,6 +1,7 @@
 import { StreamContext } from "@/context/stream-context";
 import { useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useRef, useEffect, useMemo, useContext, useCallback, CSSProperties, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useShareChange } from "./hooks";
 import Draggable from "react-draggable";
 import AnnotationToolbar from "./components/AnnotationToolbar";
@@ -25,6 +26,7 @@ const ShareCanvas = (props: ShareCanvasProps) => {
     mainContentWidth,
     isOriginalSize,
   } = props;
+  const { t } = useTranslation();
   const selfCanvasRef = useRef(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const receivingShareCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -105,6 +107,8 @@ const ShareCanvas = (props: ShareCanvasProps) => {
           id="ZOOM_VIDEO_SDK_SELF_SHARE_CANVAS"
           className={`aspect-[16/9] rounded-[12px]`}
           style={getCanvasStyle(isSendingScreenShare) as CSSProperties}
+          muted
+          aria-label={t("share.screen_share_preview")}
         />
         <div
           className={`relative overflow-hidden flex items-center rounded-lg ${isOriginalSize ? "" : "justify-center"}`}
@@ -164,6 +168,7 @@ const ShareView = ({
   mainContentHeight: number;
   mainContentWidth: number;
 }) => {
+  const { t } = useTranslation();
   const { isSendingScreenShare, isReceivingScreenShare, userId, activeShareId, activeSharerName } =
     useAppSelector(useSessionSelector);
   const { isOriginalShareContentSize, canDoAnnotation } = useAppSelector(useSessionUISelector);
@@ -232,7 +237,7 @@ const ShareView = ({
             <button
               onClick={takeShareScreenshot}
               className="bg-gray-800/80 hover:bg-gray-700/90 p-1 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              title="Screenshot share"
+              title={t("share.screenshot_title")}
             >
               <Camera size={18} className="text-white" />
             </button>

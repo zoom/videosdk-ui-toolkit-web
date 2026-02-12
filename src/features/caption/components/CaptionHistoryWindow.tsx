@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useContext, useState, useCallback } from "react";
-
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { setIsShowCaptionHistory } from "@/store/uiSlice";
 import { CommonPopper } from "@/components/widget/CommonPopper";
@@ -9,6 +9,7 @@ import { ClientContext } from "@/context/client-context";
 import { ArrowBigDown } from "lucide-react";
 
 export const CaptionHistoryWindow: React.FC = () => {
+  const { t } = useTranslation();
   const { isShowCaptionHistory } = useAppSelector(useSessionUISelector);
 
   const client = useContext(ClientContext);
@@ -79,7 +80,7 @@ export const CaptionHistoryWindow: React.FC = () => {
       onClose={() => {
         dispatch(setIsShowCaptionHistory(false));
       }}
-      title="Caption History"
+      title={t("caption.history_title")}
       width={400}
       height={500}
     >

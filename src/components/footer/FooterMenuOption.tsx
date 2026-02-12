@@ -1,4 +1,5 @@
 import React, { RefObject, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { isEmpty } from "lodash-es";
 import { useClickOutside } from "@/hooks/useClickOutside";
 import { MediaDevice } from "@/types";
@@ -45,6 +46,7 @@ export const FooterMenuOption: React.FC<FooterMenuOptionProps> = ({
   orientation = "horizontal",
   autoClose = true,
 }) => {
+  const { t } = useTranslation();
   const handleClickOutside = (isOutside: boolean) => {
     if (isOutside && autoClose) {
       setIsOpen(false);
@@ -75,7 +77,7 @@ export const FooterMenuOption: React.FC<FooterMenuOptionProps> = ({
       { label: labels[key], className: "text-sm", group: `${key}-header`, isHeader: true },
       // Map the devices
       ...values.map((option) => ({
-        label: option.label === "same_as_system" ? "Same as system" : option.label,
+        label: option.label === "Same as System" ? t("footer.same_as_system") : option.label,
         className: "text-sm",
         checked: activeDevice[key] === option.deviceId,
         onClick: () => setSettings(option.deviceId, key),
@@ -121,9 +123,9 @@ export const FooterMenuOption: React.FC<FooterMenuOptionProps> = ({
   return (
     <div
       ref={menuRef as RefObject<HTMLDivElement>}
-      className="absolute bottom-full left-0 mb-1 z-30 w-64 rounded-lg shadow-xl bg-theme-surface border border-theme-border text-theme-text"
+      className="absolute bottom-full left-0 mb-1 z-30 w-[16.5rem] max-w-[90vw] rounded-lg shadow-xl bg-theme-surface border border-theme-border text-theme-text"
     >
-      <div className="p-4 max-h-[350px] overflow-y-auto pr-2 uikit-custom-scrollbar" title={title}>
+      <div className="p-4 max-h-[350px] overflow-y-auto pr-2 uikit-custom-scrollbar">
         {Object.entries(options).map(([key, values]) => (
           <div key={`footer-${key}-menu`} className="mb-4">
             <h4 className="text-sm font-medium mb-2">{labels[key]}</h4>
@@ -132,7 +134,7 @@ export const FooterMenuOption: React.FC<FooterMenuOptionProps> = ({
               <CommonMenuButton
                 key={option.deviceId}
                 id={menuName ? `${labels[key]}-item${idx}` : option.label}
-                text={option.label === "same_as_system" ? "Same as system" : option.label}
+                text={option.label === "Same as System" ? t("footer.same_as_system") : option.label}
                 onClick={() => setSettings(option.deviceId, key)}
                 isActive={activeDevice[key] === option.deviceId}
               />

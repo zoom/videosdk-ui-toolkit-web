@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { CommonMenuButton } from "../../../components/widget/CommonMenuButton";
 import { SharePrivilege } from "@zoom/videosdk";
 
@@ -21,6 +22,7 @@ export const ShareMenuOption: React.FC<ShareMenuOptionProps> = ({
   orientation = "horizontal",
   excludeRefs,
 }) => {
+  const { t } = useTranslation();
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,21 +49,21 @@ export const ShareMenuOption: React.FC<ShareMenuOptionProps> = ({
 
   const menuItems = [
     {
-      label: "Only the host or manager can share",
+      label: t("settings.share_privilege_locked"),
       onClick: () => onPrivilegeChange(SharePrivilege.Locked),
       checked: privilege === SharePrivilege.Locked,
       id: "only-host-share",
       className: "w-full text-left px-4 py-2 whitespace-normal",
     },
     {
-      label: "Multiple participants can share simultaneously",
+      label: t("settings.share_privilege_multiple"),
       onClick: () => onPrivilegeChange(SharePrivilege.MultipleShare),
       checked: privilege === SharePrivilege.MultipleShare,
       id: "multiple-participants-share",
       className: "w-full text-left px-4 py-2 whitespace-normal",
     },
     {
-      label: "One participant can share at a time",
+      label: t("settings.share_privilege_unlocked"),
       onClick: () => onPrivilegeChange(SharePrivilege.Unlocked),
       checked: privilege === SharePrivilege.Unlocked,
       id: "one-participant-share",

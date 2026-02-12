@@ -148,7 +148,7 @@ const CommonDropdownWrap = ({
           left: dropdownPosition?.left,
           zIndex: 1000,
         }}
-        className={`w-[200px] shadow-lg text-theme-text ${wrapperClass}`}
+        className={`min-w-[200px] w-auto shadow-lg text-theme-text ${wrapperClass}`}
       >
         {children}
       </div>

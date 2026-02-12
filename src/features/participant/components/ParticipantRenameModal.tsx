@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface RenameModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface RenameModalProps {
 }
 
 const RenameModal: React.FC<RenameModalProps> = ({ isOpen, onClose, onRename, initialName }) => {
+  const { t } = useTranslation();
   const [newName, setNewName] = useState(initialName);
 
   if (!isOpen) return null;
@@ -21,7 +23,7 @@ const RenameModal: React.FC<RenameModalProps> = ({ isOpen, onClose, onRename, in
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1000]">
       <div className="bg-theme-surface border border-theme-border text-theme-text rounded-lg shadow-xl p-6 w-[90%] max-w-md">
-        <h2 className="text-xl font-semibold mb-4">Rename:</h2>
+        <h2 className="text-xl font-semibold mb-4">{t("participant.rename_title")}</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <input
@@ -38,13 +40,13 @@ const RenameModal: React.FC<RenameModalProps> = ({ isOpen, onClose, onRename, in
               onClick={onClose}
               className="px-4 py-2 text-sm font-medium text-theme-text bg-theme-surface border border-theme-border rounded-md hover:bg-theme-background focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Cancel
+              {t("participant.rename_cancel")}
             </button>
             <button
               type="submit"
               className="px-4 py-2 text-sm font-medium text-theme-text-button bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Change
+              {t("participant.rename_change")}
             </button>
           </div>
         </form>

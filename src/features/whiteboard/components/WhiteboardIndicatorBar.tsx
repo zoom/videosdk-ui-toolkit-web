@@ -1,4 +1,5 @@
 import React, { useContext, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { Presentation, Users, Crown, X, User, Download } from "lucide-react";
 import { useCurrentUser } from "@/features/participant/hooks";
 import {
@@ -13,6 +14,7 @@ import { Participant } from "@/types";
 import { useWhiteboardExportDialog } from "./WhiteboardExportConfirmDialog";
 
 const WhiteboardIndicatorBar: React.FC = () => {
+  const { t } = useTranslation();
   const {
     config: {
       featuresOptions: {
@@ -71,7 +73,7 @@ const WhiteboardIndicatorBar: React.FC = () => {
           {isPresenter && <Presentation size={12} className="text-green-600 uikit-whiteboard-bar-no-drag" />}
           <div className="flex text-sm font-medium text-theme-text">
             {isPresenter ? (
-              <span>You are presenting whiteboard</span>
+              <span>{t("whiteboard.presenting_tooltip")}</span>
             ) : (
               <>
                 {presenter?.isHost && (
@@ -84,10 +86,13 @@ const WhiteboardIndicatorBar: React.FC = () => {
                     <User size={10} className="mr-1" />
                   </span>
                 )}
-                <span className="whitespace-nowrap max-w-[150px] truncate" title={presenter?.displayName || "Unknown"}>
-                  {presenter?.displayName || "Unknown"}
+                <span
+                  className="whitespace-nowrap max-w-[150px] truncate"
+                  title={presenter?.displayName || t("whiteboard.presenter_unknown")}
+                >
+                  {presenter?.displayName || t("whiteboard.presenter_unknown")}
                 </span>
-                <span>&nbsp;&apos;s whiteboard</span>
+                <span>&nbsp;{t("whiteboard.presenter_suffix")}</span>
               </>
             )}
           </div>
@@ -102,7 +107,7 @@ const WhiteboardIndicatorBar: React.FC = () => {
               className="uikit-whiteboard-bar-no-drag rounded-lg bg-green-600 hover:bg-green-700 px-3 py-1 text-xs font-medium text-white flex items-center gap-1 transition-colors border border-green-700 cursor-pointer"
             >
               <Download size={12} />
-              <span>Export</span>
+              <span>{t("whiteboard.export_button")}</span>
             </button>
           )}
 
@@ -113,7 +118,7 @@ const WhiteboardIndicatorBar: React.FC = () => {
               disabled={whiteboard.isLoading}
             >
               <X size={12} />
-              <span>Stop</span>
+              <span>{t("whiteboard.stop_button")}</span>
             </button>
           )}
         </div>

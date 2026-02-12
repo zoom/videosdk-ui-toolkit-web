@@ -1,5 +1,6 @@
 import { Send, Paperclip } from "lucide-react";
 import React, { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 
 const MobileChatInput = ({
   isEnabledChatInSession,
@@ -9,6 +10,7 @@ const MobileChatInput = ({
   value,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const inputRef = useRef(null);
   const [inputHeight, setInputHeight] = useState(40);
   const [isFocused, setIsFocused] = useState(false);
@@ -40,7 +42,7 @@ const MobileChatInput = ({
               onChange={handleInput}
               onFocus={() => setIsFocused(true)}
               onBlur={() => setIsFocused(false)}
-              placeholder={isEnabledChatInSession ? "Type message here..." : "Chat is currently disabled by the host"}
+              placeholder={isEnabledChatInSession ? t("chat.message_placeholder") : t("chat.disabled_message")}
               className={`w-full px-4 py-3 text-[17px] rounded-2xl resize-none transition-colors
                 focus:outline-none
                 ${!isEnabledChatInSession ? "bg-gray-100 text-gray-400" : "bg-white text-gray-900"}

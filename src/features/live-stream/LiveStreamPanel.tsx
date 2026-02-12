@@ -4,11 +4,13 @@ import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelecto
 import { setLiveStreamConfig } from "@/store/sessionSlice";
 import { setIsShowLiveStreamPanel } from "@/store/uiSlice";
 import { useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useLiveStreamChange } from "./hooks";
 import { LiveStreamStatus } from "@zoom/videosdk";
 import sessionAdditionalContext from "@/context/session-additional-context";
 
 const LiveStreamPanel = () => {
+  const { t } = useTranslation();
   const { isShowLiveStreamPanel } = useAppSelector(useSessionUISelector);
   const { liveStreamStatus, liveStreamConfig } = useAppSelector(useSessionSelector);
   const { streamUrl, streamKey, broadcastUrl } = liveStreamConfig;
@@ -54,15 +56,15 @@ const LiveStreamPanel = () => {
   return (
     <CommonPopper
       isOpen={isShowLiveStreamPanel}
-      title="Live Streaming"
+      title={t("livestream.panel_title")}
       width={600}
       height={400}
       onClose={() => dispatch(setIsShowLiveStreamPanel(false))}
     >
       <div className="p-5 flex flex-col">
-        <h3 className="text-base font-semibold mb-4">Stream Configuration</h3>
+        <h3 className="text-base font-semibold mb-4">{t("livestream.configuration_title")}</h3>
         <CommonInput
-          label="Stream URL"
+          label={t("livestream.stream_url_label")}
           value={streamUrl}
           onChange={(e) => handleInputChange({ streamUrl: e.target.value })}
           placeholder="rtmp://..."
@@ -72,7 +74,7 @@ const LiveStreamPanel = () => {
           }
         />
         <CommonInput
-          label="Stream Key"
+          label={t("livestream.stream_key_label")}
           value={streamKey}
           onChange={(e) => handleInputChange({ streamKey: e.target.value })}
           type="password"
@@ -84,7 +86,7 @@ const LiveStreamPanel = () => {
         />
         {
           <CommonInput
-            label="Broadcast URL"
+            label={t("livestream.broadcast_url_label")}
             value={broadcastUrl}
             onChange={(e) => handleInputChange({ broadcastUrl: e.target.value })}
             placeholder="https://..."
@@ -101,7 +103,7 @@ const LiveStreamPanel = () => {
               className={startLiveStreamButtonClass}
               onClick={handleStartLiveStream}
             >
-              Start live streaming
+              {t("livestream.start_button")}
             </button>
           )}
           {liveStreamStatus === LiveStreamStatus.InProgress && (
@@ -109,12 +111,12 @@ const LiveStreamPanel = () => {
               className="bg-red-500 hover:bg-red-600 text-theme-text-button py-2 px-4 rounded-lg text-sm"
               onClick={handleStopLiveStream}
             >
-              Stop live streaming
+              {t("livestream.stop_button")}
             </button>
           )}
           {liveStreamStatus === LiveStreamStatus.Connecting && (
             <button className="bg-gray-400 text-theme-text-button py-2 px-4 rounded-lg text-sm animate-pulse" disabled>
-              Connecting...
+              {t("livestream.connecting")}
             </button>
           )}
         </div>

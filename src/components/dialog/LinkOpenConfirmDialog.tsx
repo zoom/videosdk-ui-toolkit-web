@@ -1,9 +1,11 @@
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import ConfirmDialog from "../widget/dialog/ConfirmDialog";
 import { setChatLinkUrl, setIsJoinSubsessionConfirm } from "@/store/uiSlice";
 
 export const LinkOpenConfirmDialog = () => {
+  const { t } = useTranslation();
   const { chatLinkUrl } = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
 
@@ -15,8 +17,8 @@ export const LinkOpenConfirmDialog = () => {
         window.open(chatLinkUrl, "_blank");
         dispatch(setChatLinkUrl(""));
       }}
-      title="Are you sure you want to open the link?"
-      confirmText="Open"
+      title={t("dialog.confirm_open_link")}
+      confirmText={t("common.open")}
       message={chatLinkUrl}
       className="uikit-link-open-confirm-dialog break-words"
     />

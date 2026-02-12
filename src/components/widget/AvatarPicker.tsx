@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./CommonButton";
 import Select from "react-select";
 import { LOCALSTORAGE_KEYS } from "@/constant";
@@ -15,13 +16,6 @@ interface AvatarPickerProps {
   onClose: () => void;
   onSelect: (avatar: Avatar) => void;
 }
-
-const shapes = [
-  { value: "all", label: "All Shapes" },
-  { value: "square", label: "Square" },
-  { value: "portrait", label: "Portrait" },
-  { value: "landscape", label: "Landscape" },
-];
 
 const LazyImage = ({ avatar }: { avatar: Avatar }) => {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -69,10 +63,21 @@ const LazyImage = ({ avatar }: { avatar: Avatar }) => {
 };
 
 const AvatarPicker: React.FC<AvatarPickerProps> = ({ isOpen, onClose, onSelect }) => {
-  const ALL_CATEGORY = "All Categories";
+  const { t } = useTranslation();
+
+  const shapes = React.useMemo(
+    () => [
+      { value: "all", label: t("avatar.all_shapes") },
+      { value: "square", label: t("avatar.shape_square") },
+      { value: "portrait", label: t("avatar.shape_portrait") },
+      { value: "landscape", label: t("avatar.shape_landscape") },
+    ],
+    [t],
+  );
+
   const [avatars, setAvatars] = useState<Avatar[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState({ value: "all", label: ALL_CATEGORY });
+  const [selectedCategory, setSelectedCategory] = useState({ value: "all", label: t("avatar.all_categories") });
   const [selectedShape, setSelectedShape] = useState(shapes[0]);
   const [visibleAvatars, setVisibleAvatars] = useState<Avatar[]>([]);
   const [page, setPage] = useState(1);
@@ -92,8 +97,8 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({ isOpen, onClose, onSelect }
       .sort((a, b) => a.localeCompare(b))
       .map((cat) => ({ value: cat, label: cat }));
 
-    return [{ value: "All", label: "All Categories" }, ...sortedCategories];
-  }, [avatars]);
+    return [{ value: "All", label: t("avatar.all_categories") }, ...sortedCategories];
+  }, [avatars, t]);
 
   const filteredAvatars = React.useMemo(() => {
     return avatars.filter(
@@ -137,18 +142,24 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({ isOpen, onClose, onSelect }
     };
   }, [loadMore]);
 
-  const handleSearch = useCallback((option: { value: string; label: string } | null) => {
-    setSearchTerm(option ? option.value : "");
-    setSelectedCategory({ value: "all", label: ALL_CATEGORY });
-    setSelectedShape(shapes[0]);
-    setPage(1);
-  }, []);
+  const handleSearch = useCallback(
+    (option: { value: string; label: string } | null) => {
+      setSearchTerm(option ? option.value : "");
+      setSelectedCategory({ value: "all", label: t("avatar.all_categories") });
+      setSelectedShape(shapes[0]);
+      setPage(1);
+    },
+    [shapes, t],
+  );
 
-  const handleCategorySelect = useCallback((option: { value: string; label: string } | null) => {
-    setSelectedCategory(option || { value: "all", label: ALL_CATEGORY });
-    setPage(1);
-    setSearchTerm("");
-  }, []);
+  const handleCategorySelect = useCallback(
+    (option: { value: string; label: string } | null) => {
+      setSelectedCategory(option || { value: "all", label: t("avatar.all_categories") });
+      setPage(1);
+      setSearchTerm("");
+    },
+    [t],
+  );
 
   const handleShapeSelect = useCallback(
     (option: { value: string; label: string } | null) => {
@@ -156,7 +167,7 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({ isOpen, onClose, onSelect }
       setPage(1);
       setSearchTerm("");
     },
-    [setPage, setSearchTerm],
+    [shapes],
   );
 
   const handleAvatarSelect = useCallback(
@@ -175,7 +186,7 @@ const AvatarPicker: React.FC<AvatarPickerProps> = ({ isOpen, onClose, onSelect }
           <div className="mb-2">
             <Select
               options={avatars.map((avatar) => ({ value: avatar.description, label: avatar.description }))}
-              placeholder="Search avatars..."
+              placeholder={t("avatar.search_placeholder")}
               onChange={handleSearch}
               isClearable
               classNamePrefix="uikit-custom-scrollbar"

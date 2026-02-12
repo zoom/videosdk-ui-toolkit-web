@@ -20,11 +20,11 @@ export function InfoRowWithCopy({ label, value, isCopyable = false }: InfoRowWit
   };
 
   return (
-    <div className="flex items-center">
-      <span className="text-sm text-theme-text w-24">{label}</span>
-      <div className="flex items-center justify-between flex-1">
+    <div className="flex items-center gap-x-4">
+      <span className="text-sm text-theme-text w-36 shrink-0 whitespace-nowrap">{label}</span>
+      <div className="flex items-center justify-between flex-1 gap-2 min-w-0">
         <span
-          className={`font-medium text-ellipsis overflow-hidden whitespace-nowrap ${
+          className={`font-medium truncate ${
             isMobileDeviceNotIpad() && isPortrait() ? "max-w-[150px]" : "max-w-[250px]"
           }`}
           title={value || ""}
@@ -34,7 +34,7 @@ export function InfoRowWithCopy({ label, value, isCopyable = false }: InfoRowWit
         {isCopyable && (
           <button
             onClick={handleCopy}
-            className="ml-2 p-2 rounded-full hover:bg-theme-background transition-colors focus:outline-none"
+            className="p-2 rounded-full hover:bg-theme-background transition-colors focus:outline-none"
           >
             {copyState === "idle" ? (
               <Copy size={16} className="text-theme-text" />

@@ -1,4 +1,5 @@
 import React, { useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { Download, Image, FileText, AlertCircle } from "lucide-react";
 import {
   useAppDispatch,
@@ -37,6 +38,7 @@ export const useWhiteboardExportDialog = () => {
 };
 
 const WhiteboardExportConfirmDialog: React.FC = () => {
+  const { t } = useTranslation();
   const { whiteboardClient } = useContext(SessionAdditionalClientContext);
   const dispatch = useAppDispatch();
   const sessionUI = useAppSelector(useSessionUISelector);
@@ -129,18 +131,14 @@ const WhiteboardExportConfirmDialog: React.FC = () => {
       icon={<Download size={26} className="text-blue-500 drop-shadow-sm" strokeWidth={1.5} />}
       iconClassName="bg-blue-50 dark:bg-blue-950/30"
       onCancel={handleCancel}
-      cancelText="Cancel"
+      cancelText={t("common.cancel")}
       onClose={isExportOnly ? handleExportOnly : handleExportAndClose}
-      closeText={isExportOnly ? "Export" : "Export & Close"}
+      closeText={isExportOnly ? t("whiteboard.export_button") : t("whiteboard.export_and_close")}
       closeVariant="primary"
       closeIcon={<Download />}
-      title={isExportOnly ? "Export Whiteboard" : "Export Whiteboard?"}
-      message={
-        isExportOnly
-          ? "Export the current whiteboard content."
-          : "You can't reopen the whiteboard after closing. Please export the whiteboard content before closing."
-      }
-      confirmText={!isPresenter ? "" : isExportOnly ? "Cancel" : "Close"}
+      title={isExportOnly ? t("whiteboard.export_title") : t("whiteboard.export_question_title")}
+      message={isExportOnly ? t("whiteboard.export_message") : t("whiteboard.export_close_warning")}
+      confirmText={!isPresenter ? "" : isExportOnly ? t("common.cancel") : t("common.close")}
       onConfirm={isExportOnly ? handleCancel : handleCloseWithoutExport}
       confirmVariant={isExportOnly ? "secondary" : "danger"}
       id="uikit-whiteboard-export-confirm-dialog"
@@ -171,20 +169,20 @@ const WhiteboardExportConfirmDialog: React.FC = () => {
               }`}
             >
               <FileText size={16} />
-              PDF
+              {t("whiteboard.format_pdf")}
             </button>
           </div>
         </div>
 
         {/* File Name Input */}
         <div>
-          <label className="block text-sm font-medium text-theme-text mb-2">File Name</label>
+          <label className="block text-sm font-medium text-theme-text mb-2">{t("whiteboard.filename_label")}</label>
           <input
             type="text"
             value={whiteboardExportOptions.name}
             onChange={(e) => handleUpdateExportOptions({ name: e.target.value })}
             className="w-full px-3 py-2 border border-theme-border rounded-md bg-theme-surface text-theme-text focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Enter file name"
+            placeholder={t("whiteboard.filename_placeholder")}
           />
         </div>
 
@@ -206,7 +204,7 @@ const WhiteboardExportConfirmDialog: React.FC = () => {
               htmlFor="includeComments"
               className={`text-sm font-medium ${whiteboardExportOptions.format !== WHITEBOARD_EXPORT_FORMAT.PDF ? "text-theme-text" : "text-theme-text/50"}`}
             >
-              Include Comments
+              {t("whiteboard.include_comments")}
             </label>
           </div>
         </div>

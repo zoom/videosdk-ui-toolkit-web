@@ -1,4 +1,5 @@
 import { useState, useContext, useCallback, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { MediaDevice } from "@/types";
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
@@ -19,14 +20,15 @@ import { isEmpty } from "lodash-es";
 import ViewInstructions from "@/components/widget/ViewInstructions";
 import { ExecutedResult } from "@zoom/videosdk";
 
-function padDefaultDevice(devices: MediaDevice[]) {
+function padDefaultDevice(devices: MediaDevice[], label: string = "Same as System") {
   if (devices.findIndex((d) => d.deviceId === "default") === -1) {
-    return [...devices, { label: "Same as System", deviceId: "default" }];
+    return [...devices, { label, deviceId: "default" }];
   }
   return devices;
 }
 
 export function useDevice(fn?: () => void) {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [cameraList, setCameraList] = useState<MediaDevice[]>([]);
   const [speakerList, setSpeakerList] = useState<MediaDevice[]>([]);
@@ -97,16 +99,17 @@ export function useDevice(fn?: () => void) {
 
       if (shouldShowError) {
         let grantPermissionMessage = "";
+        const permissionMessages = GRANT_PERMISSION_MESSAGE(t);
         if (isGrantMicPermission && !isGrantCameraPermission) {
-          grantPermissionMessage = GRANT_PERMISSION_MESSAGE.microphone;
+          grantPermissionMessage = permissionMessages.microphone;
           setIsGrantPermission((prev) => ({ ...prev, microphone: false }));
         }
         if (isGrantCameraPermission && !isGrantMicPermission) {
-          grantPermissionMessage = GRANT_PERMISSION_MESSAGE.camera;
+          grantPermissionMessage = permissionMessages.camera;
           setIsGrantPermission((prev) => ({ ...prev, camera: false }));
         }
         if (isGrantMicPermission && isGrantCameraPermission) {
-          grantPermissionMessage = GRANT_PERMISSION_MESSAGE.microphoneAndCamera;
+          grantPermissionMessage = permissionMessages.microphoneAndCamera;
           setIsGrantPermission((prev) => ({ ...prev, microphone: false, camera: false }));
         }
         if (grantPermissionMessage) {
@@ -129,7 +132,7 @@ export function useDevice(fn?: () => void) {
         }
       }
     },
-    [dispatch, isShowJoinAudioConsent, hasInitialized, featuresOptions?.audio?.joinAudioConsent],
+    [dispatch, hasInitialized, isShowJoinAudioConsent, featuresOptions?.audio?.joinAudioConsent, t],
   );
 
   const changeSpeaker = useCallback(
