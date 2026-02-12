@@ -32,3 +32,10 @@ docs
 dist/image
 dist/lib
 .npmrc
+package-lock.json
+test.md
+test.sh
+test.json
+test.html
+test.js
+.npmrc
