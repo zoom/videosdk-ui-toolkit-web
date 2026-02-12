@@ -676,10 +676,255 @@ export type CustomizationOptions = {
 };
 
 /**
+ * PTZ (Pan-Tilt-Zoom) camera control interface
+ *
+ * Need to call joinSession before using this API
+ * @category Camera Control
+ */
+export interface PTZController {
+  /**
+   * Checks if the browser supports PTZ camera control
+   * @returns true if PTZ is supported, false otherwise
+   * @example
+   * ```js
+   * const supported = UIToolkit.ptz.isBrowserSupported();
+   * if (supported) {
+   *   console.log('PTZ camera control is supported');
+   * }
+   * ```
+   */
+  isBrowserSupported(): boolean;
+
+  /**
+   * Gets the PTZ capability of the local camera
+   * @returns Promise resolving to the PTZ capability object
+   * @example
+   * ```js
+   * const capability = await UIToolkit.ptz.getCapability();
+   * console.log('PTZ capabilities:', capability);
+   * ```
+   */
+  getCapability(): Promise<unknown>;
+
+  /**
+   * Gets the PTZ capability of a remote participant's camera
+   * @param userId - The user ID of the participant
+   * @returns Promise resolving to the PTZ capability object
+   * @example
+   * ```js
+   * const capability = await UIToolkit.ptz.getFarEndCapability(12345);
+   * ```
+   */
+  getFarEndCapability(userId: number): Promise<unknown>;
+
+  /**
+   * Requests control of a remote participant's camera
+   * @param userId - The user ID of the participant
+   * @returns Promise that resolves when the request is sent
+   * @example
+   * ```js
+   * await UIToolkit.ptz.requestControl(12345);
+   * ```
+   */
+  requestControl(userId: number): Promise<void>;
+
+  /**
+   * Approves a camera control request from another participant
+   * @param userId - The user ID of the participant requesting control
+   * @returns Promise that resolves when the approval is processed
+   * @example
+   * ```js
+   * await UIToolkit.ptz.approveControl(12345);
+   * ```
+   */
+  approveControl(userId: number): Promise<void>;
+
+  /**
+   * Declines a camera control request from another participant
+   * @param userId - The user ID of the participant requesting control
+   * @returns Promise that resolves when the decline is processed
+   * @example
+   * ```js
+   * await UIToolkit.ptz.declineControl(12345);
+   * ```
+   */
+  declineControl(userId: number): Promise<void>;
+
+  /**
+   * Gives up control of a remote participant's camera
+   * @param userId - The user ID of the participant whose camera control to release
+   * @returns Promise that resolves when control is released
+   * @example
+   * ```js
+   * await UIToolkit.ptz.giveUpControl(12345);
+   * ```
+   */
+  giveUpControl(userId: number): Promise<void>;
+
+  /**
+   * Sends a PTZ control command to a remote participant's camera
+   * @param options - Object containing cmd (command type), userId, and range (magnitude)
+   * @param options.cmd - PTZ command type (e.g., 1 for left, 2 for right, 3 for up, 4 for down, 5 for zoom in, 6 for zoom out)
+   * @param options.userId - The user ID of the participant
+   * @param options.range - Optional magnitude of the control action (0-100)
+   * @returns Promise that resolves when the command is sent
+   * @example
+   * ```js
+   * // Pan left
+   * await UIToolkit.ptz.control({ cmd: 1, userId: 12345, range: 50 });
+   *
+   * // Zoom in
+   * await UIToolkit.ptz.control({ cmd: 5, userId: 12345, range: 30 });
+   * ```
+   */
+  control(options: { cmd: number; userId: number; range?: number }): Promise<void>;
+}
+
+/**
+ * Internationalization (i18n) interface
+ *
+ * Need to call joinSession before using this API
+ * @category Localization
+ * @example
+ * ```js
+ * UIToolkit.onSessionJoined(async () => {
+ *   // Simple language change (must have pre-loaded resources)
+ *   await UIToolkit.i18n.setLanguage("zh-CN");
+ *
+ *   // Load language from URL
+ *   await UIToolkit.i18n.setLanguage("zh-TW", "https://example.com/lang/zh-TW.json");
+ *
+ *   // Add inline resources for custom language
+ *   const enJson = UIToolkit.i18n.getInstance().getResourceBundle("en-US", "translation") || {};
+ *   const jpJson = Object.assign({}, enJson, {
+ *     "notification.enable_audio_button": "参加",
+ *     "notification.enable_audio_content": "このセッションに参加しますか？",
+ *     "notification.enable_audio_title": "参加音声",
+ *     "settings.tab_audio": "音声",
+ *     "settings.tab_background": "背景",
+ *     "settings.tab_general": "一般",
+ *     "settings.tab_help": "ヘルプ",
+ *     "settings.tab_mask": "マスク",
+ *     "settings.tab_playback": "再生",
+ *     "settings.tab_raw_data": "生データ",
+ *     "settings.tab_second_audio": "セカンド音声",
+ *     "settings.tab_statistics": "統計",
+ *     "settings.tab_troubleshoot": "トラブルシューティング",
+ *   });
+ *   await UIToolkit.i18n.setLanguage("ja-JP", jpJson);
+ * });
+ *
+ * // Listen for language changes and load resources dynamically
+ * UIToolkit.onLanguageChange((language) => {
+ *   console.log("uikit.onLanguageChange", language);
+ *   if (language === "ko-KR") {
+ *     void UIToolkit.i18n.setLanguage("ko-KR", "https://example.com/lang/ko-KR.json");
+ *   } else if (language === "vi-VN") {
+ *     void UIToolkit.i18n.setLanguage("vi-VN", "https://example.com/lang/vi-VN.json");
+ *   } else {
+ *     console.log("language not found", language);
+ *   }
+ * });
+ * ```
+ */
+export interface I18nController {
+  /**
+   * Sets the UI language and optionally loads additional translation resources
+   * @param language - The language code (e.g., "en-US", "zh-CN")
+   * @param resources - Optional translation resources (object or URL to JSON file)
+   * @returns Promise that resolves when language is set and resources are loaded
+   */
+  setLanguage(language: string, resources?: Record<string, unknown> | string): Promise<void>;
+
+  /**
+   * Sets the list of available languages in the language selector
+   * @param languages - Array of language codes to show in the settings
+   * @example
+   * ```js
+   * // Show multiple language options, if language not in the list, it will not be shown in the language selector
+   * UIToolkit.i18n.setLanguageList(["en-US", "zh-CN", "zh-TW", "ja-JP"]);
+   *
+   * // Restrict to specific languages
+   * UIToolkit.i18n.setLanguageList(["en-US", "zh-CN"]);
+   * ```
+   */
+  setLanguageList(languages: string[]): void;
+
+  /**
+   * Gets the i18next instance for advanced usage
+   * @returns The i18next instance
+   * @example
+   * ```js
+   * // Access i18next directly for advanced features
+   * const i18n = UIToolkit.i18n.getInstance();
+   * const translation = i18n.t("settings.language_title");
+   * const hasResources = i18n.hasResourceBundle("ja-JP", "translation");
+   * const enJson = i18n.getResourceBundle("en-US", "translation");
+   * ```
+   */
+  getInstance(): unknown;
+
+  /**
+   * Gets the current UI language, default is en-US see all keys at https://source.zoom.us/uitoolkit/{VERSION}/en-US.json
+   * @returns The current language code (e.g., "en-US")
+   * @example
+   * ```js
+   * const currentLang = UIToolkit.i18n.getLanguage();
+   * console.log("Current language:", currentLang);
+   * ```
+   */
+  getLanguage(): string;
+
+  /**
+   * Gets the list of available languages set by setLanguageList
+   * @returns Array of language codes, defaults support ["en-US", "zh-CN"]
+   * @example
+   * ```js
+   * const languages = UIToolkit.i18n.getLanguageList();
+   * console.log("Available languages:", languages);
+   * ```
+   */
+  getLanguageList(): string[];
+
+  /**
+   * Checks if a language has loaded translation resources
+   * @param language - The language code to check
+   * @returns true if resources exist, false otherwise
+   * @example
+   * ```js
+   * if (UIToolkit.i18n.hasLanguageResources("ja-JP")) {
+   *   await UIToolkit.i18n.setLanguage("ja-JP");
+   * } else {
+   *   console.log("Japanese resources not loaded");
+   * }
+   * ```
+   */
+  hasLanguageResources(language: string): boolean;
+}
+
+/**
  * Zoom Video SDK UI Toolkit API
  * Provides methods for managing video sessions and UI components
  */
 export interface UIToolkit {
+  /**
+   * PTZ (Pan-Tilt-Zoom) camera control interface
+   * Provides methods for controlling PTZ-capable cameras
+   *
+   * Need to call joinSession before using this API
+   * @category Camera Control
+   */
+  ptz: PTZController;
+
+  /**
+   * Internationalization (i18n) interface
+   * Provides methods for managing UI language and translations
+   *
+   * Need to call joinSession before using this API
+   * @category Localization
+   */
+  i18n: I18nController;
+
   /**
    * Opens the video preview in a specified container.
    * Use this before joining a session to test video settings.
@@ -704,19 +949,19 @@ export interface UIToolkit {
    * @param container - DOM element to render the session UI
    * @param config - Session configuration options
    */
-  joinSession(container: HTMLElement, config: CustomizationOptions): void;
+  joinSession(container: HTMLElement, config: CustomizationOptions): Promise<void>;
 
   /**
    * Leaves the session
    */
-  leaveSession(): void;
+  leaveSession(): Promise<void>;
 
   /**
    * Closes the current video session.
    *
    * @param container - DOM element containing the session
    */
-  closeSession(container?: HTMLElement): void;
+  closeSession(container?: HTMLElement): Promise<void>;
   /**
    * Changes the view type
    * @param viewType - The view type to change to.
@@ -783,6 +1028,37 @@ export interface UIToolkit {
    * @category Events
    */
   offViewTypeChange(callback: () => void): void;
+
+  /**
+   * Registers a callback for when the UI language changes.
+   * The callback will be triggered when the user changes the language in settings.
+   *
+   * @param callback - Function to execute on language change, receives the new language code (e.g., "en-US", "zh-CN").
+   * @category Events
+   * @example
+   * ```js
+   * // Listen for language changes and load resources dynamically
+   * UIToolkit.onLanguageChange((language) => {
+   *   console.log("Language changed to:", language);
+   *
+   *   // Dynamically load language resources from URL
+   *   if (language === "zh-TW") {
+   *     UIToolkit.i18n.setLanguage("zh-TW", "https://example.com/lang/zh-TW.json")
+   *       .then(() => console.log("Traditional Chinese resources loaded"))
+   *       .catch((err) => console.error("Failed to load language:", err));
+   *   }
+   * });
+   * ```
+   */
+  onLanguageChange(callback: (language: string) => void): void;
+
+  /**
+   * Removes a previously registered language change callback.
+   *
+   * @param callback - Function to remove from event listeners.
+   * @category Events
+   */
+  offLanguageChange(callback: (language: string) => void): void;
 
   /**
    * Registers a callback for a specific event.
@@ -1022,7 +1298,7 @@ export interface UIToolkit {
    * Destroys the UI toolkit instance and cleans up resources.
    * @returns void
    */
-  destroy(): void;
+  destroy(): Promise<void>;
 
   /**
    * Get the version of the UI toolkit, Video SDK and Tailwind CSS
