@@ -34,7 +34,7 @@ const ControlButton: React.FC<ControlButtonProps> = ({
 }) => {
   const baseClasses = `flex items-center justify-center ${
     orientation === "vertical" ? "w-10 h-10" : "w-10 h-10"
-  } focus:outline-none transition-colors duration-200 ${showBorder ? "border border-theme-border" : ""}`;
+  } border border-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 transition-colors duration-200 ${showBorder ? "border-theme-border" : ""}`;
   const activeClasses = "text-gray-700";
 
   const hoverClasses = !disabled && !isLoading && hoverColor;

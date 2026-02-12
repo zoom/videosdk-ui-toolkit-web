@@ -1,4 +1,5 @@
 import { useContext, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Button from "@/components/widget/CommonButton";
 import { LineChart, Line, XAxis, YAxis, Label, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { useProbe } from "@/features/setting/context/probe-context";
@@ -95,6 +96,7 @@ const SessionInfoTable = ({
   webEndpoint: string;
   trackingId: string;
 }) => {
+  const { t } = useTranslation();
   return (
     <div className="mb-4">
       <div className="overflow-x-auto border border-theme-border rounded-lg">
@@ -103,17 +105,17 @@ const SessionInfoTable = ({
             <thead>
               <tr className="border-b border-theme-border text-left bg-theme-background">
                 <th colSpan={2} className="px-2 py-2">
-                  Session Information
+                  {t("troubleshooting.session_info")}
                 </th>
               </tr>
             </thead>
             <tbody>
               {[
-                { field: "Session ID", value: sessionInfo?.sessionId },
-                { field: "User ID", value: userId },
-                ...(trackingId ? [{ field: "Tracking ID", value: trackingId }] : []),
-                { field: "Web Endpoint", value: webEndpoint },
-                { field: "SDK Version", value: window?.JsMediaSDK_Instance?.version },
+                { field: t("troubleshooting.session_id"), value: sessionInfo?.sessionId },
+                { field: t("troubleshooting.user_id"), value: userId },
+                ...(trackingId ? [{ field: t("troubleshooting.tracking_id"), value: trackingId }] : []),
+                { field: t("troubleshooting.web_endpoint"), value: webEndpoint },
+                { field: t("troubleshooting.sdk_version"), value: window?.JsMediaSDK_Instance?.version },
               ].map((item, index) => (
                 <tr key={index} className={tableBodyStyle}>
                   <td className={tableCellStyle}>{item.field}</td>
@@ -129,6 +131,7 @@ const SessionInfoTable = ({
 };
 
 const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.CSSProperties }) => {
+  const { t } = useTranslation();
   const { prober } = useProbe();
 
   const {
@@ -200,7 +203,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
 
     return (
       <div className="p-4 border border-theme-border bg-theme-surface rounded-lg shadow-sm">
-        <p className="text-sm font-medium mb-2">{`Time: ${label}s`}</p>
+        <p className="text-sm font-medium mb-2">{t("troubleshooting.time_label", { time: label })}</p>
         {payload.map((entry, index) => (
           <p key={index} className="text-sm" style={{ color: entry.color }}>
             {`${entry.name}: ${entry.value.toFixed(3)} ${unit}`}
@@ -219,7 +222,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
           tick={{ fill: "#6b7280", fontSize: 12 }}
           tickLine={{ stroke: "#6b7280" }}
         >
-          <Label value="Time (s)" position="insideBottom" dy={10} />
+          <Label value={t("troubleshooting.time_seconds")} position="insideBottom" dy={10} />
         </XAxis>
         <YAxis
           stroke="#6b7280"
@@ -243,7 +246,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
         <Line
           type="monotone"
           dataKey="downlink"
-          name="Download"
+          name={t("troubleshooting.download")}
           stroke="#3b82f6"
           strokeWidth={2}
           dot={false}
@@ -257,7 +260,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
         <Line
           type="monotone"
           dataKey="uplink"
-          name="Upload"
+          name={t("troubleshooting.upload")}
           stroke="#10b981"
           strokeWidth={2}
           dot={false}
@@ -348,7 +351,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
     }[],
   ) => {
     if (!features || features.length === 0) {
-      return "None";
+      return t("troubleshooting.none");
     }
 
     return (
@@ -418,7 +421,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
         }
       }
     } catch (error) {
-      enqueueSnackbar(`Error generating PDF: ${error}`, { variant: "error" });
+      enqueueSnackbar(t("troubleshooting.error_generating_pdf", { error }), { variant: "error" });
     }
   };
 
@@ -430,11 +433,13 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
     <div className="flex-grow overflow-auto" style={style}>
       <div className="flex justify-center gap-4 mb-6">
         <Button onClick={handleStartDiagnostic} disabled={isDiagnosing} size="md">
-          {isDiagnosing ? `Diagnosing... (${formatTime(countdown)})` : "Start Diagnostic"}
+          {isDiagnosing
+            ? t("troubleshooting.diagnosing", { time: formatTime(countdown) })
+            : t("troubleshooting.start_diagnostic")}
         </Button>
         {reportData && !isDiagnosing && (
           <Button onClick={handleExportPDF} size="md">
-            {trackingId ? `Send and Export Report` : "Export Report"}
+            {trackingId ? t("troubleshooting.send_and_export_report") : t("troubleshooting.export_report")}
           </Button>
         )}
       </div>
@@ -457,12 +462,14 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                     <thead>
                       <tr className={tableHeaderStyle}>
                         <th className={`${tableCellStyle} w-8 text-center`}>
-                          <span className="sr-only">Index</span>#
+                          <span className="sr-only">{t("troubleshooting.table_index")}</span>#
                         </th>
-                        <th className={tableCellStyle}>Attribute</th>
-                        <th className={tableCellStyle}>Value</th>
-                        <th className={`${tableCellStyle} w-20 whitespace-nowrap text-center`}>Critical</th>
-                        <th className={tableCellStyle}>Affected Features</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.table_attribute")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.table_value")}</th>
+                        <th className={`${tableCellStyle} w-20 whitespace-nowrap text-center`}>
+                          {t("troubleshooting.table_critical")}
+                        </th>
+                        <th className={tableCellStyle}>{t("troubleshooting.table_affected_features")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -471,7 +478,9 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                           <td className={tableCellStyle}>{item.index}</td>
                           <td className={`${tableCellStyle} whitespace-normal`}>{item.attr}</td>
                           <td className={`${tableCellStyle} whitespace-normal break-words`}>{item.val}</td>
-                          <td className={`${tableCellStyle} w-20 text-center`}>{item.critical ? "Yes" : "No"}</td>
+                          <td className={`${tableCellStyle} w-20 text-center`}>
+                            {item.critical ? t("troubleshooting.yes") : t("troubleshooting.no")}
+                          </td>
                           <td className={`${tableCellStyle} break-words`}>
                             {renderAffectedFeatures(item.affectedFeatures)}
                           </td>
@@ -499,18 +508,19 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                   <table className="w-full border-collapse rounded-lg overflow-hidden text-theme-text">
                     <thead>
                       <tr className="bg-theme-background rounded-t-lg ">
-                        <th
-                          colSpan={4}
-                          className="px-2 py-2"
-                        >{`Service Zone: ${reportData.content.networkDiagnosticReport.serviceZone}`}</th>
+                        <th colSpan={4} className="px-2 py-2">
+                          {t("troubleshooting.service_zone", {
+                            zone: reportData.content.networkDiagnosticReport.serviceZone,
+                          })}
+                        </th>
                       </tr>
                     </thead>
                     <thead>
                       <tr className={tableBodyStyle}>
-                        <th className={tableCellStyle}>Protocol Type</th>
-                        <th className={tableCellStyle}>Is Blocked</th>
-                        <th className={tableCellStyle}>Port</th>
-                        <th className={tableCellStyle}>Tip</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.protocol_type")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.is_blocked")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.port")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.tip")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -527,12 +537,14 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                           <tr key={index} className={tableBodyStyle}>
                             <td className={tableCellStyle}>
                               {{
-                                1: "https",
-                                2: "websocket",
-                                3: "datachannel",
-                              }[item.type] || "unknown"}
+                                1: t("troubleshooting.protocol_https"),
+                                2: t("troubleshooting.protocol_websocket"),
+                                3: t("troubleshooting.protocol_datachannel"),
+                              }[item.type] || t("troubleshooting.protocol_unknown")}
                             </td>
-                            <td className={tableCellStyle}>{item.isBlocked ? "Yes" : "No"}</td>
+                            <td className={tableCellStyle}>
+                              {item.isBlocked ? t("troubleshooting.yes") : t("troubleshooting.no")}
+                            </td>
                             <td className={tableCellStyle}>{item.port}</td>
                             <td className={tableCellStyle}>{item.tip}</td>
                           </tr>
@@ -544,14 +556,14 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                   <table className="w-full border-collapse rounded-lg overflow-hidden bg-theme-surface border border-theme-border">
                     <thead>
                       <tr className={tableHeaderStyle}>
-                        <th className={tableCellStyle}>Metrics</th>
-                        <th className={tableCellStyle}>UpLink</th>
-                        <th className={tableCellStyle}>DownLink</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.metrics")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.uplink")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.downlink")}</th>
                       </tr>
                     </thead>
                     <tbody className="bg-theme-surface border-b border-theme-border">
                       <tr className="border-b border-theme-border text-left hover:bg-theme-background">
-                        <td className={tableCellStyle}>Average RTT (ms)</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.avg_rtt")}</td>
                         <td className={tableCellStyle}>
                           {reportData.content.networkDiagnosticReport.statistics.uplink_avg_rtt}
                         </td>
@@ -560,7 +572,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                         </td>
                       </tr>
                       <tr className="border-b border-theme-border text-left hover:bg-theme-background">
-                        <td className={tableCellStyle}>Average Loss (%)</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.avg_loss")}</td>
                         <td
                           className={tableCellStyle}
                         >{`${reportData.content.networkDiagnosticReport.statistics.uplink_avg_loss} %`}</td>
@@ -569,7 +581,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                         >{`${reportData.content.networkDiagnosticReport.statistics.downlink_avg_loss} %`}</td>
                       </tr>
                       <tr className="border-b border-theme-border text-left hover:bg-theme-background">
-                        <td className={tableCellStyle}>Average Jitter (ms)</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.avg_jitter")}</td>
                         <td className={tableCellStyle}>
                           {reportData.content.networkDiagnosticReport.statistics.uplink_avg_jitter}
                         </td>
@@ -578,7 +590,7 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                         </td>
                       </tr>
                       <tr className="border-b border-theme-border text-left hover:bg-theme-background">
-                        <td className={tableCellStyle}>Bandwidth (KB/s)</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.bandwidth")}</td>
                         <td className={tableCellStyle}>
                           {reportData.content.networkDiagnosticReport.statistics.uplink_bandwidth}
                         </td>
@@ -587,48 +599,51 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                         </td>
                       </tr>
                       <tr className="border-b border-theme-border text-left hover:bg-theme-background">
-                        <td className={tableCellStyle}>Bandwidth Quality</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.bandwidth_quality")}</td>
                         <td className={tableCellStyle}>
                           {{
-                            0: "very low",
-                            1: "low",
-                            2: "normal",
-                            255: "unknown",
-                          }[reportData.content.networkDiagnosticReport.statistics.uplink_bw_level] || "undefined"}
+                            0: t("troubleshooting.quality_very_low"),
+                            1: t("troubleshooting.quality_low"),
+                            2: t("troubleshooting.quality_normal"),
+                            255: t("troubleshooting.quality_unknown"),
+                          }[reportData.content.networkDiagnosticReport.statistics.uplink_bw_level] ||
+                            t("troubleshooting.quality_undefined")}
                         </td>
                         <td className={tableCellStyle}>
                           {{
-                            0: "very low",
-                            1: "low",
-                            2: "normal",
-                            255: "unknown",
-                          }[reportData.content.networkDiagnosticReport.statistics.downlink_bw_level] || "undefined"}
+                            0: t("troubleshooting.quality_very_low"),
+                            1: t("troubleshooting.quality_low"),
+                            2: t("troubleshooting.quality_normal"),
+                            255: t("troubleshooting.quality_unknown"),
+                          }[reportData.content.networkDiagnosticReport.statistics.downlink_bw_level] ||
+                            t("troubleshooting.quality_undefined")}
                         </td>
                       </tr>
                       <tr className="hover:bg-theme-background">
-                        <td className={tableCellStyle}>Network Quality</td>
+                        <td className={tableCellStyle}>{t("troubleshooting.network_quality")}</td>
                         <td className={tableCellStyle}>
                           {{
-                            0: "very bad",
-                            1: "bad",
-                            2: "not good",
-                            3: "fair",
-                            4: "good",
-                            5: "excellent",
-                            255: "unknown",
-                          }[reportData.content.networkDiagnosticReport.statistics.uplink_network_level] || "undefined"}
+                            0: t("troubleshooting.quality_very_bad"),
+                            1: t("troubleshooting.quality_bad"),
+                            2: t("troubleshooting.quality_not_good"),
+                            3: t("troubleshooting.quality_fair"),
+                            4: t("troubleshooting.quality_good"),
+                            5: t("troubleshooting.quality_excellent"),
+                            255: t("troubleshooting.quality_unknown"),
+                          }[reportData.content.networkDiagnosticReport.statistics.uplink_network_level] ||
+                            t("troubleshooting.quality_undefined")}
                         </td>
                         <td className={tableCellStyle}>
                           {{
-                            0: "very bad",
-                            1: "bad",
-                            2: "not good",
-                            3: "fair",
-                            4: "good",
-                            5: "excellent",
-                            255: "unknown",
+                            0: t("troubleshooting.quality_very_bad"),
+                            1: t("troubleshooting.quality_bad"),
+                            2: t("troubleshooting.quality_not_good"),
+                            3: t("troubleshooting.quality_fair"),
+                            4: t("troubleshooting.quality_good"),
+                            5: t("troubleshooting.quality_excellent"),
+                            255: t("troubleshooting.quality_unknown"),
                           }[reportData.content.networkDiagnosticReport.statistics.downlink_network_level] ||
-                            "undefined"}
+                            t("troubleshooting.quality_undefined")}
                         </td>
                       </tr>
                     </tbody>
@@ -644,9 +659,9 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                   <table className="w-full border-collapse rounded-lg overflow-hidden uikit-custom-scrollbar">
                     <thead>
                       <tr className={tableHeaderStyle}>
-                        <th className={tableCellStyle}>Feature Name</th>
-                        <th className={tableCellStyle}>Support</th>
-                        <th className={tableCellStyle}>Tips</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.feature_name")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.support")}</th>
+                        <th className={tableCellStyle}>{t("troubleshooting.tips")}</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -658,11 +673,15 @@ const DiagnosticTab = ({ themeName, style }: { themeName: string; style?: React.
                           <tr key={index} className={tableBodyStyle}>
                             <td className={tableCellStyle}>
                               {item.featureName.indexOf("3x3 Desktop Gallery View") > -1 && isMobileDeviceNotIpad()
-                                ? "2x2 Gallery View"
+                                ? t("troubleshooting.gallery_view_2x2")
                                 : item.featureName}
                             </td>
                             <td className={tableCellStyle}>
-                              {item.featureName.indexOf("Gallery View") > -1 ? "Yes" : item.isSupported ? "Yes" : "No"}
+                              {item.featureName.indexOf("Gallery View") > -1
+                                ? t("troubleshooting.yes")
+                                : item.isSupported
+                                  ? t("troubleshooting.yes")
+                                  : t("troubleshooting.no")}
                             </td>
                             <td className={`${tableCellStyle} hover:border-r hover:border-theme-border`}>
                               <ul className="list-none ps-0 ms-0">

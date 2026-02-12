@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { Mic, ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import Button from "@/components/widget/CommonButton";
 import { useProbe } from "@/features/setting/context/probe-context";
 import { useMediaTab } from "../../context/media-tab-context";
@@ -7,6 +8,7 @@ import { THEME_COLOR_CLASS } from "@/constant";
 import { enqueueSnackbar } from "notistack";
 
 const MediaTab = () => {
+  const { t } = useTranslation();
   const { prober } = useProbe();
 
   const {
@@ -136,7 +138,7 @@ const MediaTab = () => {
 
         if (diagnostic.code !== 0) {
           enqueueSnackbar({
-            message: `Failed to diagnose video: ${diagnostic.message}`,
+            message: t("troubleshooting.failed_diagnose_video", { message: diagnostic.message }),
             variant: "error",
           });
           return;
@@ -145,7 +147,7 @@ const MediaTab = () => {
         currentStream = diagnostic.stream;
       } catch (error) {
         enqueueSnackbar({
-          message: `Diagnose Video Threw an Error: ${error.message}`,
+          message: t("troubleshooting.diagnose_video_error", { message: error.message }),
           variant: "error",
         });
       }
@@ -156,17 +158,17 @@ const MediaTab = () => {
     return () => {
       prober.stopToDiagnoseVideo(currentStream);
     };
-  }, [canvasElementRef, prober, renderer, selectedCamera, videoElementRef]);
+  }, [canvasElementRef, prober, renderer, selectedCamera, t, videoElementRef]);
 
   const selectClass = `${THEME_COLOR_CLASS} w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md appearance-none`;
 
   if (isPermissionsError) {
     return (
       <div className="flex-grow p-6 overflow-auto">
-        <h2 className="text-2xl font-bold mb-6">Permissions Error</h2>
-        <p className="">Please enable microphone and camera access in your browser settings.</p>
+        <h2 className="text-2xl font-bold mb-6">{t("troubleshooting.permissions_error")}</h2>
+        <p className="">{t("troubleshooting.enable_permissions")}</p>
         <Button onClick={getMediaPermission} variant="primary" size="sm" className="px-4">
-          Retry Permissions
+          {t("troubleshooting.retry_permissions")}
         </Button>
       </div>
     );
@@ -178,10 +180,12 @@ const MediaTab = () => {
             <video
               autoPlay
               playsInline
+              muted
               ref={videoElementRef}
               id="local_preview_video"
               style={{ width: "100%", aspectRatio: "16/9" }}
               hidden={renderer !== 1}
+              aria-label={t("troubleshooting.camera_preview")}
             />
             <canvas
               key={renderer}
@@ -194,7 +198,7 @@ const MediaTab = () => {
           <div id="camera-select" className="relative">
             <div className="flex items-center">
               <label htmlFor="video-input-select" className="w-1/4 text-sm font-medium ">
-                Camera:
+                {t("troubleshooting.camera")}
               </label>
               <div className="w-3/4 relative">
                 <select
@@ -218,7 +222,7 @@ const MediaTab = () => {
           <div id="renderer-select" className="relative">
             <div className="flex items-center">
               <label htmlFor="video-renderer-select" className="w-1/4 text-sm font-medium ">
-                Renderer:
+                {t("troubleshooting.renderer")}
               </label>
               <div className="w-3/4 relative">
                 <select
@@ -227,10 +231,10 @@ const MediaTab = () => {
                   value={renderer}
                   onChange={(e) => setRenderer(parseInt(e.target.value))}
                 >
-                  <option value={1}>Video Tag</option>
-                  <option value={2}>WebGL</option>
-                  <option value={3}>WebGL2</option>
-                  <option value={4}>WebGPU</option>
+                  <option value={1}>{t("troubleshooting.renderer_video_tag")}</option>
+                  <option value={2}>{t("troubleshooting.renderer_webgl")}</option>
+                  <option value={3}>{t("troubleshooting.renderer_webgl2")}</option>
+                  <option value={4}>{t("troubleshooting.renderer_webgpu")}</option>
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 ">
                   <ChevronDown size={16} />
@@ -249,13 +253,13 @@ const MediaTab = () => {
               onClick={runAudioTest}
             >
               {isAudioTestRecording ? (
-                "Recording..."
+                t("troubleshooting.recording")
               ) : isPlayingBackForAudioTest ? (
-                "Playing..."
+                t("troubleshooting.playing")
               ) : (
                 <div className="flex space-x-2">
                   <Mic className="h-5 w-5" />
-                  <p>Test audio</p>
+                  <p>{t("troubleshooting.test_audio")}</p>
                 </div>
               )}
             </Button>
@@ -263,7 +267,7 @@ const MediaTab = () => {
           <div id="microphone-select" className="relative">
             <div className="flex items-center">
               <label htmlFor="audio-input-select" className="w-1/4 text-sm font-medium ">
-                Microphone:
+                {t("troubleshooting.microphone")}
               </label>
               <div className="w-3/4 relative">
                 <select
@@ -287,13 +291,11 @@ const MediaTab = () => {
           <div id="speaker-select" className="relative">
             <div className="flex items-center">
               <label htmlFor="audio-output-select" className="w-1/4 text-sm font-medium ">
-                Speaker:
+                {t("troubleshooting.speaker")}
               </label>
               <div className="w-3/4 relative">
                 {speakers.length === 0 && isWebKit() ? (
-                  <p className="mt-1 text-sm text-gray-600">
-                    Speakers may not be selectable in Apple browsers. Switch speakers in your device settings.
-                  </p>
+                  <p className="mt-1 text-sm text-gray-600">{t("troubleshooting.speaker_not_selectable")}</p>
                 ) : (
                   <>
                     <select

@@ -37,7 +37,8 @@ export const useDrag = (contentRef: MutableRefObject<HTMLDivElement>, initPositi
     centerWindow();
     window.addEventListener("resize", centerWindow);
     return () => window.removeEventListener("resize", centerWindow);
-  }, [contentRef, initPosition]);
+    // Avoid depending on initPosition object, inline literals can change each render and cause infinite loop
+  }, [contentRef, initPosition?.x, initPosition?.y]);
 
   const handleMouseDown = (e) => {
     setIsDragging(true);

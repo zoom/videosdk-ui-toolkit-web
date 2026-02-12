@@ -34,6 +34,7 @@ export enum ExposedEvents {
   EVENT_FAR_END_CAMERA_RESPONSE_CONTROL = "far-end-camera-response-control",
   EVENT_FAR_END_CAMERA_IN_CONTROL_CHANGE = "far-end-camera-in-control-change",
   EVENT_FAR_END_CAMERA_CAPABILITY_CHANGE = "far-end-camera-capability-change",
+  EVENT_LANGUAGE_CHANGE = "uikit-language-change",
 }
 
 export const supportEventsList = Object.values(ExposedEvents);

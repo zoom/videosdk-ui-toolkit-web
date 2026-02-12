@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import { SelectOption } from "../subsession-constants";
 import { CommonAssignModal } from "./CommonAssignModal";
 import { Subsession } from "@zoom/videosdk";
+import { translateSubsessionName } from "../utils/translateSubsessionName";
 
 export const AssignRoomsModal: React.FC<{
   roomId: string;
@@ -10,11 +12,13 @@ export const AssignRoomsModal: React.FC<{
   assignRoom: (roomId: string) => void;
   themeName: string;
 }> = ({ roomId, roomName, onClose, rooms, assignRoom, themeName }) => {
+  const { t } = useTranslation();
+
   const roomOptions: SelectOption[] = rooms.map(
     (room: any) =>
       ({
         value: room.subsessionId,
-        label: room.subsessionName,
+        label: translateSubsessionName(room.subsessionName, t),
       }) as SelectOption,
   );
 
@@ -27,13 +31,13 @@ export const AssignRoomsModal: React.FC<{
   return (
     <CommonAssignModal
       id={`uikit-subsession-assign-rooms-modal`}
-      title={`Move Participant to another room`}
+      title={t("subsession.move_participant_title")}
       onClose={onClose}
       options={roomOptions}
       onAssign={handleAssign}
       isMulti={false}
-      placeholder="Select a room"
-      noOptionsMessage="No rooms available"
+      placeholder={t("subsession.select_room_placeholder")}
+      noOptionsMessage={t("subsession.no_rooms_available")}
       themeName={themeName}
     />
   );

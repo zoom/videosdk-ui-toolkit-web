@@ -1,4 +1,5 @@
 import React, { useState, useContext, useCallback, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { LogOut } from "lucide-react";
 import { ClientContext } from "@/context/client-context";
 import {
@@ -21,6 +22,7 @@ export const LeaveButton = ({
   isHostOrManager: boolean;
   orientation?: "horizontal" | "vertical";
 }) => {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const session = useAppSelector(useSessionSelector);
   const { subsessionClient } = useContext(sessionAdditionalContext);
@@ -76,7 +78,7 @@ export const LeaveButton = ({
           }}
           id="reclaim-host-button"
         >
-          Reclaim Host
+          {t("leave.button_reclaim_host")}
         </button>
       )}
       {session.isHost && (
@@ -87,7 +89,7 @@ export const LeaveButton = ({
           }}
           id="end-for-all-button"
         >
-          End Session
+          {t("leave.button_end_session")}
         </button>
       )}
     </>
@@ -102,7 +104,7 @@ export const LeaveButton = ({
       }}
       id="leave-subsession-button"
     >
-      Leave Subsession
+      {t("leave.button_leave_subsession")}
     </button>
   );
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -137,7 +139,7 @@ export const LeaveButton = ({
             }}
             id="leave-meeting-button"
           >
-            Leave Session
+            {t("leave.session")}
           </button>
           {subsessionLeave}
         </div>

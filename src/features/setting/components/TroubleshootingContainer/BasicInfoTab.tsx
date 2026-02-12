@@ -1,9 +1,11 @@
 import Button from "@/components/widget/CommonButton";
+import { useTranslation } from "react-i18next";
 import { useProbe } from "@/features/setting/context/probe-context";
 import { useEffect, useState, useCallback } from "react";
 import { tableHeaderStyle, tableBodyStyle, tableCellStyle } from "./constant";
 
 const BasicInfoTab = ({ themeName, style }: { themeName: string; style?: React.CSSProperties }) => {
+  const { t } = useTranslation();
   const { reporter } = useProbe();
 
   const [basicInfo, setBasicInfo] = useState([]);
@@ -25,18 +27,18 @@ const BasicInfoTab = ({ themeName, style }: { themeName: string; style?: React.C
 
   const renderBasicInfoTable = () => {
     if (basicInfo.length === 0) {
-      return <p>No basic information available.</p>;
+      return <p>{t("troubleshooting.no_basic_info")}</p>;
     }
 
     return (
       <table className="w-full table-fixed border-collapse rounded-lg overflow-hidden text-theme-text">
         <thead>
           <tr className={tableHeaderStyle}>
-            <th className={tableCellStyle}>Index</th>
-            <th className={tableCellStyle}>Attribute</th>
-            <th className={tableCellStyle}>Value</th>
-            <th className={tableCellStyle}>Critical</th>
-            <th className={tableCellStyle}>Affected Features</th>
+            <th className={tableCellStyle}>{t("troubleshooting.table_index")}</th>
+            <th className={tableCellStyle}>{t("troubleshooting.table_attribute")}</th>
+            <th className={tableCellStyle}>{t("troubleshooting.table_value")}</th>
+            <th className={tableCellStyle}>{t("troubleshooting.table_critical")}</th>
+            <th className={tableCellStyle}>{t("troubleshooting.table_affected_features")}</th>
           </tr>
         </thead>
         <tbody>
@@ -45,9 +47,13 @@ const BasicInfoTab = ({ themeName, style }: { themeName: string; style?: React.C
               <td className={tableCellStyle}>{item.index}</td>
               <td className={`${tableCellStyle} whitespace-normal break-words`}>{item.attr}</td>
               <td className={`${tableCellStyle} whitespace-normal break-words`}>
-                {typeof item.val === "boolean" ? (item.val ? "Yes" : "No") : item.val}
+                {typeof item.val === "boolean"
+                  ? item.val
+                    ? t("troubleshooting.yes")
+                    : t("troubleshooting.no")
+                  : item.val}
               </td>
-              <td className={tableCellStyle}>{item.critical ? "Yes" : "No"}</td>
+              <td className={tableCellStyle}>{item.critical ? t("troubleshooting.yes") : t("troubleshooting.no")}</td>
               <td className={`${tableCellStyle} break-words`}>{renderAffectedFeatures(item.affectedFeatures)}</td>
             </tr>
           ))}
@@ -58,7 +64,7 @@ const BasicInfoTab = ({ themeName, style }: { themeName: string; style?: React.C
 
   const renderAffectedFeatures = (features) => {
     if (!features || features.length === 0) {
-      return "None";
+      return t("troubleshooting.none");
     }
 
     return (
@@ -73,10 +79,10 @@ const BasicInfoTab = ({ themeName, style }: { themeName: string; style?: React.C
   if (error !== "") {
     return (
       <div className="flex-grow overflow-auto" style={style}>
-        <h2 className="text-2xl font-bold mb-6">Permissions Error</h2>
-        <p className="">Failed to fetch basic information. Error: {error}</p>
+        <h2 className="text-2xl font-bold mb-6">{t("troubleshooting.permissions_error")}</h2>
+        <p className="">{t("troubleshooting.failed_fetch_basic_info", { error })}</p>
         <Button onClick={fetchBasicInfo} variant="primary" size="sm" className="px-4">
-          Retry
+          {t("troubleshooting.retry")}
         </Button>
       </div>
     );

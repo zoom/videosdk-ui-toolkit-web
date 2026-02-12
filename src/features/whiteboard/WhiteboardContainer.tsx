@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState, useMemo, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useWhiteboard } from "./hooks/useWhiteboard";
 import { WHITEBOARD_STATUS, updateWhiteboardInfo } from "./whiteboardSlice";
 import { useAppSelector, useSessionSelector, useWhiteboardSelector, useAppDispatch } from "@/hooks/useAppSelector";
@@ -27,6 +28,7 @@ const WhiteboardFrame = ({ children, isWhiteboardOpen }: { children: React.React
   </div>
 );
 const WhiteboardContainer: React.FC<WhiteboardContainerProps> = ({ mainContentHeight, mainContentWidth }) => {
+  const { t } = useTranslation();
   const whiteboardRef = useRef<HTMLDivElement>(null);
   const whiteboard = useAppSelector(useWhiteboardSelector);
   useWhiteboard();
@@ -70,7 +72,9 @@ const WhiteboardContainer: React.FC<WhiteboardContainerProps> = ({ mainContentHe
       {/* Error display */}
       {whiteboard?.error?.errorMessage && (
         <div className="absolute top-4 right-4 bg-red-600 text-white px-3 py-2 rounded-lg z-20">
-          <div className="text-sm">Error: {whiteboard?.error?.errorMessage}</div>
+          <div className="text-sm">
+            {t("whiteboard.error_prefix")}: {whiteboard?.error?.errorMessage}
+          </div>
         </div>
       )}
 
@@ -79,7 +83,7 @@ const WhiteboardContainer: React.FC<WhiteboardContainerProps> = ({ mainContentHe
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
           <div className="bg-white rounded-lg p-6 flex flex-col items-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
-            <div className="text-gray-700">Loading Whiteboard...</div>
+            <div className="text-gray-700">{t("whiteboard.loading_text")}</div>
           </div>
         </div>
       )}
@@ -87,7 +91,7 @@ const WhiteboardContainer: React.FC<WhiteboardContainerProps> = ({ mainContentHe
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30">
           <div className="bg-white rounded-lg p-6 flex flex-col items-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
-            <div className="text-gray-700">Exporting Whiteboard...</div>
+            <div className="text-gray-700">{t("whiteboard.exporting_text")}</div>
           </div>
         </div>
       )}

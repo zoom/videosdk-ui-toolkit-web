@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useCallback, useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useAppSelector,
   useSessionUISelector,
@@ -30,6 +31,7 @@ export const WhiteboardButton: React.FC<WhiteboardButtonProps> = ({
   setIsMenuOpen: setIsWhiteboardMenuOpen,
   orientation = "horizontal",
 }) => {
+  const { t } = useTranslation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLDivElement>(null);
@@ -189,15 +191,15 @@ export const WhiteboardButton: React.FC<WhiteboardButtonProps> = ({
 
   const getButtonTitle = () => {
     if (whiteboard.status === WHITEBOARD_STATUS.Pending) {
-      return "Whiteboard is loading...";
+      return t("whiteboard.loading_message");
     }
-    if (isActive) return "You are presenting whiteboard";
-    if (isViewing) return "Viewing whiteboard session";
+    if (isActive) return t("whiteboard.presenting_tooltip");
+    if (isViewing) return t("whiteboard.viewing_tooltip");
     // Show tooltip for attendees when whiteboard is host-only
     if (!canStartWhiteboard()) {
-      return "Whiteboard access is restricted to hosts and managers";
+      return t("whiteboard.restricted_tooltip");
     }
-    return "Start whiteboard";
+    return t("whiteboard.start_tooltip");
   };
 
   const getButtonColor = () => {
@@ -254,10 +256,10 @@ export const WhiteboardButton: React.FC<WhiteboardButtonProps> = ({
         <ConfirmDialog
           onClose={() => setShowScreenShareConfirm(false)}
           onConfirm={handleConfirmStartWhiteboard}
-          title="Stop Screen Share?"
-          message="Starting whiteboard will stop your current screen share. Do you want to continue?"
-          confirmText="Start Whiteboard"
-          cancelText="Cancel"
+          title={t("share.stop_screen_share_title")}
+          message={t("whiteboard.stop_screen_share_confirm")}
+          confirmText={t("whiteboard.start_button")}
+          cancelText={t("common.cancel")}
         />
       )}
     </div>

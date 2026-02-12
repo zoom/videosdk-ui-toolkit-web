@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback } from "react";
 import { Settings, Square } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useProcessorOperations } from "@/hooks/useProcessorOperations";
 import { useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
 
@@ -8,6 +9,7 @@ type ProcessorInfo = {
 };
 
 function WhiteNoiseProcessor({ isAudioOn }: ProcessorInfo) {
+  const { t } = useTranslation();
   const { handleAddProcessor, handleRemoveProcessor, isLoading, isActive, hasActiveProcessor } =
     useProcessorOperations("audio");
 
@@ -61,7 +63,7 @@ function WhiteNoiseProcessor({ isAudioOn }: ProcessorInfo) {
   }, [isAudioOn, isProcessorActive]); // stopProcessor intentionally omitted to prevent infinite loops
 
   // Get the processor title from config
-  const processorTitle = audioConfig?.title || "White Noise Processor";
+  const processorTitle = audioConfig?.title || t("processor.white_noise_title");
 
   // Don't render if config is not available
   if (!audioConfig) {
@@ -83,7 +85,7 @@ function WhiteNoiseProcessor({ isAudioOn }: ProcessorInfo) {
               }`}
             />
             <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
-              {isProcessorActive ? "ACTIVE" : "INACTIVE"}
+              {isProcessorActive ? t("processor.status_active") : t("processor.status_inactive")}
             </span>
           </div>
         </div>
@@ -96,10 +98,10 @@ function WhiteNoiseProcessor({ isAudioOn }: ProcessorInfo) {
           >
             <Settings className="w-4 h-4" />
             {isProcessorLoading
-              ? "Starting..."
+              ? t("processor.button_starting")
               : hasOtherProcessorActive
-                ? "Other Processor Active"
-                : "Start Processor"}
+                ? t("processor.button_other_active")
+                : t("processor.button_start")}
           </button>
 
           <button
@@ -108,7 +110,7 @@ function WhiteNoiseProcessor({ isAudioOn }: ProcessorInfo) {
             className="flex items-center justify-center gap-2 px-3 py-2.5 bg-gray-600 text-white text-sm rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Square className="w-4 h-4" />
-            {isProcessorLoading ? "Stopping..." : "Stop Processor"}
+            {isProcessorLoading ? t("processor.button_stopping") : t("processor.button_stop")}
           </button>
         </div>
       </div>

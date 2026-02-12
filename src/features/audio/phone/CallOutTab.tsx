@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
 import { useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
@@ -22,6 +23,7 @@ interface CountryOption {
 }
 
 export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTextClasses }) => {
+  const { t } = useTranslation();
   const [inviteeName, setInviteeName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [requireGreeting, setRequireGreeting] = useState(true);
@@ -152,19 +154,19 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
   return (
     <div className="space-y-6">
       <div>
-        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>Invitee Name</label>
+        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>{t("call.out_invitee_name")}</label>
         <input
           type="text"
           value={inviteeName}
           maxLength={140}
           onChange={(e) => setInviteeName(e.target.value)}
           disabled={callMe}
-          placeholder="Name to be displayed in the meeting"
+          placeholder={t("common.name_display")}
           className={`${callMe ? "opacity-50 cursor-not-allowed" : ""} w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none text-gray-500`}
         />
       </div>
       <div>
-        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>Phone Number</label>
+        <label className={`block text-sm font-medium mb-1 ${darkModeTextClasses}`}>{t("call.out_phone_number")}</label>
         <div className="flex">
           <Select<CountryOption>
             options={callOutCountry.map((country) => ({
@@ -176,8 +178,8 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
             onChange={handleCountryCodeChange}
             className={`w-1/2 mr-2 rounded-lg`}
             classNamePrefix="rounded-lg uikit-custom-scrollbar"
-            noOptionsMessage={() => "No found your country code"}
-            placeholder="Select country"
+            noOptionsMessage={() => t("phone.no_country_code")}
+            placeholder={t("common.select_country")}
             styles={CommonSelectStyle({ themeName })}
           />
           <input
@@ -185,16 +187,16 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
             value={phoneNumber}
             onChange={handlePhoneNumberChange}
             className={`focus:ring-2 focus:ring-blue-500 w-1/2 border rounded border-gray-300 text-gray-500`}
-            placeholder="XXX-XXX-XXXX"
+            placeholder={t("common.phone_placeholder")}
             pattern="[0-9-]*"
             inputMode="numeric"
             maxLength={MAX_PHONE_LENGTH} // Account for hyphens
-            aria-label="Phone number"
+            aria-label={t("phone.number_label")}
           />
         </div>
       </div>
       <div>
-        <h3 className="text-sm font-medium  mb-2">Invite Options</h3>
+        <h3 className="text-sm font-medium  mb-2">{t("call.out_invite_options")}</h3>
         <div className="space-y-2">
           <label className="flex items-center">
             <input
@@ -203,7 +205,7 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
               onChange={() => setRequireGreeting(!requireGreeting)}
               className="h-4 w-4  focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="ml-2 text-sm ">Require greeting before being connected</span>
+            <span className="ml-2 text-sm ">{t("call.out_require_greeting")}</span>
           </label>
           <label className="flex items-center">
             <input
@@ -212,7 +214,7 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
               onChange={() => setRequirePressing1(!requirePressing1)}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="ml-2 text-sm ">Require pressing 1 before being connected</span>
+            <span className="ml-2 text-sm ">{t("call.out_require_pressing_1")}</span>
           </label>
           <label className="flex items-center">
             <input
@@ -221,7 +223,7 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
               onChange={() => setCallMe(!callMe)}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <span className="ml-2 text-sm ">Call me instead of the invitee (phone audio is bound to current user)</span>
+            <span className="ml-2 text-sm ">{t("call.out_call_me")}</span>
           </label>
         </div>
       </div>
@@ -233,7 +235,9 @@ export const CallOutTab: React.FC<CallOutTabProps> = ({ inputClasses, darkModeTe
         onCancel={handleCancel}
       />
 
-      {dialoutState && <div className={`text-center ${darkModeTextClasses}`}>{getDialoutStateText(dialoutState)}</div>}
+      {dialoutState && (
+        <div className={`text-center ${darkModeTextClasses}`}>{getDialoutStateText(dialoutState, t)}</div>
+      )}
     </div>
   );
 };

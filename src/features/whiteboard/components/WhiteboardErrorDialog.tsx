@@ -1,4 +1,5 @@
 import React, { useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useWhiteboardSelector } from "@/hooks/useAppSelector";
 import { ClientContext } from "@/context/client-context";
 import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
@@ -6,6 +7,7 @@ import { setWhiteboardError, setWhiteboardLoading } from "../whiteboardSlice";
 import { ERROR_START_WHITEBOARD, WHITEBOARD_CONTAINER_INNER_ID, WHITEBOARD_ERROR_MESSAGE } from "../constant";
 
 const WhiteboardErrorDialog: React.FC = () => {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const dispatch = useAppDispatch();
   const whiteboard = useAppSelector(useWhiteboardSelector);
@@ -39,16 +41,16 @@ const WhiteboardErrorDialog: React.FC = () => {
 
   return (
     <ConfirmDialog
-      title="Whiteboard Error"
+      title={t("whiteboard.error_title")}
       message={`${whiteboard.error?.errorMessage}:${whiteboard.error?.errorCode}`}
       onConfirm={handleRetry}
-      confirmText="Retry"
+      confirmText={t("common.retry")}
       confirmVariant="primary"
       onCancel={() => {
         dispatch(setWhiteboardError(null));
         dispatch(setWhiteboardLoading(false));
       }}
-      cancelText="Close"
+      cancelText={t("common.close")}
       id="uikit-whiteboard-error-dialog"
     />
   );

@@ -5,12 +5,14 @@ import { emit } from "@/events/event-bus";
 import { ExposedEvents } from "@/events/event-constant";
 import { Angry, Frown, Laugh, Meh, Smile } from "lucide-react";
 import React, { useContext, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 
 interface FeedbackDialogProps {
   setIsJoined: () => void;
 }
 
 const FeedbackDialog = ({ setIsJoined }: FeedbackDialogProps) => {
+  const { t } = useTranslation();
   const [rating, setRating] = useState<string | null>(null);
   const client = useContext(ClientContext);
 
@@ -32,11 +34,11 @@ const FeedbackDialog = ({ setIsJoined }: FeedbackDialogProps) => {
 
   const getFeedbackLabel = (value: string) => {
     const labels = {
-      "1": "Terrible",
-      "2": "Poor",
-      "3": "Okay",
-      "4": "Good",
-      "5": "Great",
+      "1": t("feedback.rating_terrible"),
+      "2": t("feedback.rating_poor"),
+      "3": t("feedback.rating_okay"),
+      "4": t("feedback.rating_good"),
+      "5": t("feedback.rating_great"),
     };
     return labels[value as keyof typeof labels];
   };
@@ -45,7 +47,7 @@ const FeedbackDialog = ({ setIsJoined }: FeedbackDialogProps) => {
     <CommonDialog
       isOpen={true}
       title=""
-      okText="Submit"
+      okText={t("feedback.submit_button")}
       onOk={(e) => {
         onSubmit();
         e.preventDefault();
@@ -57,7 +59,7 @@ const FeedbackDialog = ({ setIsJoined }: FeedbackDialogProps) => {
     >
       <div className={`space-y-6 px-2`}>
         <p className="text-[20px] text-gray-600 text-center font-medium text-theme-text">
-          How was your session experience?
+          {t("feedback.dialog_title")}
         </p>
 
         <div className="flex justify-center py-4">

@@ -1,19 +1,23 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Copy } from "lucide-react";
 import { Avatar, FileDownload, parseMessageWithLinks } from "./util";
 import { SessionChatMessage, ChatFileDownloadProgress } from "@/types";
 import { useCurrentUser } from "../participant/hooks";
 import { useAppDispatch } from "@/hooks/useAppSelector";
 import { setChatReceive } from "./chatSlice";
+import { ChatPrivilege } from "@/constant";
 
 interface ChatMessageProps {
   message: SessionChatMessage;
   downloadProgress?: ChatFileDownloadProgress;
   onImageClick: (image: string) => void;
   onClickLink: (link: string) => void;
+  measure?: () => void;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, onImageClick, onClickLink }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, onImageClick, onClickLink, measure }) => {
+  const { t } = useTranslation();
   const [showCopy, setShowCopy] = useState(false);
   const [copied, setCopied] = useState(false);
   const dispatch = useAppDispatch();
@@ -40,6 +44,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
   };
 
   const isMe = (user: { userId: number }) => user.userId === currentUser?.userId;
+
+  const isEveryoneReceiver = (receiver: { userId: number; name: string }) =>
+    receiver.userId === ChatPrivilege.All ||
+    receiver.userId === ChatPrivilege.EveryonePublicly ||
+    receiver.name === "Everyone" ||
+    receiver.name === t("chat.receiver_everyone");
 
   // Add a styled wrapper for the sender/receiver names
   const NameDisplay = ({ name }: { name: string }) => (
@@ -69,20 +79,26 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
               disabled={isMe(message.sender)}
               id={`uikit-chat-message-sender-${message.id}`}
             >
-              {isMe(message.sender) ? "Me" : <NameDisplay name={message.sender.name} />}
+              {isMe(message.sender) ? t("chat.message_me") : <NameDisplay name={message.sender.name} />}
             </button>
 
-            <span className="font-medium">To</span>
+            <span className="font-medium">{t("chat.message_to")}</span>
 
             <button
               onClick={() => handleSenderClick(message.receiver)}
-              className={`font-medium mt-1.5 transition-colors ${
+              className={`font-medium transition-colors ${
                 isMe(message.receiver) ? " cursor-default" : "text-[#007AFF] hover:text-[#0051FF]"
               }`}
               disabled={isMe(message.receiver)}
               id={`uikit-chat-message-receiver-${message.id}`}
             >
-              {isMe(message.receiver) ? "Me" : <NameDisplay name={message.receiver.name} />}
+              {isMe(message.receiver) ? (
+                t("chat.message_me")
+              ) : isEveryoneReceiver(message.receiver) ? (
+                t("chat.receiver_everyone")
+              ) : (
+                <NameDisplay name={message.receiver.name} />
+              )}
             </button>
 
             <span className="font-medium" id={`uikit-chat-message-timestamp-${message.id}`}>
@@ -119,7 +135,7 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
                   <button
                     onClick={handleCopy}
                     className="p-1.5 rounded-md hover:bg-gray-100 transition-colors group-hover:opacity-100"
-                    title={copied ? "Copied!" : "Copy message"}
+                    title={copied ? t("common.copied") : t("chat.copy_message_tooltip")}
                     id={`uikit-chat-message-copy-${message.id}`}
                   >
                     <Copy size={16} className={copied ? "text-green-500" : "text-gray-400"} />
@@ -131,7 +147,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
             {/* File Attachment */}
             {message.file && (
               <div className="mt-2">
-                <FileDownload message={message} downloadProgress={downloadProgress} />
+                <FileDownload
+                  message={message}
+                  downloadProgress={downloadProgress}
+                  onImageClick={onImageClick}
+                  onMeasure={measure}
+                />
               </div>
             )}
           </div>

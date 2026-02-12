@@ -1,10 +1,12 @@
 import React, { useCallback, useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { setIsRemoveParticipantDialogOpen, setParticipantToRemove } from "@/store/uiSlice";
 import { ClientContext } from "@/context/client-context";
 import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 
 const RemoveConfirmDialog: React.FC = () => {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const dispatch = useAppDispatch();
   const sessionUI = useAppSelector(useSessionUISelector);
@@ -29,13 +31,13 @@ const RemoveConfirmDialog: React.FC = () => {
 
   return (
     <ConfirmDialog
-      title="Remove Participant"
-      message={`Are you sure you want to remove ${participantToRemove.displayName} from the session?`}
+      title={t("participant.remove_title")}
+      message={t("participant.remove_confirmation", { name: participantToRemove.displayName })}
       onConfirm={handleConfirmRemove}
-      confirmText="Remove"
+      confirmText={t("participant.remove_button")}
       confirmVariant="danger"
       onCancel={handleCancelRemove}
-      cancelText="Cancel"
+      cancelText={t("common.cancel")}
       id="uikit-remove-participant-dialog"
     />
   );

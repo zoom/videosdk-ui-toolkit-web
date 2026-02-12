@@ -3,6 +3,7 @@ import { SuspensionViewValue, Participant } from "../types";
 import { VirtualBackgroundPreloadState } from "../constant/stream-constant";
 import { CustomizeLayout, CustomizeLayoutType } from "@/constant";
 import { WHITEBOARD_EXPORT_FORMAT } from "@/features/whiteboard/constant";
+import { resources } from "@/i18n";
 
 export interface SessionUIState {
   audioProcessing: {
@@ -40,6 +41,7 @@ export interface SessionUIState {
   isShowUnmuteConsent: boolean;
   isShowJoinAudioConsent: boolean;
   isAudioConsentInitialized: boolean;
+  isShowCameraControlConsent: boolean;
   isMirrorVideo: boolean;
   virtualBackgroundImageId: string;
   isSupportVB: boolean;
@@ -110,6 +112,7 @@ export interface SessionUIState {
   isShowCaptionHistory: boolean;
   isShowHostCaptionSettings: boolean;
   isShowStartCaptionsWindow: boolean;
+  isBroadcastStartPending: boolean;
   activeStatistics: string;
   isJoinSubsessionConfirm: boolean;
   isJoinSubsessionConfirmRemind: boolean; // is show join subsession confirm dialog again
@@ -120,6 +123,8 @@ export interface SessionUIState {
   isShowShareScreenToSubsessionModal: boolean;
   shareScreenToSubsessionDontShowAgain: boolean;
   themeName: string;
+  language: string;
+  languageList: string[];
   isOriginalShareContentSize: boolean;
   isHeaderEnable: boolean;
   isFooterEnable: boolean;
@@ -132,6 +137,7 @@ export interface SessionUIState {
   isMakeHostDialogOpen: boolean;
   participantToMakeHost: Participant | null;
   isShowLiveStreamPanel: boolean;
+  isShowBroadcastStreamingPanel: boolean;
   isToolBarExpanded: boolean;
   activeAnnotationOption: string | null;
   showShapeMenu: boolean;
@@ -161,6 +167,8 @@ export interface SessionUIState {
   selectedShareProcessor: string;
   activeProcessors: Array<{ name: string; type: string }>;
   loadingProcessors: string[];
+  isPTZControlPadOpen: boolean;
+  ptzControlTargetUser: Participant | null;
 }
 
 const initialState: SessionUIState = {
@@ -208,6 +216,7 @@ const initialState: SessionUIState = {
   isShowUnmuteConsent: false,
   isShowJoinAudioConsent: false,
   isAudioConsentInitialized: false,
+  isShowCameraControlConsent: false,
   isMirrorVideo: true,
   virtualBackgroundImageId: "",
   isSupportVB: true,
@@ -268,6 +277,7 @@ const initialState: SessionUIState = {
   isShowCaptionHistory: false,
   isShowHostCaptionSettings: false,
   isShowStartCaptionsWindow: false,
+  isBroadcastStartPending: false,
   activeStatistics: "audio",
   isJoinSubsessionConfirm: false,
   isJoinSubsessionConfirmRemind: true,
@@ -279,6 +289,8 @@ const initialState: SessionUIState = {
   isShowShareScreenToSubsessionModal: false,
   shareScreenToSubsessionDontShowAgain: false,
   themeName: "light",
+  language: "en-US",
+  languageList: Object.keys(resources) as string[],
   isOriginalShareContentSize: false,
   isHeaderEnable: true,
   isFooterEnable: true,
@@ -291,6 +303,7 @@ const initialState: SessionUIState = {
   isMakeHostDialogOpen: false,
   participantToMakeHost: null,
   isShowLiveStreamPanel: false,
+  isShowBroadcastStreamingPanel: false,
   isToolBarExpanded: false,
   activeAnnotationOption: null,
   showShapeMenu: false,
@@ -315,6 +328,8 @@ const initialState: SessionUIState = {
   selectedShareProcessor: "",
   activeProcessors: [],
   loadingProcessors: [],
+  isPTZControlPadOpen: false,
+  ptzControlTargetUser: null,
 };
 
 export const uiSlice = createSlice({
@@ -408,6 +423,9 @@ export const uiSlice = createSlice({
     setShowJoinAudioConsent: (state, action: PayloadAction<boolean>) => {
       state.isShowJoinAudioConsent = action.payload;
     },
+    setShowCameraControlConsent: (state, action: PayloadAction<boolean>) => {
+      state.isShowCameraControlConsent = action.payload;
+    },
     setIsAudioConsentInitialized: (state, action: PayloadAction<boolean>) => {
       state.isAudioConsentInitialized = action.payload;
     },
@@ -437,6 +455,9 @@ export const uiSlice = createSlice({
     },
     setShowSessionInfo: (state, action: PayloadAction<boolean>) => {
       state.isShowSessionInfo = action.payload;
+    },
+    setIsBroadcastStartPending: (state, action: PayloadAction<boolean>) => {
+      state.isBroadcastStartPending = action.payload;
     },
     setCurrentPage: (state, action: PayloadAction<number>) => {
       state.currentPage = action.payload;
@@ -565,6 +586,12 @@ export const uiSlice = createSlice({
     setThemeName: (state, action: PayloadAction<string>) => {
       state.themeName = action.payload;
     },
+    setLanguage: (state, action: PayloadAction<string>) => {
+      state.language = action.payload;
+    },
+    setLanguageList: (state, action: PayloadAction<string[]>) => {
+      state.languageList = action.payload;
+    },
     setIsOriginalShareContentSize: (state, action: PayloadAction<boolean>) => {
       state.isOriginalShareContentSize = action.payload;
     },
@@ -628,6 +655,9 @@ export const uiSlice = createSlice({
     },
     setIsShowLiveStreamPanel: (state, action: PayloadAction<boolean>) => {
       state.isShowLiveStreamPanel = action.payload;
+    },
+    setIsShowBroadcastStreamingPanel: (state, action: PayloadAction<boolean>) => {
+      state.isShowBroadcastStreamingPanel = action.payload;
     },
     setMediaError: (
       state,
@@ -730,6 +760,12 @@ export const uiSlice = createSlice({
     ) => {
       state.whiteboardExportOptions = action.payload;
     },
+    setIsPTZControlPadOpen: (state, action: PayloadAction<boolean>) => {
+      state.isPTZControlPadOpen = action.payload;
+    },
+    setPTZControlTargetUser: (state, action: PayloadAction<Participant | null>) => {
+      state.ptzControlTargetUser = action.payload;
+    },
   },
 });
 
@@ -756,6 +792,7 @@ export const {
   setActiveCamera,
   setPrevActiveCamera,
   setShowUnmuteConsent,
+  setShowCameraControlConsent,
   setIsEnableHardwareAccelerationReceiving,
   setIsEnableHardwareAccelerationSending,
   setIsStartedHardwareAcceleration,
@@ -792,6 +829,7 @@ export const {
   setIsShowHostCaptionSettings,
   setIsShowStartCaptionsWindow,
   setIsShowCaption,
+  setIsBroadcastStartPending,
   setPreviewAVStatus,
   setActiveStatistics,
   setIsJoinSubsessionConfirm,
@@ -810,6 +848,8 @@ export const {
   setShowShareScreenToSubsessionModal,
   setShareScreenToSubsessionDontShowAgain,
   setThemeName,
+  setLanguage,
+  setLanguageList,
   setIsOriginalShareContentSize,
   setCustomizeLayout,
   setFooterEnable,
@@ -823,6 +863,7 @@ export const {
   setIsMakeHostDialogOpen,
   setParticipantToMakeHost,
   setIsShowLiveStreamPanel,
+  setIsShowBroadcastStreamingPanel,
   setMediaError,
   setIsToolBarExpanded,
   setActiveAnnotationOption,
@@ -845,6 +886,8 @@ export const {
   setIsWhiteboardExportConfirmOpen,
   setWhiteboardExportOptions,
   setProcessorLoading,
+  setIsPTZControlPadOpen,
+  setPTZControlTargetUser,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

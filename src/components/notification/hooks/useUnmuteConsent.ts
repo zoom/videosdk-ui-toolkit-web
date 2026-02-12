@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { setShowUnmuteConsent } from "@/store/uiSlice";
 
@@ -11,13 +12,14 @@ const UnmutedByHostType = {
 } as const;
 
 export function useUnmuteConsent() {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const dispatch = useAppDispatch();
   const { isStartedAudio } = useAppSelector(useSessionSelector);
 
-  const defaultTitle = "The host would like you to unmute";
-  const defaultOkText = "Unmute";
-  const defaultCancelText = "Stay muted";
+  const defaultTitle = t("notification.unmute_title");
+  const defaultOkText = t("notification.unmute_button");
+  const defaultCancelText = t("notification.stay_muted");
   const [consentTitle, setConsentTitle] = useState(defaultTitle);
   const [consentContent, setConsentContent] = useState("");
   const [consentContent2, setConsentContent2] = useState("");
@@ -32,26 +34,22 @@ export function useUnmuteConsent() {
           break;
         case UnmutedByHostType.Spotlight:
           if (isStartedAudio) {
-            setConsentContent(
-              "The host has spotlighted your video for everyone. Would you like to unmute your microphone to speak?",
-            );
-            setOkText("Unmute myself");
+            setConsentContent(t("notification.spotlight_unmute_content"));
+            setOkText(t("notification.spotlight_unmute_myself"));
           } else {
-            setConsentContent(
-              "The host has spotlighted your video for everyone. Would you like to join audio to speak?",
-            );
-            setOkText("Join Audio");
+            setConsentContent(t("notification.spotlight_join_audio_content"));
+            setOkText(t("notification.spotlight_join_audio"));
           }
-          setCancelText("Later");
+          setCancelText(t("notification.later"));
           break;
         default:
-          setConsentTitle("The host would like you to unmute");
-          setOkText("Unmute");
-          setCancelText("Stay muted");
+          setConsentTitle(defaultTitle);
+          setOkText(defaultOkText);
+          setCancelText(defaultCancelText);
       }
       dispatch(setShowUnmuteConsent(true));
     },
-    [dispatch, isStartedAudio],
+    [dispatch, isStartedAudio, t, defaultTitle, defaultOkText, defaultCancelText],
   );
 
   useEffect(() => {

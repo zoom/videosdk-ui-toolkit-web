@@ -153,6 +153,7 @@ const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) =>
                     ) : isShowAvatar(participant, currentUser, avatarUrl) ? (
                       <img
                         title={participant?.displayName}
+                        alt={`${participant?.displayName}'s avatar`}
                         className="w-full h-full"
                         src={avatarUrl || participant?.avatar}
                       />

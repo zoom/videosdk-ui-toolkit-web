@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Crown, User, Mic, MicOff, Video, VideoOff, MonitorUp, MoreVertical } from "lucide-react";
 import Dropdown from "@/components/widget/Dropdown";
 import { Participant } from "@/types";
@@ -24,6 +25,7 @@ export const ParticipantItem: React.FC<ParticipantItemProps> = ({
   onRenameClick,
   onAdjustLocalVolumeClick,
 }) => {
+  const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
 
   const currentUser = useCurrentUser();
@@ -46,7 +48,11 @@ export const ParticipantItem: React.FC<ParticipantItemProps> = ({
             }`}
           >
             {showAvatar ? (
-              <img src={participant?.avatar} className="w-full h-full object-cover rounded-lg" />
+              <img
+                src={participant?.avatar}
+                alt={`${participant?.displayName}'s avatar`}
+                className="w-full h-full object-cover rounded-lg"
+              />
             ) : (
               <div className="w-8 h-8 rounded-lg flex items-center justify-center text-theme-text-button text-lg font-semibold">
                 {getInitialsFirstLetter(participant?.displayName)}
@@ -56,18 +62,18 @@ export const ParticipantItem: React.FC<ParticipantItemProps> = ({
           <div className="ml-3 flex-grow">
             <p className="text-sm font-medium max-w-[250px] truncate" title={participant?.displayName}>
               {participant?.displayName}
-              {participant.userId === currentUser?.userId && " (Me)"}
+              {participant.userId === currentUser?.userId && t("participant.me_suffix")}
             </p>
             {participant?.isHost && (
               <p className="text-xs flex items-center">
                 <Crown size={10} className="mr-1" />
-                Host
+                {t("participant.host_label")}
               </p>
             )}
             {participant?.isManager && !participant?.isHost && (
               <p className="text-xs flex items-center">
                 <User size={10} className="mr-1" />
-                Manager
+                {t("participant.manager_label")}
               </p>
             )}
           </div>
@@ -95,6 +101,7 @@ export const ParticipantItem: React.FC<ParticipantItemProps> = ({
                 wrapperClass="p-1 hover:bg-theme-background rounded-full bg-theme-surface"
                 position="bottom-end"
                 trigger={<MoreVertical size={16} className="text-theme-text" />}
+                showCheckboxSpace={false}
               />
             )}
           </div>

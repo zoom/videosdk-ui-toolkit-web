@@ -1,9 +1,11 @@
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
+import { useTranslation } from "react-i18next";
 import { setIsSettingsOpen, setSettingsActiveTab } from "@/store/uiSlice";
 import { useCallback, useRef } from "react";
 import Draggable from "react-draggable";
 
 const PlaybackBar = () => {
+  const { t } = useTranslation();
   const { isMediaFilePlaying } = useAppSelector(useSessionSelector);
   const { isSettingsOpen } = useAppSelector(useSessionUISelector);
   const dispatch = useAppDispatch();
@@ -22,13 +24,13 @@ const PlaybackBar = () => {
           ref={nodeRef}
         >
           <div>
-            <span className="text-sm font-bold">Media file is playing</span>
+            <span className="text-sm font-bold">{t("playback.bar_media_file_playing")}</span>
           </div>
           <button
             className="bg-blue-500 text-theme-text-button p-2 rounded-md text-sm"
             onClick={openVideoPlaybackSettings}
           >
-            Open Settings
+            {t("playback.bar_open_settings")}
           </button>
         </div>
       </Draggable>

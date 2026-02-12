@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { X, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
 interface ImagePreviewProps {
@@ -12,6 +13,7 @@ interface Position {
 }
 
 export const ImagePreview: React.FC<ImagePreviewProps> = ({ imageUrl, onClose }) => {
+  const { t } = useTranslation();
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
   const [position, setPosition] = useState<Position>({ x: 0, y: 0 });
@@ -83,21 +85,21 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ imageUrl, onClose })
           <button
             onClick={handleZoomIn}
             className="p-2 text-white/90 hover:bg-white/10 rounded-full transition-colors"
-            title="Zoom In"
+            title={t("image.preview_zoom_in")}
           >
             <ZoomIn size={20} />
           </button>
           <button
             onClick={handleZoomOut}
             className="p-2 text-white/90 hover:bg-white/10 rounded-full transition-colors"
-            title="Zoom Out"
+            title={t("image.preview_zoom_out")}
           >
             <ZoomOut size={20} />
           </button>
           <button
             onClick={handleRotate}
             className="p-2 text-white/90 hover:bg-white/10 rounded-full transition-colors"
-            title="Rotate"
+            title={t("image.preview_rotate")}
           >
             <RotateCcw size={20} />
           </button>
@@ -105,7 +107,7 @@ export const ImagePreview: React.FC<ImagePreviewProps> = ({ imageUrl, onClose })
           <button
             onClick={onClose}
             className="p-2 text-white/90 hover:bg-white/10 rounded-full transition-colors"
-            title="Close"
+            title={t("image.preview_close")}
           >
             <X size={20} />
           </button>

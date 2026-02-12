@@ -4,12 +4,12 @@ import LangEn from "./en-US.json";
 // import LangDe from './de-DE.json';
 // import LangES from './es-ES.json';
 // import LangFr from './fr-FR.json';
-// import LangJp from './jp-JP.json';
+// import LangJa from './ja-JP.json';
 // import LangPt from './pt-PT.json';
 // import LangRu from './ru-RU.json';
-// import LangZhCN from './zh-CN.json';
+import LangZhCN from "./zh-CN.json";
 // import LangZhTW from './zh-TW.json';
-// import LangKo from './ko-KO.json';
+// import LangKo from './ko-KR.json';
 // import LangVi from './vi-VN.json';
 // import LangIt from './it-IT.json';
 // import LangPl from './pl-PL.json';
@@ -18,7 +18,7 @@ import LangEn from "./en-US.json";
 // import LangNL from './nl-NL.json';
 // import LangSV from './sv-SE.json';
 
-const resources = {
+export const resources = {
   "en-US": {
     translation: LangEn,
   },
@@ -40,9 +40,9 @@ const resources = {
   // 'ru-RU': {
   //   translation: LangRu
   // },
-  // 'zh-CN': {
-  //   translation: LangZhCN
-  // },
+  "zh-CN": {
+    translation: LangZhCN,
+  },
   // 'zh-TW': {
   //   translation: LangZhTW
   // },
@@ -81,8 +81,17 @@ i18n
       escapeValue: false,
     },
     react: {
-      bindI18nStore: "added",
+      useSuspense: false,
     },
   });
+
+if (typeof document !== "undefined") {
+  const syncHtmlLang = (lng: string) => {
+    document.documentElement.lang = lng || "en";
+  };
+
+  syncHtmlLang(i18n.language);
+  i18n.on("languageChanged", syncHtmlLang);
+}
 
 export default i18n;

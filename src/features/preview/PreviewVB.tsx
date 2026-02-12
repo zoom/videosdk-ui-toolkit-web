@@ -1,6 +1,7 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import ImageWithValidation from "@/features/setting/components/ImageWithValidation";
-import { getZoomImgPath } from "@/components/util/service";
+import BlurThumbnailButton from "@/features/setting/components/BlurThumbnailButton";
 
 export const PreviewVB = ({
   isOpen,
@@ -19,6 +20,7 @@ export const PreviewVB = ({
   isMirrorVideo: boolean;
   handleMirrorVideo: () => void;
 }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -34,7 +36,7 @@ export const PreviewVB = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b px-4 py-3">
-            <h2 className="text-base font-semibold">Background Settings</h2>
+            <h2 className="text-base font-semibold">{t("preview.vb_title")}</h2>
             <button
               onClick={onClose}
               className="rounded-full p-1 text-theme-text hover:bg-theme-background transition-colors"
@@ -52,14 +54,14 @@ export const PreviewVB = ({
                 } p-2 text-xs font-medium text-theme-text hover:bg-theme-background transition-colors bg-theme-surface`}
                 onClick={() => onSelectImage("")}
               >
-                None
+                {t("preview.vb_none")}
               </button>
 
-              <ImageWithValidation
-                key={"uikit-preview-vb-blur"}
-                name="Blur"
-                src={`${getZoomImgPath()}/blur.png`}
+              <BlurThumbnailButton
                 isActive={activeVbImage === "blur"}
+                label={t("preview.vb_blur")}
+                labelClassName="text-xs font-medium text-white/95"
+                className="hover:bg-theme-background transition-colors"
                 onSelect={() => onSelectImage("blur")}
               />
               {vbImageList?.map((image, i) => (
@@ -81,7 +83,7 @@ export const PreviewVB = ({
                 onChange={handleMirrorVideo}
               />
               <label htmlFor="mirror-video" className="text-sm select-none cursor-pointer">
-                Mirror my video
+                {t("preview.vb_mirror")}
               </label>
             </div>
           </div>

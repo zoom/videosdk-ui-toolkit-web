@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect } from "react";
 import { enqueueSnackbar } from "notistack";
+import { useTranslation } from "react-i18next";
 import {
   setSubRoomList,
   setSubUnassignedUsers,
@@ -36,6 +37,7 @@ export const useOnSubsessionEvents = () => {
   const { subsessionClient } = useContext(sessionAdditionalContext);
   const { subUserStatus, subStatus, currentSubRoom }: SubsessionState = useAppSelector(useSubsessionSelector);
   const dispatch = useAppDispatch();
+  const { t } = useTranslation();
 
   const onRoomStateChange = useCallback(
     ({ status }: RoomStateChangePayload) => {
@@ -137,24 +139,27 @@ export const useOnSubsessionEvents = () => {
     [dispatch],
   );
 
-  const onSubsessionAskForHelpResponse = useCallback(({ result }: any) => {
-    switch (result) {
-      case AskHostHelpResponse.Received:
-        enqueueSnackbar("Help Requested", { variant: "info" });
-        break;
-      case AskHostHelpResponse.Busy:
-        enqueueSnackbar("The manager is currently busy and cannot join your subsession.", { variant: "info" });
-        break;
-      case AskHostHelpResponse.Ignore:
-        enqueueSnackbar("The manager has ignored your help request.", { variant: "info" });
-        break;
-      case AskHostHelpResponse.AlreadyInRoom:
-        enqueueSnackbar("The manager is already in the room.", { variant: "info" });
-        break;
-      default:
-        break;
-    }
-  }, []);
+  const onSubsessionAskForHelpResponse = useCallback(
+    ({ result }: any) => {
+      switch (result) {
+        case AskHostHelpResponse.Received:
+          enqueueSnackbar(t("subsession.ask_for_help_response_received"), { variant: "info" });
+          break;
+        case AskHostHelpResponse.Busy:
+          enqueueSnackbar(t("subsession.ask_for_help_response_busy"), { variant: "info" });
+          break;
+        case AskHostHelpResponse.Ignore:
+          enqueueSnackbar(t("subsession.ask_for_help_response_ignore"), { variant: "info" });
+          break;
+        case AskHostHelpResponse.AlreadyInRoom:
+          enqueueSnackbar(t("subsession.ask_for_help_response_already_in_room"), { variant: "info" });
+          break;
+        default:
+          break;
+      }
+    },
+    [t],
+  );
 
   useEffect(() => {
     client.on("room-state-change", onRoomStateChange);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { X, Phone, ChevronDown, Globe } from "lucide-react";
 import Select, { GroupBase } from "react-select";
+import { useTranslation } from "react-i18next";
 import CommonTab from "../CommonTab";
 import { CallInTab } from "../../../features/audio/phone/CallInTab";
 import { CallOutTab } from "../../../features/audio/phone/CallOutTab";
@@ -14,6 +15,7 @@ interface InviteDialogProps {
 }
 
 export const InviteDialog: React.FC<InviteDialogProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<"callIn" | "callOut" | "roomSystem">("callOut");
   const { callInInfo, callOutCountry, isEnablePhone, featuresOptions } = useAppSelector(useSessionSelector);
   const isUserDisablePhone = !featuresOptions?.phone?.enable;
@@ -43,7 +45,7 @@ export const InviteDialog: React.FC<InviteDialogProps> = ({ isOpen, onClose }) =
   if (isUserDisablePhone && isUserDisableCrc) {
     return (
       <div className={`p-4 w-full ${THEME_COLOR_CLASS}`}>
-        <div>Room System(CRC) and Phone are not enabled</div>
+        <div>{t("invite.disabled_message")}</div>
       </div>
     );
   }
@@ -52,9 +54,9 @@ export const InviteDialog: React.FC<InviteDialogProps> = ({ isOpen, onClose }) =
     <div className={`p-4 w-full ${THEME_COLOR_CLASS}`}>
       <CommonTab
         tabs={[
-          { name: "callIn", title: "Call In", disabled: isDisabledCallIn },
-          { name: "callOut", title: "Call Out", disabled: isDisabledCallOut },
-          { name: "roomSystem", title: "Room System", disabled: isDisabledRoomSystem },
+          { name: "callIn", title: t("invite.tab_call_in"), disabled: isDisabledCallIn },
+          { name: "callOut", title: t("invite.tab_call_out"), disabled: isDisabledCallOut },
+          { name: "roomSystem", title: t("invite.tab_room_system"), disabled: isDisabledRoomSystem },
         ].filter((tab) => !tab.disabled)}
         orientation="horizontal"
         className="justify-center"

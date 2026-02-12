@@ -11,6 +11,7 @@ import { setCanDoAnnotation, setShowShareScreenToSubsessionModal, setViewType } 
 import { SuspensionViewType } from "@/types/index.d";
 import { useCallback, useContext } from "react";
 import { useSnackbar } from "notistack";
+import { useTranslation } from "react-i18next";
 
 const errorMessages = {
   INSUFFICIENT_PRIVILEGES: {
@@ -35,6 +36,7 @@ export const useToggleScreenShare = () => {
   const { stream } = useContext(StreamContext);
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
 
   const startScreenShare = useCallback(
     async (shareToSubsession?: boolean) => {
@@ -58,16 +60,25 @@ export const useToggleScreenShare = () => {
         const activeShareUserInfo = shareUserList?.[0] ?? undefined;
         dispatch(setActiveSharerName(activeShareUserInfo?.displayName));
       } catch (error) {
-        const { type, reason } = error;
+        const { type, reason, errorCode } = error;
         // eslint-disable-next-line no-console
         console.error(error);
-        if (type !== "INVALID_OPERATION") {
+        if (type === "INVALID_OPERATION") {
+          if (errorCode === 6200 || reason === "user deny screen share") {
+            enqueueSnackbar({
+              message: t("share.start_cancelled_or_blocked"),
+              variant: "warning",
+              autoHideDuration: 7000,
+            });
+          }
+          return;
+        } else {
           const errorConfig = errorMessages[type]?.[reason] || errorMessages.default;
           enqueueSnackbar(errorConfig);
         }
       }
     },
-    [dispatch, stream, userId, enqueueSnackbar, isReceivingScreenShare],
+    [dispatch, stream, userId, enqueueSnackbar, isReceivingScreenShare, t],
   );
 
   const startCameraShare = useCallback(

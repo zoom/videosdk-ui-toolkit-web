@@ -56,8 +56,8 @@ export enum VirtualBackgroundPreloadState {
 
 export const SPEAKER_CELL_ADDITIONAL_KEY = "zmSpeakerViewCellAdditionalKey";
 
-export const GRANT_PERMISSION_MESSAGE = {
-  microphone: "Microphone access is required. Please grant permissions in your browser settings.",
-  camera: "Camera access is required. Please grant permissions in your browser settings.",
-  microphoneAndCamera: "Camera and microphone access is required. Please grant permissions in your browser settings.",
-};
+export const GRANT_PERMISSION_MESSAGE = (t: (key: string) => string) => ({
+  microphone: t("grant.permission_microphone"),
+  camera: t("grant.permission_camera"),
+  microphoneAndCamera: t("grant.permission_both"),
+});

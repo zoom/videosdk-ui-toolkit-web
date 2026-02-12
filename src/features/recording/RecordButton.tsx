@@ -3,6 +3,7 @@ import { useRecordingChange } from "./hooks/useRecordingChange";
 import { ClientContext } from "@/context/client-context";
 import { Pause, Square, CirclePlay } from "lucide-react";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { useRecording } from "./hooks/useRecording";
 import { RecordingStatus } from "@/types/index.d";
 import ControlButton from "@/components/widget/ControlButton";
@@ -10,6 +11,7 @@ import RecordingIcon from "@/components/svg-icon/recordingIcon";
 import { checkIsFeatureEnable } from "@/components/util/util";
 
 export const RecordButton = ({ orientation = "horizontal" }: { orientation: "horizontal" | "vertical" }) => {
+  const { t } = useTranslation();
   const client = useContext(ClientContext);
   const dispatch = useAppDispatch();
   const { featuresOptions, config } = useAppSelector(useSessionSelector);
@@ -50,15 +52,15 @@ export const RecordButton = ({ orientation = "horizontal" }: { orientation: "hor
 
     switch (recordingStatus) {
       case RecordingStatus.Recording:
-        return { ...props, icon: Pause, iconColor: "red", title: "Pause" };
+        return { ...props, icon: Pause, iconColor: "red", title: t("recording.pause_button") };
       case RecordingStatus.Paused:
-        return { ...props, icon: CirclePlay, title: "Resume" };
+        return { ...props, icon: CirclePlay, title: t("recording.resume_button") };
       default:
         return {
           ...props,
           icon: RecordingIcon,
           iconColor: "text-theme-text",
-          title: "Start Recording",
+          title: t("recording.start_button"),
           className: "bg-transparent",
         };
     }
@@ -87,7 +89,7 @@ export const RecordButton = ({ orientation = "horizontal" }: { orientation: "hor
             isLoading={false}
             iconColor={themeName === "dark" ? "white" : "black"}
             className={`hover:bg-theme-background w-9`}
-            title="Stop"
+            title={t("recording.stop_button")}
             id={"uikit-footer-record-stop"}
             orientation={orientation}
           />

@@ -33,7 +33,7 @@ const EndNotification = (props: { reason?: string; isEnableFeedback: boolean; se
     switch (reason) {
       case undefined: {
         variantValue = "info";
-        content = `${t("session_disconnected")}: ${t("leave_session")}`;
+        content = `${t("session.disconnected")}: ${t("leave.session")}`;
         break;
       }
       case "ended by host": {

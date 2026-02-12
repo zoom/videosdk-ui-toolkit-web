@@ -86,17 +86,17 @@ export const AudioButton = ({
   const { enqueueSnackbar } = useSnackbar();
   let waringContext = "";
   if (sessionUI.isShowAudioWarning && sessionUI.isShowVideoWarning) {
-    waringContext = t("join_media_preview_warning_denied_both");
+    waringContext = t("join.media_preview_warning_denied_both");
   } else if (sessionUI.isShowAudioWarning) {
-    waringContext = t("join_media_preview_warning_denied_mic");
+    waringContext = t("join.media_preview_warning_denied_mic");
   } else if (sessionUI.isShowVideoWarning) {
-    waringContext = t("join_media_preview_warning_denied_camera");
+    waringContext = t("join.media_preview_warning_denied_camera");
   } else {
-    waringContext = t("join_media_preview_warning_denied");
+    waringContext = t("join.media_preview_warning_denied");
   }
 
   const currentUser = useCurrentUser();
-  const isJoinedAudio = currentUser?.audio !== "";
+  const isJoinedAudio = !!currentUser?.audio;
   const [isMuted, setIsMuted] = useState<boolean>(currentUser?.muted || true);
   const {
     stream,
@@ -179,19 +179,16 @@ export const AudioButton = ({
     audioIcon = currentUser?.muted ? MicOff : Mic;
   }
 
-  const previousLoading = usePrevious(isLoading);
   useEffect(() => {
     const timeoutId: NodeJS.Timeout | null = null;
 
-    if (sessionUI.previewStatus.isAudioOn && !isJoinedAudio && !disableAutoJoin) {
+    if (sessionUI.previewStatus.isAudioOn && !isJoinedAudio && !disableAutoJoin && !sessionUI.previewStatus.auto) {
+      if (!stream) return;
+      if (!session.isJoinResolved) return;
       // auto join audio when preview joined audio
       dispatch(setShowJoinAudioConsent(false));
-      async function startAudio() {
-        await toggleMic();
-      }
-      startAudio().then(() => {
-        dispatch(setPreviewAVStatus({ isAudioOn: false, auto: true }));
-      });
+      dispatch(setPreviewAVStatus({ isAudioOn: false, auto: true }));
+      void toggleMic(session?.featuresOptions?.audio?.muteEntry, { isAuto: true });
     } else if (!sessionUI.previewStatus.isAudioOn && !sessionUI.previewStatus?.auto && !isJoinedAudio) {
       // checkAudioConsent();
       dispatch(setPreviewAVStatus({ auto: true }));
@@ -205,15 +202,15 @@ export const AudioButton = ({
     };
   }, [
     sessionUI.previewStatus,
-    isLoading,
-    microphoneList,
-    previousLoading,
     isJoinedAudio,
     dispatch,
     id,
     disableAutoJoin,
     session?.featuresOptions?.audio?.joinAudioConsent,
+    session?.featuresOptions?.audio?.muteEntry,
+    session.isJoinResolved,
     toggleMic,
+    stream,
   ]);
 
   const iconColor = sessionUI.themeName === "dark" ? "white" : "black";
@@ -253,11 +250,11 @@ export const AudioButton = ({
           e.stopPropagation();
         }}
         isWarning={sessionUI.isShowAudioWarning}
-        title={"audio"}
+        title={t("audio.button_label")}
         menuContent={
           <FooterMenuOption
             autoClose={autoClose}
-            title="Audio settings"
+            title={t("audio.settings_title")}
             orientation={orientation}
             activeDevice={{
               microphoneList: sessionUI.activeMicrophone,
@@ -277,8 +274,8 @@ export const AudioButton = ({
             }}
             menuName="audio-list"
             labels={{
-              microphoneList: "Select a microphone",
-              speakerList: "Select a speaker",
+              microphoneList: t("audio.select_microphone"),
+              speakerList: t("audio.select_speaker"),
             }}
             isOpen={isAudioMenuOpen}
             setIsOpen={(isOpen) => {
@@ -288,7 +285,7 @@ export const AudioButton = ({
             clickSettingsLink={openAudioSettings}
             otherButtons={[
               {
-                text: "Invite by phone",
+                text: t("audio.invite_by_phone"),
                 click: () => {
                   dispatch(setIsInviteDialogOpen(true));
                   setIsAudioMenuOpen(false);
@@ -298,7 +295,7 @@ export const AudioButton = ({
                 disabled: !session.isEnablePhone,
               },
               {
-                text: "Select second audio",
+                text: t("audio.select_secondary"),
                 click: () => {
                   dispatch(setSettingsActiveTab("second audio"));
                   dispatch(setIsSettingsOpen(true));
@@ -309,7 +306,7 @@ export const AudioButton = ({
                 disabled: !isSupportSecondMicrophone(isJoinedAudio),
               },
               {
-                text: "Audio statistics",
+                text: t("audio.statistics_label"),
                 click: () => {
                   openAudioStatistics();
                 },
@@ -319,7 +316,7 @@ export const AudioButton = ({
                 disabled: !isJoinedAudio,
               },
               {
-                text: "Leave audio",
+                text: t("audio.leave"),
                 click: async () => {
                   await stream?.stopAudio();
                   setIsAudioMenuOpen(false);
@@ -338,7 +335,7 @@ export const AudioButton = ({
       {isShowSpeakingWhileMutedToast && (
         <div className="fixed left-1/2 transform -translate-x-1/2 top-[50px] z-50">
           <DraggableToast
-            message="You are muted now."
+            message={t("audio.muted_notification")}
             type="info"
             id="uikit-speaking-while-muted-toast"
             isVisible={isShowSpeakingWhileMutedToast}
@@ -349,7 +346,7 @@ export const AudioButton = ({
                 className="ml-2 flex-shrink-0 focus:outline-none text-sm font-medium text-blue-500 hover:text-blue-600 transition-colors cursor-pointer"
                 onClick={handleUnmute}
               >
-                Unmute
+                {t("audio.unmute_button")}
               </button>
             }
           />

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { CommonPopper } from "@/components/widget/CommonPopper";
 import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
+import { useTranslation } from "react-i18next";
 import { setIsSettingsOpen, setSettingsActiveTab } from "@/store/uiSlice";
 import {
   AudioSettings,
@@ -64,7 +65,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   height = 500,
 }) => {
   const dispatch = useAppDispatch();
-
+  const { t } = useTranslation();
   const {
     isSettingsOpen,
     settingsActiveTab,
@@ -101,17 +102,42 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const isAnyProcessorSupported = isSupportAudioProcessor || isSupportVideoProcessor || isSupportShareProcessor;
 
   const tabs = [
-    { name: "general", icon: Settings, enabled: isUserEnableTheme },
-    { name: "audio", icon: Mic, enabled: isUserEnableAudio },
-    { name: "second audio", icon: MicVocal, enabled: !isMobileDevice() && isUserEnableSecondaryAudio },
-    { name: "mask", icon: Video, enabled: false },
-    { name: "video", icon: Video, enabled: isUserEnableVideo },
-    { name: "raw data", icon: Database, enabled: !isMobileDevice() && isUserEnableRawData && isAnyProcessorSupported },
-    { name: "playback", icon: TvMinimalPlay, enabled: !isMobileDevice() && isUserEnablePlayback },
-    { name: "background", icon: FlipHorizontal, enabled: isSupportVB && isUserEnableVB },
-    { name: "statistics", icon: ChartBar, enabled: true },
-    { name: "troubleshoot", icon: BriefcaseMedical, enabled: isUserEnableTroubleshooting },
-    { name: "help", icon: BadgeHelp, enabled: false },
+    { name: "general", title: t("settings.tab_general"), icon: Settings, enabled: isUserEnableTheme },
+    { name: "audio", title: t("settings.tab_audio"), icon: Mic, enabled: isUserEnableAudio },
+    {
+      name: "second audio",
+      title: t("settings.tab_second_audio"),
+      icon: MicVocal,
+      enabled: !isMobileDevice() && isUserEnableSecondaryAudio,
+    },
+    { name: "mask", title: t("settings.tab_mask"), icon: Video, enabled: false },
+    { name: "video", title: t("settings.tab_video"), icon: Video, enabled: isUserEnableVideo },
+    {
+      name: "raw data",
+      title: t("settings.tab_raw_data"),
+      icon: Database,
+      enabled: !isMobileDevice() && isUserEnableRawData && isAnyProcessorSupported,
+    },
+    {
+      name: "playback",
+      title: t("settings.tab_playback"),
+      icon: TvMinimalPlay,
+      enabled: !isMobileDevice() && isUserEnablePlayback,
+    },
+    {
+      name: "background",
+      title: t("settings.tab_background"),
+      icon: FlipHorizontal,
+      enabled: isSupportVB && isUserEnableVB,
+    },
+    { name: "statistics", title: t("settings.tab_statistics"), icon: ChartBar, enabled: true },
+    {
+      name: "troubleshoot",
+      title: t("settings.tab_troubleshoot"),
+      icon: BriefcaseMedical,
+      enabled: isUserEnableTroubleshooting,
+    },
+    { name: "help", title: t("settings.tab_help"), icon: BadgeHelp, enabled: false },
   ].filter((tab) => tab.enabled);
 
   const commonNav = (
@@ -134,7 +160,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
     <CommonPopper
       isOpen={onClose ? isControlByCustomizeLayout : isSettingsOpen}
       onClose={onClose || handleClose}
-      title="Settings"
+      title={t("settings.title")}
       width={width}
       height={height}
       isDraggable={isDraggable}

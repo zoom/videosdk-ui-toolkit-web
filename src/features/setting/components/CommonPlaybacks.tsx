@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronDown } from "lucide-react";
 import { THEME_COLOR_CLASS } from "@/constant";
+import { useTranslation } from "react-i18next";
 
 export interface Playback {
   title: string;
@@ -32,12 +33,13 @@ const CommonPlaybacks: React.FC<CommonPlaybacksProps> = ({
   acceptedFormats,
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const selectClass = `${THEME_COLOR_CLASS} w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md appearance-none`;
 
   return (
     <div className="flex items-center">
       <label htmlFor={`${label.toLowerCase()}Select`} className="w-1/4 text-sm font-semibold">
-        {label} Playback:
+        {t("settings.playback_select_label", { media: label })}
       </label>
       <div className="w-3/4 flex flex-col space-y-2">
         <div className="flex items-center space-x-2">
@@ -53,7 +55,7 @@ const CommonPlaybacks: React.FC<CommonPlaybacksProps> = ({
                 {playback.title}
               </option>
             ))}
-            {customFile && <option value="custom">Custom {label}</option>}
+            {customFile && <option value="custom">{t("settings.playback_custom_option", { media: label })}</option>}
           </select>
           <input
             type="file"

@@ -17,6 +17,7 @@ interface DropdownProps {
   trigger?: React.ReactNode;
   menuAlwaysOpen?: boolean;
   showIcon?: boolean;
+  showCheckboxSpace?: boolean;
   defaultButtonRef?: React.RefObject<HTMLButtonElement>;
 }
 
@@ -28,6 +29,7 @@ const Dropdown = ({
   trigger,
   menuAlwaysOpen = false,
   showIcon = true,
+  showCheckboxSpace = true,
   defaultButtonRef,
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -50,24 +52,46 @@ const Dropdown = ({
 
       const { isHeader } = item;
 
+      if (isHeader) {
+        return (
+          <React.Fragment key={index}>
+            {showDivider && <li className="border-b border-theme-border my-2" role="separator"></li>}
+            <li className="p-1 flex items-center font-medium disabled:opacity-50">
+              {showCheckboxSpace && (
+                <div className="w-[20px] h-[20px] flex items-center justify-center">
+                  {item.checked ? <Check size={16} /> : null}
+                </div>
+              )}
+              <span className={`${showCheckboxSpace ? "ml-2" : "pl-2"} truncate max-w-[220px]`}>{item.label}</span>
+            </li>
+          </React.Fragment>
+        );
+      }
+
       return (
         <React.Fragment key={index}>
-          {showDivider && <li className="border-b border-theme-border my-2"></li>}
-          <li
-            className={`p-1 ${isHeader ? "" : "hover:bg-theme-background cursor-pointer justify-start"} flex items-center ${
-              isHeader ? "font-medium disabled:opacity-50" : item.className ? item.className : "text-theme-text"
-            }`}
-            onClick={() => {
-              setIsOpen(false);
-              if (item.onClick) {
-                item.onClick();
-              }
-            }}
-          >
-            <div className="w-[20px] h-[20px] flex items-center justify-center">
-              {item.checked ? <Check size={16} /> : null}
-            </div>
-            <span className="ml-2 truncate max-w-[160px]">{item.label}</span>
+          {showDivider && <li className="border-b border-theme-border my-2" role="separator"></li>}
+          <li role="none">
+            <button
+              type="button"
+              role="menuitem"
+              className={`p-1 hover:bg-theme-background cursor-pointer justify-start flex items-center w-full text-left ${
+                item.className ? item.className : "text-theme-text"
+              }`}
+              onClick={() => {
+                setIsOpen(false);
+                if (item.onClick) {
+                  item.onClick();
+                }
+              }}
+            >
+              {showCheckboxSpace && (
+                <div className="w-[20px] h-[20px] flex items-center justify-center">
+                  {item.checked ? <Check size={16} /> : null}
+                </div>
+              )}
+              <span className={`${showCheckboxSpace ? "ml-2" : "pl-2"} truncate max-w-[220px]`}>{item.label}</span>
+            </button>
           </li>
         </React.Fragment>
       );

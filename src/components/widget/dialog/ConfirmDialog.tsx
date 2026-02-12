@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { AlertCircle } from "lucide-react";
 import { Button, VariantType } from "../CommonButton";
 
@@ -37,19 +38,19 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   icon,
   iconClassName = "bg-red-50 dark:bg-red-950/30",
   onCancel,
-  cancelText = "Cancel",
+  cancelText,
   cancelId = "",
   cancelVariant = "secondary",
   cancelClassName = "",
   cancelIcon,
   onClose,
-  closeText = "Close",
+  closeText,
   closeId = "",
   closeVariant = "secondary",
   closeClassName = "",
   closeIcon,
   onConfirm,
-  confirmText = "Confirm",
+  confirmText,
   confirmId = "",
   confirmVariant = "primary",
   confirmClassName = "",
@@ -58,6 +59,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   className,
   id = "",
 }) => {
+  const { t } = useTranslation();
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
       if (onClose) {
@@ -67,6 +69,10 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       }
     }
   };
+
+  const resolvedCancelText = cancelText ?? t("common.cancel", { defaultValue: "Cancel" });
+  const resolvedCloseText = closeText ?? t("common.close", { defaultValue: "Close" });
+  const resolvedConfirmText = confirmText ?? t("common.confirm", { defaultValue: "Confirm" });
 
   const defaultIcon = <AlertCircle size={26} className="text-red-500 drop-shadow-sm" strokeWidth={1.5} />;
   const displayIcon = icon || defaultIcon;
@@ -99,7 +105,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         {children && <div className="mb-8 pl-16">{children}</div>}
 
         <div className="flex justify-end space-x-3 pt-6 border-t border-theme-border/20">
-          {onCancel && cancelText && (
+          {onCancel && resolvedCancelText && (
             <Button
               variant={cancelVariant as VariantType}
               onClick={onCancel}
@@ -107,11 +113,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               className={`px-4 py-2.5 text-sm font-medium ${cancelClassName}`}
             >
               {cancelIcon && <span className="mr-1">{cancelIcon}</span>}
-              {cancelText}
+              {resolvedCancelText}
             </Button>
           )}
 
-          {onClose && closeText && (
+          {onClose && resolvedCloseText && (
             <Button
               variant={closeVariant as VariantType}
               onClick={onClose}
@@ -119,11 +125,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               className={`px-4 py-2.5 text-sm font-medium ${closeClassName}`}
             >
               {closeIcon && <span className="mr-1">{closeIcon}</span>}
-              {closeText}
+              {resolvedCloseText}
             </Button>
           )}
 
-          {onConfirm && confirmText && (
+          {onConfirm && resolvedConfirmText && (
             <Button
               variant={confirmVariant as VariantType}
               onClick={onConfirm}
@@ -131,7 +137,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               className={`px-4 py-2.5 text-sm font-medium ${confirmClassName}`}
             >
               {confirmIcon && <span className="mr-1">{confirmIcon}</span>}
-              {confirmText}
+              {resolvedConfirmText}
             </Button>
           )}
         </div>

@@ -271,3 +271,13 @@ export const checkIsFeatureEnable = (
   }
   return false;
 };
+
+export const getRemoteControlEnabled = (featuresOptions?: CustomizationOptions["featuresOptions"]) => {
+  if (!featuresOptions) return false;
+
+  const { remoteControl } = featuresOptions as unknown as { remoteControl?: unknown };
+  if (!remoteControl || typeof remoteControl !== "object") return false;
+
+  const { enable } = remoteControl as { enable?: unknown };
+  return Boolean(enable);
+};

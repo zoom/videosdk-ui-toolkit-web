@@ -1,5 +1,55 @@
 import { CustomizationOptions } from "../types";
 
+export const normalizeJoinConfig = (config: CustomizationOptions, usePreviewApi: boolean): CustomizationOptions => {
+  if (usePreviewApi && config.featuresOptions?.preview?.enable) {
+    const newConfig = Object.assign({}, config, {
+      featuresOptions: { ...config?.featuresOptions, preview: { enable: false } },
+    });
+    return migrateConfig(newConfig) as CustomizationOptions;
+  }
+  return migrateConfig(config) as CustomizationOptions;
+};
+
+export const waitForToolkitEvent = (
+  on: (cb: any) => void,
+  off: (cb: any) => void,
+  timeoutMs: number,
+  errorMessage: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    const cb = () => {
+      cleanup();
+      resolve();
+    };
+
+    const timeoutId = window.setTimeout(() => {
+      cleanup();
+      reject(new Error(errorMessage));
+    }, timeoutMs);
+
+    const cleanup = () => {
+      window.clearTimeout(timeoutId);
+      off(cb);
+    };
+
+    on(cb);
+  });
+};
+
+export const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number, errorMessage: string): Promise<T> => {
+  let timeoutId: number | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_resolve, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error(errorMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeoutId !== undefined) window.clearTimeout(timeoutId);
+  }
+};
+
 /**
  * Converts deprecated configuration options to the new featuresOptions format
  * @param config Old configuration object containing deprecated fields
