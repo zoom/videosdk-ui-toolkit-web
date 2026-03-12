@@ -114,7 +114,7 @@ After configuring your session, call the `uitoolkit.joinSession` function, passi
 ```js
 var sessionContainer = document.getElementById("sessionContainer");
 // const newConfig = uitoolkit.migrateConfig(config); if use migrate config from old version(<2.1.10)
-uitoolkit.joinSession(sessionContainer, newConfig);
+await uitoolkit.joinSession(sessionContainer, newConfig);
 ```
 
 ### Leave Session
@@ -124,7 +124,7 @@ To leave a Video SDK session, the user can click the red leave button. The host 
 You can also leave a session programmatically by calling the `uitoolkit.closeSession` function:
 
 ```js
-uitoolkit.closeSession(sessionContainer);
+await uitoolkit.closeSession(sessionContainer);
 ```
 
 ### Event Listeners
