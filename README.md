@@ -107,14 +107,14 @@ Currently, we support the following features:
 | `footer`            | Show footer UI with buttons for the session                                                                                                                |
 | `header`            | Show the session header UI.                                                                                                                                |
 
-See [index.d.ts](./videosdk-ui-toolkit/index.d.ts) for more `featuresOptions` details.
+See [index.d.ts](index.d.ts) for more `featuresOptions` details.
 
 After configuring your session, call the `uitoolkit.joinSession` function, passing in the container reference, and the Video SDK session config object:
 
 ```js
 var sessionContainer = document.getElementById("sessionContainer");
 // const newConfig = uitoolkit.migrateConfig(config); if use migrate config from old version(<2.1.10)
-uitoolkit.joinSession(sessionContainer, newConfig);
+await uitoolkit.joinSession(sessionContainer, newConfig);
 ```
 
 ### Leave Session
@@ -124,7 +124,7 @@ To leave a Video SDK session, the user can click the red leave button. The host 
 You can also leave a session programmatically by calling the `uitoolkit.closeSession` function:
 
 ```js
-uitoolkit.closeSession(sessionContainer);
+await uitoolkit.closeSession(sessionContainer);
 ```
 
 ### Event Listeners
@@ -284,24 +284,11 @@ uitoolkit.hideSettingsComponent(settingsContainer);
 Once your session has ended, we recommend properly cleaning up the UI Toolkit so users can join subsequent sessions. You can easily do this by using the `onSessionClosed` event listener. Simply call each component's respective hide function to properly remove each component from the DOM. See the following code snippet for an example:
 
 ```js
-  uitoolkit.onSessionClosed(sessionClosed)
+uitoolkit.onSessionClosed(sessionClosed);
 
-  function sessionClosed() {
-    // Your code here
-  }
-```
-
-## [Development](./CLAUDE.md)
-Node >= v20.19.5
-### Setup Development Environment
-```bash
-cp src/config/devTemplate.ts src/config/dev.ts
-npm i && npm run dev
-```
-### build
-```
-npm run build
-or npm run tgz
+function sessionClosed() {
+  // Your code here
+}
 ```
 
 ## Sample Apps
