@@ -254,7 +254,8 @@ const SessionAppInner = (props: SessionAppProps) => {
     const isWebRTC = new URLSearchParams(rwgAgent?.websocket?.url).get("useWBVideo") === "1";
     dispatch(setIsVideoWebRTC(isWebRTC));
 
-    // console.log(decodeJWTPlayload(config.videoSDKJWT));
+    // eslint-disable-next-line no-console
+    console.log("[JWT] participant decoded payload:", decodeJWT);
     if (decodeJWT?.telemetry_tracking_id) {
       dispatch(setTrackingId(decodeJWT?.telemetry_tracking_id));
     }

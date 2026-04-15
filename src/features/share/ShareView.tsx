@@ -3,10 +3,10 @@ import { useAppSelector, useSessionSelector, useSessionUISelector } from "@/hook
 import { useRef, useEffect, useMemo, useContext, useCallback, CSSProperties, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useShareChange } from "./hooks";
-import Draggable from "react-draggable";
 import AnnotationToolbar from "./components/AnnotationToolbar";
 import { useAnnotationEvents } from "./hooks/useAnnotationEvents";
 import { Camera } from "lucide-react";
+import SharePlayer from "./SharePlayer";
 
 interface ShareCanvasProps {
   isStartShareScreenWithVideoElement: boolean;
@@ -27,15 +27,17 @@ const ShareCanvas = (props: ShareCanvasProps) => {
     isOriginalSize,
   } = props;
   const { t } = useTranslation();
+  const { activeShareId } = useAppSelector(useSessionSelector);
   const selfCanvasRef = useRef(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
-  const receivingShareCanvasRef = useRef<HTMLCanvasElement>(null);
   const { shareContentDimension } = useShareChange();
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [renderedShareContentDimension, setRenderedShareContentDimension] = useState({ width: 0, height: 0 });
+  const [canvasDimension, setCanvasDimension] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     const canvasHeight = Math.min(mainContentHeight * 0.8, ((mainContentWidth * 0.8) / 16) * 9);
     const canvasWidth = (canvasHeight / 9) * 16;
+    setCanvasDimension({ width: canvasWidth, height: canvasHeight });
     const ratio = Math.max(shareContentDimension.width / canvasWidth, shareContentDimension.height / canvasHeight);
     if (isSendingScreenShare && selfCanvasRef.current) {
       const newCanvasHeight = shareContentDimension.height / ratio;
@@ -50,12 +52,9 @@ const ShareCanvas = (props: ShareCanvasProps) => {
         canvasContainerRef.current.style.height = `${canvasHeight}px`;
         canvasContainerRef.current.style.width = `${(canvasHeight / 9) * 16}px`;
       }
-      if (receivingShareCanvasRef.current) {
-        const newCanvasHeight = isOriginalSize ? shareContentDimension.height : shareContentDimension.height / ratio;
-        const newCanvasWidth = isOriginalSize ? shareContentDimension.width : shareContentDimension.width / ratio;
-        receivingShareCanvasRef.current.style.width = `${newCanvasWidth}px`;
-        receivingShareCanvasRef.current.style.height = `${newCanvasHeight}px`;
-      }
+      const newCanvasHeight = isOriginalSize ? shareContentDimension.height : shareContentDimension.height / ratio;
+      const newCanvasWidth = isOriginalSize ? shareContentDimension.width : shareContentDimension.width / ratio;
+      setRenderedShareContentDimension({ width: newCanvasWidth, height: newCanvasHeight });
     }
   }, [
     isReceivingScreenShare,
@@ -66,38 +65,13 @@ const ShareCanvas = (props: ShareCanvasProps) => {
     isOriginalSize,
   ]);
 
-  const getCanvasStyle = useCallback((isActive: boolean) => {
-    return { display: isActive ? "block" : "none", height: isActive ? `100%` : 0 };
+  const getCanvasStyle = useCallback((isActive: boolean, isOriginalSize: boolean) => {
+    return {
+      display: isActive ? "flex" : "none",
+      height: isActive ? `100%` : 0,
+      pointerEvents: isOriginalSize ? "auto" : "none",
+    };
   }, []);
-
-  const canvasDimension = useMemo(() => {
-    const canvasHeight = Math.min(mainContentHeight * 0.8, ((mainContentWidth * 0.8) / 16) * 9);
-    return { width: (canvasHeight / 9) * 16, height: canvasHeight };
-  }, [mainContentHeight, mainContentWidth]);
-
-  const handleDrag = useCallback(
-    (e, data) => {
-      let newX = data.x;
-      let newY = data.y;
-      if (data.x > 0) newX = 0;
-      if (data.x < -(shareContentDimension.width - canvasDimension.width)) {
-        newX = -(shareContentDimension.width - canvasDimension.width);
-      }
-      if (data.y > (shareContentDimension.height - canvasDimension.height) / 2) {
-        newY = (shareContentDimension.height - canvasDimension.height) / 2;
-      }
-      if (data.y < -(shareContentDimension.height - canvasDimension.height) / 2) {
-        newY = -(shareContentDimension.height - canvasDimension.height) / 2;
-      }
-      setPosition({ x: newX, y: newY });
-    },
-    [canvasDimension, shareContentDimension],
-  );
-
-  // Reset the drag position
-  useEffect(() => {
-    setPosition({ x: 0, y: 0 });
-  }, [isOriginalSize]);
 
   if (isStartShareScreenWithVideoElement) {
     return (
@@ -106,7 +80,7 @@ const ShareCanvas = (props: ShareCanvasProps) => {
           ref={selfCanvasRef}
           id="ZOOM_VIDEO_SDK_SELF_SHARE_CANVAS"
           className={`aspect-[16/9] rounded-[12px]`}
-          style={getCanvasStyle(isSendingScreenShare) as CSSProperties}
+          style={getCanvasStyle(isSendingScreenShare, isOriginalSize) as CSSProperties}
           muted
           aria-label={t("share.screen_share_preview")}
         />
@@ -114,19 +88,15 @@ const ShareCanvas = (props: ShareCanvasProps) => {
           className={`relative overflow-hidden flex items-center rounded-lg ${isOriginalSize ? "" : "justify-center"}`}
           ref={canvasContainerRef}
         >
-          <Draggable
-            nodeRef={receivingShareCanvasRef}
-            onDrag={handleDrag}
-            position={position}
-            disabled={!isOriginalSize}
-          >
-            <canvas
-              ref={receivingShareCanvasRef}
-              id="ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS"
-              className={`rounded-[12px] ${isOriginalSize ? "cursor-move" : "cursor-default"}`}
-              style={getCanvasStyle(isReceivingScreenShare) as CSSProperties}
-            />
-          </Draggable>
+          <SharePlayer
+            activeSharerUserId={activeShareId}
+            isReceivingScreenShare={isReceivingScreenShare}
+            className={`rounded-[12px] ${isOriginalSize ? "cursor-move" : "cursor-default"} flex items-center justify-center`}
+            style={getCanvasStyle(isReceivingScreenShare, isOriginalSize) as CSSProperties}
+            shareContentDimension={renderedShareContentDimension}
+            containerDimension={canvasDimension}
+            isOriginalSize={isOriginalSize}
+          />
         </div>
       </>
     );
@@ -137,25 +107,21 @@ const ShareCanvas = (props: ShareCanvasProps) => {
           ref={selfCanvasRef}
           id="ZOOM_VIDEO_SDK_SELF_SHARE_CANVAS"
           className={`aspect-[16/9] rounded-[12px]`}
-          style={getCanvasStyle(isSendingScreenShare) as CSSProperties}
+          style={getCanvasStyle(isSendingScreenShare, isOriginalSize) as CSSProperties}
         />
         <div
           className={`relative overflow-hidden flex items-center rounded-lg ${isOriginalSize ? "" : "justify-center"}`}
           ref={canvasContainerRef}
         >
-          <Draggable
-            nodeRef={receivingShareCanvasRef}
-            onDrag={handleDrag}
-            position={position}
-            disabled={!isOriginalSize}
-          >
-            <canvas
-              ref={receivingShareCanvasRef}
-              id="ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS"
-              className={`rounded-[12px] ${isOriginalSize ? "cursor-move" : "cursor-default"}`}
-              style={getCanvasStyle(isReceivingScreenShare) as CSSProperties}
-            />
-          </Draggable>
+          <SharePlayer
+            activeSharerUserId={activeShareId}
+            isReceivingScreenShare={isReceivingScreenShare}
+            className={`rounded-[12px] relative ${isOriginalSize ? "cursor-move" : "cursor-default"} flex items-center justify-center`}
+            style={getCanvasStyle(isReceivingScreenShare, isOriginalSize) as CSSProperties}
+            shareContentDimension={renderedShareContentDimension}
+            containerDimension={canvasDimension}
+            isOriginalSize={isOriginalSize}
+          />
         </div>
       </>
     );

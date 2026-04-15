@@ -22,6 +22,7 @@ import {
   setSubsessionBroadcastMsg,
   setIsAskSubsessionHelpConfirm,
   setIsJoinSubsessionConfirm,
+  setIsJoinSubsessionConfirmRemind,
 } from "@/store/uiSlice";
 import { AskHostHelpResponse, SubsessionStatus, SubsessionUserStatus } from "@zoom/videosdk";
 import { useAppDispatch, useAppSelector, useSubsessionSelector } from "@/hooks/useAppSelector";
@@ -111,17 +112,10 @@ export const useOnSubsessionEvents = () => {
     },
     [dispatch],
   );
-  const onSubsessionInviteToJoin = useCallback(
-    ({ subsessionId, subsessionName }: any) => {
-      if (currentSubRoom.userStatus === SubsessionUserStatus.Invited) {
-        dispatch(setIsJoinSubsessionConfirm(true));
-      }
-      if (currentSubRoom.subsessionId !== subsessionId) {
-        dispatch(setIsJoinSubsessionConfirm(true));
-      }
-    },
-    [currentSubRoom.subsessionId, currentSubRoom.userStatus, dispatch],
-  );
+  const onSubsessionInviteToJoin = useCallback(() => {
+    dispatch(setIsJoinSubsessionConfirm(true));
+    dispatch(setIsJoinSubsessionConfirmRemind(true));
+  }, [dispatch]);
   useParticipantsChange(client, onMainSessionUserChange);
 
   const onSubsessionAskForHelp = useCallback(

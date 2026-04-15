@@ -1,45 +1,17 @@
-import React, { useState, useEffect, useRef, useCallback, useContext } from "react";
+import React, { useCallback, useContext } from "react";
 import { useTranslation } from "react-i18next";
-import { useAppSelector, useSessionSelector, useSessionUISelector, useAppDispatch } from "@/hooks/useAppSelector";
+import { useAppDispatch } from "@/hooks/useAppSelector";
 import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 import { AlertCircle } from "lucide-react";
-import { RecordingStatus } from "@/types/index.d";
-import { useRecordingUI } from "@/features/recording/hooks/useRecordingUI";
+import { useShouldShowCloudRecordingConsent } from "@/features/recording/hooks/useShouldShowCloudRecordingConsent";
 import { ClientContext } from "@/context/client-context";
 import { setHasShowRecordingAlert } from "@/store/uiSlice";
 
 const RecordingNotification = () => {
   const { t } = useTranslation();
-  const [isInitialized, setIsInitialized] = useState(false);
-  const initializationTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const { recordingStatus, hasPreconsented, isHost, isManager } = useAppSelector(useSessionSelector);
-  const { hasShowRecordingAlert } = useAppSelector(useSessionUISelector);
-  const { isShowRecordButton } = useRecordingUI();
   const dispatch = useAppDispatch();
   const client = useContext(ClientContext);
-
-  const isRecording = recordingStatus === RecordingStatus.Recording;
-  const isHostOrManager = isHost || isManager;
-
-  useEffect(() => {
-    initializationTimerRef.current = setTimeout(() => {
-      setIsInitialized(true);
-    }, 1000);
-
-    return () => {
-      if (initializationTimerRef.current) {
-        clearTimeout(initializationTimerRef.current);
-      }
-    };
-  }, []);
-
-  const shouldShowNotification =
-    isInitialized &&
-    (hasPreconsented || hasShowRecordingAlert) &&
-    isRecording &&
-    !isShowRecordButton &&
-    !isHostOrManager;
+  const shouldShowNotification = useShouldShowCloudRecordingConsent();
 
   const handleStay = useCallback(() => {
     dispatch(setHasShowRecordingAlert(false));

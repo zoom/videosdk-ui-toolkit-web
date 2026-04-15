@@ -72,7 +72,7 @@ import Swiper, { TouchEventData } from "@/components/widget/Swiper";
 import { usePagination } from "@/features/video/hooks";
 import ShareViewMobile from "@/features/share/ShareViewMobile";
 import PageIndicator from "@/features/video/PageIndicator";
-import RecordingNotification from "@/components/notification/RecordingNotification";
+import RecordingModals from "@/features/recording/RecordingModals";
 import { useRecording } from "@/features/recording/hooks/useRecording";
 import ParticipantRenameModal from "@/features/participant/components/ParticipantRenameModal";
 import ParticipantAdjustVolumeModal from "@/features/participant/components/ParticipantAdjustVolumeModal";
@@ -590,7 +590,7 @@ const MobileMeetingUI = () => {
         <UnmuteConsentPanel />
         <CameraControlConsentPanel />
         <JoinAudioConsentPanelWithPEPC />
-        <RecordingNotification />
+        <RecordingModals />
 
         <header
           className={`uikit-mobile-header ${THEME_COLOR_CLASS} py-2 px-4 flex items-center justify-between absolute top-0 left-0 right-0 shadow-[0_2px_10px_-1px_rgba(0,0,0,0.05)] transition-transform duration-300 ${

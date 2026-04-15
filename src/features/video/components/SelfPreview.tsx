@@ -62,14 +62,17 @@ const SelfPreview = ({ mainContentWidth }: { mainContentWidth: number }) => {
   // Handle self video on and off with <video-player-container />
   const prevIsSelfVideoOn = usePrevious(isSelfVideoOn);
   useEffect(() => {
-    if (stream && selfVideoRef.current) {
-      if (prevIsSelfVideoOn !== isSelfVideoOn && isSelfVideoOn) {
-        stream.attachVideo(userId, 3, selfVideoRef.current);
+    const handleSelfVideo = async () => {
+      if (stream && selfVideoRef.current) {
+        if (prevIsSelfVideoOn !== isSelfVideoOn && isSelfVideoOn) {
+          await stream.attachVideo(userId, 3, selfVideoRef.current);
+        }
+        if (prevIsSelfVideoOn !== isSelfVideoOn && !isSelfVideoOn) {
+          await stream.detachVideo(userId);
+        }
       }
-      if (prevIsSelfVideoOn !== isSelfVideoOn && !isSelfVideoOn) {
-        stream.detachVideo(userId);
-      }
-    }
+    };
+    handleSelfVideo();
   }, [isSelfVideoOn, prevIsSelfVideoOn, stream, userId]);
 
   return (
@@ -92,8 +95,7 @@ const SelfPreview = ({ mainContentWidth }: { mainContentWidth: number }) => {
               <div>
                 <video-player
                   ref={selfVideoRef}
-                  className="rounded-lg aspect-video overflow-hidden"
-                  style={{ width: isPortrait() ? "143px" : "254px", height: isPortrait() ? "254px" : "143px" }}
+                  className={`rounded-lg aspect-video overflow-hidden ${isPortrait() ? "w-36 h-64" : "w-64 h-36"}`}
                 />
               </div>
             </div>

@@ -223,8 +223,8 @@ export const SessionApplication = ({
 
       const videoSDKInitArgs = {
         webEndpoint: config.webEndpoint,
-        enforceMultipleVideos: config.featuresOptions?.video?.enforceMultipleVideos,
-        enforceVirtualBackground: config.featuresOptions?.virtualBackground?.enforceVirtualBackground,
+        enforceMultipleVideos: config.featuresOptions?.video?.enforceMultipleVideos ?? true,
+        enforceVirtualBackground: config.featuresOptions?.virtualBackground?.enforceVirtualBackground ?? true,
         stayAwake: true,
         isUIToolkit: true,
         leaveOnPageUnload: config.leaveOnPageUnload ?? false,
