@@ -49,7 +49,8 @@ export interface SessionState {
   isSendingScreenShare: boolean;
   isScreenSharePaused: boolean;
   isReceivingScreenShare: boolean;
-  activeShareId: number;
+  isLoadingShareRender: boolean;
+  activeShareId: number | null;
   activeSharerName: string;
   avatarUrl: string | null;
   isEnablePhone: boolean; // Add this line
@@ -110,6 +111,7 @@ const initialState: SessionState = {
   isSendingScreenShare: false,
   isScreenSharePaused: false,
   isReceivingScreenShare: false,
+  isLoadingShareRender: false,
   activeShareId: 0,
   activeSharerName: "",
   avatarUrl: null,
@@ -246,7 +248,10 @@ export const sessionSlice = createSlice({
     setIsReceivingScreenShare: (state, action: PayloadAction<boolean>) => {
       state.isReceivingScreenShare = action.payload;
     },
-    setActiveShareId: (state, action: PayloadAction<number>) => {
+    setIsLoadingShareRender: (state, action: PayloadAction<boolean>) => {
+      state.isLoadingShareRender = action.payload;
+    },
+    setActiveShareId: (state, action: PayloadAction<number | null>) => {
       state.activeShareId = action.payload;
     },
     setActiveSharerName: (state, action: PayloadAction<string>) => {
@@ -386,6 +391,7 @@ export const {
   setIsSendingScreenShare,
   setIsScreenSharePaused,
   setIsReceivingScreenShare,
+  setIsLoadingShareRender,
   setActiveShareId,
   setActiveSharerName,
   setConfig,

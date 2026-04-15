@@ -1,0 +1,235 @@
+{
+    "Meeting SDK": {
+        "Commercial": [
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-5.0.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "5.0.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-4.1.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "4.1.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-4.0.7.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "4.0.7"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-4.0.5.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "4.0.5"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-4.0.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "4.0.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.13.2.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.13.2"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.13.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.13.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.12.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.12.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.11.2.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.11.2"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.11.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.11.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.10.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.10.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.9.2.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.9.2"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.9.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.9.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.8.10.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.8.10"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.8.5.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.8.5"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.8.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.8.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.7.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.7.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.6.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/meeting-sdk/web/",
+                "version": "3.6.0"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.5.2.zip",
+                "releaseNote": "https://marketplace.zoom.us/docs/guides/stay-up-to-date/changelog",
+                "version": "3.5.2"
+            },
+            {
+                "downloadLink": "/sdk/KHQqCiu6TBmVEJ2YEUr2LQ/zoom-sdk-web-3.5.1.zip",
+                "releaseNote": "https://marketplace.zoom.us/docs/guides/stay-up-to-date/changelog",
+                "version": "3.5.1"
+            }
+        ]
+    },
+    "Video SDK": {
+        "Commercial": [
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.3.5.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.3.5",
+                "version": "v2.3.5"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.3.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.3.0",
+                "version": "v2.3.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.2.12.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.2.12",
+                "version": "v2.2.12"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.2.10.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.2.10",
+                "version": "v2.2.10"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.2.5.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.2.5",
+                "version": "v2.2.5"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.2.0.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.2.0 ",
+                "version": "v2.2.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.1.10.zip",
+                "releaseNote": "https://developers.zoom.us/changelog/video-sdk/web/2.1.10 ",
+                "version": "v2.1.10"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.1.5.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v2.1.5"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-2.1.0.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v2.1.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.14.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.14"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.12.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.12"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.10.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.10"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.5.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.5"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.1.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.1"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.12.0.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.12.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.11.10.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.11.10"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.11.6.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.11.6"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.11.0.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.11.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.10.7.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.10.7"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.10.5.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.10.5"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.10.1.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.10.1"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.10.0.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.10.0"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.9.8.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.9.8"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.9.7.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.9.7"
+            },
+            {
+                "downloadLink": "/sdk/0R-siDTTL-_wUXOlHpBBQ/zoom-video-sdk-web-1.9.5.zip",
+                "releaseNote": "https://devsupport.zoom.us/hc/en-us/sections/9481845454349",
+                "version": "v1.9.5"
+            }
+        ]
+    }
+}

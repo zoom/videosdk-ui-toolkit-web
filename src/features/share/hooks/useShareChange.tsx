@@ -1,6 +1,6 @@
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
-import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
+import { useAppDispatch, useAppSelector, useParticipantSelector, useSessionSelector } from "@/hooks/useAppSelector";
 import {
   setActiveShareId,
   setActiveSharerName,
@@ -8,6 +8,7 @@ import {
   setIsScreenSharePaused,
   setIsSendingScreenShare,
   setIsAnnotationStarted,
+  setIsLoadingShareRender,
 } from "@/store/sessionSlice";
 import { setIsOriginalShareContentSize, setViewType, resetAnnotationStates, setCanDoAnnotation } from "@/store/uiSlice";
 import { SuspensionViewType } from "@/types/index.d";
@@ -24,7 +25,7 @@ export const useShareChange = () => {
   const { activeShareId, isAnnotationStarted, isScreenSharePaused, isSendingScreenShare, isReceivingScreenShare } =
     useAppSelector(useSessionSelector);
   const dispatch = useAppDispatch();
-  const participants = client.getAllUser();
+  const { participants } = useAppSelector(useParticipantSelector);
   const { isInSubsession } = useSubsessionRoom();
 
   const [shareContentDimension, setShareContentDimension] = useState({ width: 0, height: 0 });
@@ -77,13 +78,17 @@ export const useShareChange = () => {
         dispatch(setActiveShareId(currentActiveSharingUser));
         const shareUserList = stream?.getShareUserList();
         const activeShareUserId = stream?.getActiveShareUserId();
-        const activeShareUserInfo = shareUserList?.find((item) => item.userId === activeShareUserId) ?? undefined;
+        const activeShareUserInfo =
+          shareUserList?.find((item) => item.userId === activeShareUserId) ||
+          participants?.find((item) => item.userId === activeShareUserId) ||
+          undefined;
         dispatch(setActiveSharerName(activeShareUserInfo?.displayName));
         dispatch(setViewType(SuspensionViewType.Gallery));
         dispatch(setIsReceivingScreenShare(true));
+        dispatch(setIsLoadingShareRender(true));
       }
     }
-  }, [dispatch, stream]);
+  }, [dispatch, stream, participants]);
 
   // Handles when some participant starts screen sharing 'active-share-change'
   const onActiveShareChange = useCallback(
@@ -91,11 +96,10 @@ export const useShareChange = () => {
       const { userId, state } = payload;
       if (state === VideoActiveState.Active) {
         if (stream) {
-          const shareCanvas = document.querySelector("#ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS") as HTMLCanvasElement;
-          dispatch(setActiveShareId(userId));
           dispatch(setViewType(SuspensionViewType.Gallery));
           dispatch(setIsReceivingScreenShare(true));
-          await stream?.startShareView(shareCanvas, userId);
+          dispatch(setIsLoadingShareRender(true));
+          dispatch(setActiveShareId(userId));
           const shareUserList = stream?.getShareUserList();
           const activeShareUserInfo = shareUserList?.find((item) => item.userId === userId) ?? undefined;
           dispatch(setActiveSharerName(activeShareUserInfo?.displayName || ""));
@@ -114,10 +118,7 @@ export const useShareChange = () => {
           }
         }
       } else if (state === VideoActiveState.Inactive) {
-        if (stream) {
-          await stream?.stopShareView();
-        }
-        dispatch(setActiveShareId(0));
+        dispatch(setActiveShareId(null));
         dispatch(setActiveSharerName(""));
         dispatch(setIsReceivingScreenShare(false));
         dispatch(setIsOriginalShareContentSize(false));

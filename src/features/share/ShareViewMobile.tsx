@@ -5,6 +5,7 @@ import { isPortrait } from "@/components/util/service";
 import { Camera } from "lucide-react";
 import { StreamContext } from "@/context/stream-context";
 import { useAnnotationEvents } from "./hooks/useAnnotationEvents";
+import SharePlayer from "./SharePlayer";
 
 const ShareViewMobile = ({
   mainContentHeight,
@@ -15,13 +16,13 @@ const ShareViewMobile = ({
 }) => {
   const shareContainerRef = useRef<HTMLDivElement>(null);
   const selfCanvasRef = useRef(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const { shareContentDimension } = useShareChange();
   const { currentPage, isControlsVisible } = useAppSelector(useSessionUISelector);
   const { activeShareId, userId, activeSharerName, isReceivingScreenShare, isSendingScreenShare } =
     useAppSelector(useSessionSelector);
   const { stream } = useContext(StreamContext);
   const isStartShareScreenWithVideoElement = !!stream?.isStartShareScreenWithVideoElement();
+  const [canvasDimension, setCanvasDimension] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
     if (shareContainerRef.current) {
@@ -52,15 +53,12 @@ const ShareViewMobile = ({
       const ratio = Math.max(shareContentDimension.width / width, shareContentDimension.height / height);
       const newCanvasHeight = shareContentDimension.height / ratio;
       const newCanvasWidth = shareContentDimension.width / ratio;
-      if (isReceivingScreenShare && canvasRef.current) {
-        canvasRef.current.style.width = `${newCanvasWidth}px`;
-        canvasRef.current.style.height = `${newCanvasHeight}px`;
+      if (isReceivingScreenShare) {
+        setCanvasDimension({ width: newCanvasWidth, height: newCanvasHeight });
       }
       if (isSendingScreenShare && selfCanvasRef.current) {
         selfCanvasRef.current.style.width = `${newCanvasWidth}px`;
         selfCanvasRef.current.style.height = `${newCanvasHeight}px`;
-        canvasRef.current.style.width = `${0}px`;
-        canvasRef.current.style.height = `${0}px`;
       }
     }
   }, [shareContentDimension, mainContentWidth, isReceivingScreenShare, isSendingScreenShare]);
@@ -143,7 +141,19 @@ const ShareViewMobile = ({
             style={getCanvasStyle(isSendingScreenShare) as CSSProperties}
           />
         )}
-        <canvas className={`rounded-[8px]`} id="ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS" ref={canvasRef} />
+        <SharePlayer
+          activeSharerUserId={activeShareId}
+          isReceivingScreenShare={isReceivingScreenShare}
+          className={`rounded-[12px] cursor-default flex items-center justify-center`}
+          style={{
+            display: "flex",
+            height: "100%",
+            pointerEvents: "none",
+          }}
+          shareContentDimension={canvasDimension}
+          containerDimension={canvasDimension}
+          isOriginalSize={false}
+        />
         {activeSharerName && (
           <div className="absolute left-[10px] bottom-[10px] bg-neutral-600 opacity-90 rounded flex items-center">
             <div className="text-theme-text-button pl-2 max-w-[150px] truncate">
