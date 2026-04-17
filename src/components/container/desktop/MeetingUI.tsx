@@ -48,13 +48,13 @@ import {
   UnmuteConsentPanel,
   CameraControlConsentPanel,
   RemoteControlNotifications,
-  RecordingNotification,
   ShareScreenToSubsessionPanel,
   JoinAudioConsentPanelWithPEPC,
 } from "@/components/notification";
 import SubsessionPanel from "@/features/subsession/SubsessionPanel";
 import { CaptionContainer } from "@/features/caption/CaptionContainer";
 import { useRecording } from "@/features/recording/hooks/useRecording";
+import RecordingModals from "@/features/recording/RecordingModals";
 import ParticipantRenameModal from "@/features/participant/components/ParticipantRenameModal";
 import ParticipantAdjustVolumeModal from "@/features/participant/components/ParticipantAdjustVolumeModal";
 import SessionInfoButton from "@/components/header/SessionInfoButton";
@@ -298,7 +298,7 @@ const MeetingUI = () => {
           }}
         />
       )}
-      <RecordingNotification />
+      <RecordingModals />
       <UnmuteConsentPanel />
       <CameraControlConsentPanel />
       <RemoteControlNotifications />

@@ -13,7 +13,7 @@ export const useRenderVideo = (pageParticipants: Participant[], videoPlayerEleme
       pageParticipants.map((p, idx) => {
         return {
           id: p.userId,
-          resolution: viewType === "speaker" && idx === 0 ? 3 : 2,
+          resolution: viewType === "speaker" && idx === 0 ? 4 : 2,
         };
       }),
     [pageParticipants, viewType],

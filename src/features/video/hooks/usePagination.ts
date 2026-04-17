@@ -1,4 +1,5 @@
 import { isMobileDeviceNotIpad } from "@/components/util/service";
+import { StreamContext } from "@/context/stream-context";
 import {
   useAppDispatch,
   useAppSelector,
@@ -7,7 +8,7 @@ import {
   useSessionUISelector,
 } from "@/hooks/useAppSelector";
 import { setCurrentPage } from "@/store/uiSlice";
-import { useCallback, useMemo, useEffect } from "react";
+import { useCallback, useMemo, useEffect, useContext } from "react";
 
 export const usePagination = () => {
   const dispatch = useAppDispatch();
@@ -21,24 +22,28 @@ export const usePagination = () => {
     spotlightUserList,
   } = useAppSelector(useSessionSelector);
   const { participants } = useAppSelector(useParticipantSelector);
-
+  const { stream } = useContext(StreamContext);
   const isScreenSharing = useMemo(
     () => isSendingScreenShare || isReceivingScreenShare,
     [isReceivingScreenShare, isSendingScreenShare],
   );
+
+  const maxParticipantsPerPage = useMemo(() => {
+    return stream?.getMaxRenderableVideos() ?? 1;
+  }, [stream]);
 
   const participantsPerPage = useMemo(() => {
     if (!isSupportMultipleVideos) {
       return 1;
     }
     if (isMobileDeviceNotIpad()) {
-      return 4;
+      return Math.min(4, maxParticipantsPerPage);
     }
     if (viewType === "speaker") {
-      return 5;
+      return Math.min(5, maxParticipantsPerPage);
     }
-    return isScreenSharing ? 6 : 9;
-  }, [isScreenSharing, isSupportMultipleVideos, viewType]);
+    return Math.min(isScreenSharing ? 6 : 9, maxParticipantsPerPage);
+  }, [isScreenSharing, isSupportMultipleVideos, viewType, maxParticipantsPerPage]);
 
   const totalPages =
     viewType === "speaker" || (spotlightUserList.length === 0 && (isMobileDeviceNotIpad() || !isSupportMultipleVideos))
