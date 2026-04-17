@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERD Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-12">
+          <h1 class="text-center mb-4">ERD Generator</h1>
+
+          <div class="card">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Console Text Input</h5>
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+                <label for="consoleText" class="form-label">Paste your console text here:</label>
+                <textarea
+                  class="form-control"
+                  id="consoleText"
+                  rows="15"
+                  placeholder="Paste console text content here..."
+                ></textarea>
+              </div>
+
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <button class="btn btn-success" type="button" onclick="pasteAndParseERD()">
+                  <i class="fas fa-paste me-2"></i>Paste and Parse ERD
+                </button>
+                <button class="btn btn-primary" type="button" onclick="parseERD()">
+                  <i class="fas fa-play me-2"></i>Parse ERD
+                </button>
+                <button class="btn btn-secondary" type="button" onclick="clearAll()">
+                  <i class="fas fa-trash me-2"></i>Clear All
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-4" id="resultsCard" style="display: none">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Parsed Results</h5>
+              <div class="btn-group">
+                <button
+                  class="btn btn-outline-primary btn-sm"
+                  onclick="copyConsumerERD()"
+                  id="copyConsumerBtn"
+                  style="display: none"
+                >
+                  <i class="fas fa-copy me-2"></i>Copy Consumer ERD
+                </button>
+                <button
+                  class="btn btn-outline-success btn-sm"
+                  onclick="copyZFGERD()"
+                  id="copyZFGBtn"
+                  style="display: none"
+                >
+                  <i class="fas fa-copy me-2"></i>Copy ZFG ERD
+                </button>
+                <button
+                  class="btn btn-outline-info btn-sm"
+                  onclick="copyMILERD()"
+                  id="copyMILBtn"
+                  style="display: none"
+                >
+                  <i class="fas fa-copy me-2"></i>Copy MIL ERD
+                </button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="consumerResults" class="mb-4" style="display: none">
+                <h6 class="text-primary">Commercial Release ERD Content:</h6>
+                <pre id="consumerContent" class="bg-light p-3 rounded"></pre>
+              </div>
+
+              <div id="zfgResults" style="display: none">
+                <h6 class="text-success">ZFG Release ERD Content:</h6>
+                <pre id="zfgContent" class="bg-light p-3 rounded"></pre>
+              </div>
+
+              <div id="milResults" style="display: none" class="mt-4">
+                <h6 class="text-info">MIL Release ERD Content:</h6>
+                <pre id="milContent" class="bg-light p-3 rounded"></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h5 class="card-title mb-0">Marketplace JSON</h5>
+              <div class="d-flex gap-2 align-items-center">
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  onclick="window.open('https://docs.google.com/document/d/12stjNALL8K7IJXQy6Dq4MEaGRgNvLkHV35-XMy9Ouhs/edit?tab=t.0', '_blank')"
+                >
+                  Marketplace doc
+                </button>
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  onclick="window.open('https://docs.google.com/document/d/1c9JpkPEjA7_gPfn7248pn-esOV9TCgc7rX36D95ZPnQ/edit?tab=t.0', '_blank')"
+                >
+                  Marketplace Gov
+                </button>
+                <button
+                  class="btn btn-outline-secondary btn-sm"
+                  type="button"
+                  onclick="window.open('https://docs.google.com/document/d/1cNPjuwAmeQJ_73B8uAh8UvHsibIZxzQCPCAQahDamuo/edit?tab=t.0', '_blank')"
+                >
+                  Marketplace Mil
+                </button>
+                <div class="dropdown">
+                  <button
+                    class="btn btn-outline-primary btn-sm dropdown-toggle"
+                    type="button"
+                    id="marketplaceSdkDropdownBtn"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Meeting SDK
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="marketplaceSdkDropdownBtn" id="marketplaceSdkMenu"></ul>
+                </div>
+                <div class="dropdown">
+                  <button
+                    class="btn btn-outline-primary btn-sm dropdown-toggle"
+                    type="button"
+                    id="marketplaceDropdownBtn"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                  >
+                    Commercial
+                  </button>
+                  <ul class="dropdown-menu" aria-labelledby="marketplaceDropdownBtn" id="marketplaceReleaseMenu"></ul>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                  <label for="newVersion" class="form-label mb-1">New version to prepend</label>
+                  <input type="text" class="form-control" id="newVersion" />
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label mb-1 d-block">&nbsp;</label>
+                  <button
+                    class="btn btn-success"
+                    type="button"
+                    id="addVersionBtn"
+                    onclick="addVersionToMarketplace()"
+                    disabled
+                  >
+                    <i class="fas fa-plus me-2"></i>Add to Top
+                  </button>
+                </div>
+                <div class="col-md-4 text-md-end">
+                  <label class="form-label mb-1 d-block">&nbsp;</label>
+                  <button
+                    class="btn btn-outline-secondary"
+                    type="button"
+                    onclick="copyMarketplaceJSON()"
+                    id="copyMarketplaceBtn"
+                    disabled
+                  >
+                    <i class="fas fa-copy me-2"></i>Copy JSON
+                  </button>
+                  <button
+                    class="btn btn-outline-danger ms-2"
+                    type="button"
+                    onclick="resetMarketplaceJSON()"
+                    id="resetMarketplaceBtn"
+                    disabled
+                  >
+                    <i class="fas fa-undo me-2"></i>Reset
+                  </button>
+                </div>
+              </div>
+
+              <div id="marketplaceSection" class="mt-3" style="display: none">
+                <pre class="bg-light p-3 rounded" style="max-height: 420px; overflow: auto">
+<code id="marketplaceContent" class="language-json"></code>
+</pre>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+      let consumerResults = "";
+      let zfgResults = "";
+      let milResults = "";
+      let marketplaceData = null;
+      let originalMarketplaceData = null;
+      let marketplaceSdk = "Meeting SDK";
+      let marketplaceRelease = "Commercial";
+
+      function populateMarketplaceSdkMenu() {
+        if (!marketplaceData) return;
+        const menu = document.getElementById("marketplaceSdkMenu");
+        const btn = document.getElementById("marketplaceSdkDropdownBtn");
+        if (!menu || !btn) return;
+
+        const sdkKeys = Object.keys(marketplaceData);
+        menu.innerHTML = "";
+
+        if (!sdkKeys.length) {
+          marketplaceSdk = "";
+          btn.textContent = "No SDKs";
+          return;
+        }
+
+        if (!marketplaceSdk) {
+          marketplaceSdk = sdkKeys.includes("Meeting SDK") ? "Meeting SDK" : sdkKeys[0];
+        } else if (!sdkKeys.includes(marketplaceSdk)) {
+          marketplaceSdk = sdkKeys[0];
+        }
+
+        sdkKeys.forEach((sdk) => {
+          const li = document.createElement("li");
+          const button = document.createElement("button");
+          button.className = "dropdown-item";
+          button.type = "button";
+          button.dataset.sdk = sdk;
+          button.onclick = selectMarketplaceSdk;
+          button.textContent = sdk;
+          li.appendChild(button);
+          menu.appendChild(li);
+        });
+
+        btn.textContent = marketplaceSdk;
+      }
+
+      function populateMarketplaceReleaseMenu() {
+        if (!marketplaceData) return;
+        const menu = document.getElementById("marketplaceReleaseMenu");
+        const btn = document.getElementById("marketplaceDropdownBtn");
+        if (!menu || !btn) return;
+
+        const sdkBlock = marketplaceData[marketplaceSdk] || {};
+        const releases = Object.keys(sdkBlock);
+        menu.innerHTML = "";
+
+        if (!releases.length) {
+          marketplaceRelease = "";
+          btn.textContent = "No Releases";
+          return;
+        }
+
+        if (!marketplaceRelease) {
+          marketplaceRelease = releases.includes("Commercial") ? "Commercial" : releases[0];
+        } else if (!releases.includes(marketplaceRelease)) {
+          marketplaceRelease = releases[0];
+        }
+
+        releases.forEach((release) => {
+          const li = document.createElement("li");
+          const button = document.createElement("button");
+          button.className = "dropdown-item";
+          button.type = "button";
+          button.dataset.release = release;
+          button.onclick = selectMarketplaceRelease;
+          button.textContent = release;
+          li.appendChild(button);
+          menu.appendChild(li);
+        });
+
+        btn.textContent = marketplaceRelease;
+      }
+
+      function refreshMarketplaceDropdowns() {
+        populateMarketplaceSdkMenu();
+        populateMarketplaceReleaseMenu();
+      }
+
+      async function pasteAndParseERD() {
+        try {
+          const clipboardText = await navigator.clipboard.readText();
+          document.getElementById("consoleText").value = clipboardText;
+          parseERD();
+        } catch (err) {
+          showMessage("Unable to paste from clipboard. Please paste manually.", "warning");
+        }
+      }
+
+      function parseERD() {
+        const consoleText = document.getElementById("consoleText").value.trim();
+        if (!consoleText) {
+          showMessage("Please paste console text content first.", "warning");
+          return;
+        }
+
+        const lines = consoleText.split("\n");
+        let consumerResult = "";
+        let zfgResult = "";
+        let milResult = "";
+        let currentMode = null;
+        let capturing = false;
+
+        for (let line of lines) {
+          // Check for Consumer Release ERD start
+          if (line.includes("Consumer Release ERD") || line.includes("Commercial Release ERD")) {
+            currentMode = "consumer";
+            capturing = true;
+            continue;
+          }
+
+          // Check for ZFG Release ERD start
+          if (line.includes("ZFG Release ERD")) {
+            currentMode = "zfg";
+            capturing = true;
+            continue;
+          }
+
+          // Check for MIL Release ERD start (often prefixed with timestamp/log)
+          if (line.includes("MIL Release ERD")) {
+            currentMode = "mil";
+            capturing = true;
+            continue;
+          }
+
+          // Check for end patterns
+          if (capturing && line.includes("===ERD Content End===")) {
+            capturing = false;
+            currentMode = null;
+            continue;
+          } else if (capturing && line.includes("Thank you")) {
+            capturing = false;
+            currentMode = null;
+            continue;
+          }
+
+          // Process captured lines
+          if (capturing) {
+            // Remove content within parentheses and brackets
+            let modifiedLine = line.replace(/[\(\[].*?[\)\]]/g, "");
+
+            // Skip empty lines
+            if (!modifiedLine.trim()) {
+              continue;
+            }
+
+            // Add to appropriate result
+            if (currentMode === "consumer") {
+              consumerResult += modifiedLine + "\n";
+            } else if (currentMode === "zfg") {
+              zfgResult += modifiedLine + "\n";
+            } else if (currentMode === "mil") {
+              milResult += modifiedLine + "\n";
+            }
+          }
+        }
+
+        // Display results
+        displayResults(consumerResult, zfgResult, milResult);
+      }
+
+      function displayResults(consumerResult, zfgResult, milResult) {
+        const resultsCard = document.getElementById("resultsCard");
+        const consumerDiv = document.getElementById("consumerResults");
+        const zfgDiv = document.getElementById("zfgResults");
+        const milDiv = document.getElementById("milResults");
+        const consumerContent = document.getElementById("consumerContent");
+        const zfgContent = document.getElementById("zfgContent");
+        const milContent = document.getElementById("milContent");
+        const copyConsumerBtn = document.getElementById("copyConsumerBtn");
+        const copyZFGBtn = document.getElementById("copyZFGBtn");
+        const copyMILBtn = document.getElementById("copyMILBtn");
+
+        // Store results globally for individual copy functions
+        consumerResults = consumerResult.trim();
+        zfgResults = zfgResult.trim();
+        milResults = milResult.trim();
+
+        // Show results and copy buttons
+        if (consumerResults) {
+          consumerContent.textContent = consumerResults;
+          consumerDiv.style.display = "block";
+          copyConsumerBtn.style.display = "block";
+        } else {
+          consumerDiv.style.display = "none";
+          copyConsumerBtn.style.display = "none";
+        }
+
+        if (zfgResults) {
+          zfgContent.textContent = zfgResults;
+          zfgDiv.style.display = "block";
+          copyZFGBtn.style.display = "block";
+        } else {
+          zfgDiv.style.display = "none";
+          copyZFGBtn.style.display = "none";
+        }
+
+        if (milResults) {
+          milContent.textContent = milResults;
+          milDiv.style.display = "block";
+          copyMILBtn.style.display = "block";
+        } else {
+          milDiv.style.display = "none";
+          copyMILBtn.style.display = "none";
+        }
+
+        if (consumerResults || zfgResults || milResults) {
+          resultsCard.style.display = "block";
+        } else {
+          resultsCard.style.display = "none";
+          showMessage("No ERD content found. Please check your console text.", "warning");
+        }
+      }
+
+      function copyConsumerERD() {
+        if (!consumerResults) {
+          showMessage("No Commercial ERD content to copy.", "warning");
+          return;
+        }
+
+        const contentToCopy = "Commercial Release ERD Content:\n" + consumerResults;
+
+        navigator.clipboard
+          .writeText(contentToCopy)
+          .then(() => {
+            // Show success feedback
+            const button = event.target.closest("button");
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+            button.classList.remove("btn-outline-primary");
+            button.classList.add("btn-success");
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.classList.remove("btn-success");
+              button.classList.add("btn-outline-primary");
+            }, 2000);
+          })
+          .catch((err) => {
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = contentToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showMessage("Consumer ERD content copied to clipboard!", "success");
+          });
+      }
+
+      function copyZFGERD() {
+        if (!zfgResults) {
+          showMessage("No ZFG ERD content to copy.", "warning");
+          return;
+        }
+
+        const contentToCopy = "ZFG Release ERD Content:\n" + zfgResults;
+
+        navigator.clipboard
+          .writeText(contentToCopy)
+          .then(() => {
+            // Show success feedback
+            const button = event.target.closest("button");
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+            button.classList.remove("btn-outline-success");
+            button.classList.add("btn-success");
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.classList.remove("btn-success");
+              button.classList.add("btn-outline-success");
+            }, 2000);
+          })
+          .catch((err) => {
+            // Fallback for older browsers
+            const textArea = document.createElement("textarea");
+            textArea.value = contentToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showMessage("ZFG ERD content copied to clipboard!", "success");
+          });
+      }
+
+      function copyMILERD() {
+        if (!milResults) {
+          showMessage("No MIL ERD content to copy.", "warning");
+          return;
+        }
+
+        const contentToCopy = "MIL Release ERD Content:\n" + milResults;
+
+        navigator.clipboard
+          .writeText(contentToCopy)
+          .then(() => {
+            const button = event.target.closest("button");
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+            button.classList.remove("btn-outline-info");
+            button.classList.add("btn-success");
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.classList.remove("btn-success");
+              button.classList.add("btn-outline-info");
+            }, 2000);
+          })
+          .catch(() => {
+            const textArea = document.createElement("textarea");
+            textArea.value = contentToCopy;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showMessage("MIL ERD content copied to clipboard!", "success");
+          });
+      }
+
+      function showMessage(message, type) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = `alert alert-${
+          type === "warning" ? "warning" : "success"
+        } alert-dismissible fade show position-fixed`;
+        messageDiv.style.cssText = "top: 20px; right: 20px; z-index: 1050; min-width: 300px;";
+        messageDiv.innerHTML = `
+          ${message}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        document.body.appendChild(messageDiv);
+
+        setTimeout(() => {
+          if (messageDiv.parentNode) {
+            messageDiv.remove();
+          }
+        }, 3000);
+      }
+
+      function clearAll() {
+        document.getElementById("consoleText").value = "";
+        document.getElementById("resultsCard").style.display = "none";
+        consumerResults = "";
+        zfgResults = "";
+        milResults = "";
+      }
+
+      async function fetchMarketplaceJSON() {
+        try {
+          const response = await fetch("marketplace.json", {
+            cache: "no-store",
+          });
+          if (!response.ok) {
+            throw new Error(`Status ${response.status}`);
+          }
+          const data = await response.json();
+          marketplaceData = data;
+          originalMarketplaceData = structuredClone(data);
+          refreshMarketplaceDropdowns();
+          renderMarketplaceSection();
+        } catch (err) {
+          showMessage(`Failed to load marketplace.json (${err.message}).`, "warning");
+        }
+      }
+
+      function renderMarketplaceSection() {
+        const section = document.getElementById("marketplaceSection");
+        const content = document.getElementById("marketplaceContent");
+        const copyBtn = document.getElementById("copyMarketplaceBtn");
+        const resetBtn = document.getElementById("resetMarketplaceBtn");
+        if (!marketplaceData) {
+          section.style.display = "none";
+          copyBtn.disabled = true;
+          resetBtn.disabled = true;
+          return;
+        }
+
+        const release = marketplaceRelease;
+        const sdkKey = marketplaceSdk;
+        const sdkBlock = marketplaceData[sdkKey] || {};
+        const releaseArr = sdkBlock[release] || [];
+
+        const wrapped = { sdkDownload: releaseArr };
+
+        content.textContent = JSON.stringify(wrapped, null, 2);
+        if (window.Prism) {
+          Prism.highlightElement(content);
+        }
+        section.style.display = "block";
+        copyBtn.disabled = false;
+        resetBtn.disabled = false;
+      }
+
+      function addVersionToMarketplace() {
+        if (!marketplaceData) {
+          showMessage("Marketplace JSON not loaded yet. Please try again.", "warning");
+          return;
+        }
+
+        const release = marketplaceRelease;
+        const sdkKey = marketplaceSdk;
+        const versionInput = document.getElementById("newVersion").value.trim();
+
+        if (!versionInput) {
+          return;
+        }
+
+        const sdkBlock = marketplaceData[sdkKey] || {};
+        sdkBlock[release] = sdkBlock[release] || [];
+        const targetArray = sdkBlock[release];
+
+        if (!targetArray.length) {
+          showMessage("No existing entries to clone for this release. Add one manually first.", "warning");
+          return;
+        }
+
+        const baseEntry = targetArray[0];
+        // Clone the latest entry and replace every occurrence of the previous
+        // version string (with or without a leading "v") across all string
+        // properties so download links / release notes stay in sync.
+        const baseClone = structuredClone(baseEntry);
+        const oldVersion = String(baseEntry.version || "").trim();
+        let newEntry = baseClone;
+
+        if (oldVersion) {
+          const oldBare = oldVersion.replace(/^v/i, "");
+          const newBare = versionInput.replace(/^v/i, "");
+
+          const replaceVersions = (value) => {
+            if (typeof value === "string") {
+              let updated = value;
+              const replacements = [
+                { from: `v${oldBare}`, to: `v${newBare}` },
+                { from: oldVersion, to: versionInput },
+                { from: oldBare, to: newBare },
+              ];
+
+              replacements.forEach(({ from, to }) => {
+                if (!from || from === to) return;
+                updated = updated.split(from).join(to);
+              });
+
+              return updated;
+            }
+
+            if (Array.isArray(value)) {
+              return value.map(replaceVersions);
+            }
+
+            if (value && typeof value === "object") {
+              return Object.fromEntries(Object.entries(value).map(([key, val]) => [key, replaceVersions(val)]));
+            }
+
+            return value;
+          };
+
+          newEntry = replaceVersions(baseClone);
+        }
+
+        newEntry.version = versionInput;
+
+        targetArray.unshift(newEntry);
+        marketplaceData[sdkKey] = sdkBlock;
+
+        renderMarketplaceSection();
+      }
+
+      function copyMarketplaceJSON() {
+        if (!marketplaceData) {
+          showMessage("Marketplace JSON not loaded yet. Please try again.", "warning");
+          return;
+        }
+
+        const release = marketplaceRelease;
+        const sdkKey = marketplaceSdk;
+        const sdkBlock = marketplaceData[sdkKey] || {};
+        const releaseArr = sdkBlock[release] || [];
+        const wrapped = { sdkDownload: releaseArr };
+        const textToCopy = `\`\`\`json
+${JSON.stringify(wrapped, null, 2)}
+\`\`\``;
+
+        navigator.clipboard
+          .writeText(textToCopy)
+          .then(() => {
+            const button = document.getElementById("copyMarketplaceBtn");
+            const originalText = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check me-2"></i>Copied!';
+            button.classList.remove("btn-outline-secondary");
+            button.classList.add("btn-success");
+
+            setTimeout(() => {
+              button.innerHTML = originalText;
+              button.classList.remove("btn-success");
+              button.classList.add("btn-outline-secondary");
+            }, 2000);
+          })
+          .catch(() => {
+            showMessage("Failed to copy JSON.", "warning");
+          });
+      }
+
+      function resetMarketplaceJSON() {
+        if (!originalMarketplaceData) {
+          showMessage("Nothing to reset yet. Load marketplace.json first.", "warning");
+          return;
+        }
+
+        marketplaceData = structuredClone(originalMarketplaceData);
+        refreshMarketplaceDropdowns();
+        renderMarketplaceSection();
+        const versionInput = document.getElementById("newVersion");
+        if (versionInput) {
+          versionInput.value = "";
+          updateAddVersionButtonState();
+        }
+        showMessage("Marketplace JSON reset to original.", "success");
+      }
+
+      function selectMarketplaceRelease(event) {
+        const release = event.target.dataset.release;
+        if (!release) return;
+        marketplaceRelease = release;
+        populateMarketplaceReleaseMenu();
+        renderMarketplaceSection();
+      }
+
+      function selectMarketplaceSdk(event) {
+        const sdk = event.target.dataset.sdk;
+        if (!sdk) return;
+        marketplaceSdk = sdk;
+        marketplaceRelease = "";
+        populateMarketplaceSdkMenu();
+        populateMarketplaceReleaseMenu();
+        renderMarketplaceSection();
+      }
+
+      function updateAddVersionButtonState() {
+        const input = document.getElementById("newVersion");
+        const button = document.getElementById("addVersionBtn");
+        if (!input || !button) return;
+        button.disabled = !input.value.trim();
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fetchMarketplaceJSON();
+        const newVersionInput = document.getElementById("newVersion");
+        if (newVersionInput) {
+          newVersionInput.addEventListener("input", updateAddVersionButtonState);
+          updateAddVersionButtonState();
+        }
+      });
+    </script>
+  </body>
+</html>

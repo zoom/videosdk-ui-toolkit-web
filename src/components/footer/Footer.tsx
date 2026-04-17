@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useState, useRef, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Users, MessageSquare, BadgeHelp } from "lucide-react";
 import { AudioButton } from "../../features/audio/components/AudioButton";
@@ -12,6 +12,7 @@ import CaptionButton from "@/features/caption/components/CaptionButton";
 import { MoreButton } from "./MoreButton";
 import { VideoButton } from "@/features/video/components/VideoButton";
 import { RealTimeMediaStreamsButton } from "@/features/real-time-media-streams/components/RealTimeMediaStreamsButton";
+import { useResponsiveFooter, type FooterButtonId } from "./useResponsiveFooter";
 import {
   useAppDispatch,
   useAppSelector,
@@ -21,6 +22,7 @@ import {
   useCaptionSelector,
   useChatSelector,
   useWhiteboardSelector,
+  useRtmsSelector,
 } from "@/hooks/useAppSelector";
 import {
   SessionUIState,
@@ -39,11 +41,17 @@ import {
 import { useAudioChange } from "@/features/audio/hooks/useAudioChange";
 import { SubsessionIcon } from "@/features/subsession/components/SubsessionIcon";
 import sessionAdditionalContext from "@/context/session-additional-context";
-import { MediaDevice, SubsessionUserStatus, SubsessionStatus } from "@zoom/videosdk";
+import { MediaDevice, SubsessionUserStatus, SubsessionStatus, RealTimeMediaStreamsStatus } from "@zoom/videosdk";
+import { setRtmsLoading } from "@/features/real-time-media-streams/rtmsSlice";
 import DraggableToast from "../widget/toast/Toast";
 import { isMobileDevice } from "../util/service";
 import { THEME_COLOR_CLASS } from "@/constant/ui-constant";
-import { SessionStatus } from "@/types/index.d";
+import { SessionStatus, RecordingStatus } from "@/types/index.d";
+import { useWindowSizeCallback } from "@/hooks/useSizeCallback";
+import { useRecording } from "@/features/recording/hooks/useRecording";
+import { useCurrentUser } from "@/features/participant/hooks";
+import { useWhiteboardToggle } from "@/features/whiteboard/hooks/useWhiteboardToggle";
+import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 
 interface FooterProps {
   setIsSettingsOpen: (isOpen: boolean) => void;
@@ -73,6 +81,7 @@ export const Footer: React.FC<FooterProps> = ({
   // setActiveSidePanel,
 }) => {
   const { t } = useTranslation();
+  const containerRef = useRef<HTMLDivElement>(null);
   const {
     participantSize,
     isParticipantsPoppedOut,
@@ -101,6 +110,7 @@ export const Footer: React.FC<FooterProps> = ({
         subsession: { enable: isSupportSubsessionFeature },
         settings: { enable: isSupportSettingsFeature },
         realTimeMediaStreams: { enable: isSupportRealTimeMediaStreamsFeature },
+        recording: { enable: isSupportRecordingFeature },
       },
     },
     status,
@@ -118,20 +128,61 @@ export const Footer: React.FC<FooterProps> = ({
     subStatus,
     isSubsessionEnabled,
   } = useAppSelector(useSubsessionSelector);
-  const { enabled: whiteboardEnabled } = useAppSelector(useWhiteboardSelector);
+  const whiteboard = useAppSelector(useWhiteboardSelector);
+  const { enabled: whiteboardEnabled } = whiteboard;
   const isInSubsession = currentSubRoom && subUserStatus === SubsessionUserStatus.InSubsession;
+  const currentUser = useCurrentUser();
 
   const { isTranscriptionInitiated, isTranscriptionFeatureEnabled, isHostDisableCaptions } =
     useAppSelector(useCaptionSelector);
 
   const dispatch = useAppDispatch();
-  const { subsessionClient } = useContext(sessionAdditionalContext);
-  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const { subsessionClient, realTimeMediaStreamsClient } = useContext(sessionAdditionalContext);
 
   const { unreadCount } = useAppSelector(useChatSelector);
 
   const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
   const [isWhiteboardMenuOpen, setIsWhiteboardMenuOpen] = useState(false);
+
+  // Track viewport width for responsive features
+  const [viewportWidth, setViewportWidth] = useState(window.innerWidth);
+  const MIN_WIDTH_FOR_WHITEBOARD = 680; // Minimum viewport width for whiteboard feature
+
+  useWindowSizeCallback(({ width }) => {
+    setViewportWidth(width);
+  });
+
+  // Recording hooks
+  const { recordingStatus, startRecording, pauseRecording, resumeRecording, stopRecording } = useRecording();
+
+  // Real-Time Media Streams hooks
+  const { status: rtmsStatus, isLoading: rtmsIsLoading } = useAppSelector(useRtmsSelector);
+
+  const handleStartRtms = useCallback(async () => {
+    dispatch(setRtmsLoading(true));
+    await realTimeMediaStreamsClient?.startRealTimeMediaStreams();
+  }, [dispatch, realTimeMediaStreamsClient]);
+
+  const handlePauseRtms = useCallback(async () => {
+    await realTimeMediaStreamsClient?.pauseRealTimeMediaStreams();
+  }, [realTimeMediaStreamsClient]);
+
+  const handleResumeRtms = useCallback(async () => {
+    await realTimeMediaStreamsClient?.resumeRealTimeMediaStreams();
+  }, [realTimeMediaStreamsClient]);
+
+  const handleStopRtms = useCallback(async () => {
+    await realTimeMediaStreamsClient?.stopRealTimeMediaStreams();
+  }, [realTimeMediaStreamsClient]);
+
+  // Whiteboard handler
+  const {
+    handleWhiteboardToggle,
+    showScreenShareConfirm: showWhiteboardScreenShareConfirm,
+    setShowScreenShareConfirm: setShowWhiteboardScreenShareConfirm,
+    handleConfirmStartWhiteboard,
+  } = useWhiteboardToggle();
+
   useAudioChange();
   const handleLeave = () => {
     // Implement leave meeting logic here
@@ -192,6 +243,77 @@ export const Footer: React.FC<FooterProps> = ({
     dispatch(setIsAskSubsessionHelpConfirm(!isAskSubsessionHelpConfirm));
   };
 
+  // Build list of enabled buttons for responsive layout
+  // Order matters: higher priority buttons (Participants, Chat) come first
+  const enabledButtons = useMemo(() => {
+    const buttons: FooterButtonId[] = [];
+
+    // High priority - core communication features
+    if (isSupportUserFeature) {
+      buttons.push("participants");
+    }
+    if (isSupportChatFeature) {
+      buttons.push("chat");
+    }
+
+    if (
+      isSupportWhiteboardFeature &&
+      whiteboardEnabled &&
+      !isMobileDevice() &&
+      viewportWidth >= MIN_WIDTH_FOR_WHITEBOARD
+    ) {
+      buttons.push("whiteboard");
+    }
+    if (isSupportRecordingFeature && isHostOrManager && !isInSubsession) {
+      buttons.push("record");
+    }
+    if (isSupportRealTimeMediaStreamsFeature) {
+      buttons.push("realTimeMediaStreams");
+    }
+    if (isTranscriptionFeatureEnabled && (!isHostDisableCaptions || isHost)) {
+      buttons.push("caption");
+    }
+    if (
+      (isHostOrManager ||
+        (isSubsessionSelectionEnabled && subStatus === SubsessionStatus.InProgress) ||
+        (subUserStatus === SubsessionUserStatus.Invited && subStatus === SubsessionStatus.InProgress)) &&
+      isSupportSubsessionFeature &&
+      isSubsessionEnabled
+    ) {
+      buttons.push("subsession");
+    }
+    if (isInSubsession && !isHostOrManager && isSupportSubsessionFeature) {
+      buttons.push("subsessionHelp");
+    }
+
+    return buttons;
+  }, [
+    isSupportUserFeature,
+    isSupportChatFeature,
+    isSupportWhiteboardFeature,
+    whiteboardEnabled,
+    isHostOrManager,
+    isInSubsession,
+    isSupportRecordingFeature,
+    isSupportRealTimeMediaStreamsFeature,
+    isTranscriptionFeatureEnabled,
+    isHostDisableCaptions,
+    isHost,
+    isSubsessionSelectionEnabled,
+    subStatus,
+    subUserStatus,
+    isSupportSubsessionFeature,
+    isSubsessionEnabled,
+    viewportWidth,
+  ]);
+
+  // Use responsive footer hook to determine which buttons are visible
+  const { visibleButtons, overflowButtons } = useResponsiveFooter({
+    containerRef,
+    enabledButtons,
+    orientation,
+  });
+
   const footerClasses =
     orientation === "vertical"
       ? "fixed left-0 top-1/2 -translate-y-1/2 flex flex-col py-4 px-2 border rounded-lg border-theme-border shadow-lg bg-theme-surface"
@@ -210,7 +332,7 @@ export const Footer: React.FC<FooterProps> = ({
 
   return (
     <footer className={`uikit-footer ${footerClasses}`} id={"zoom-ui-toolkit-controls"}>
-      <div className={containerClasses}>
+      <div className={containerClasses} ref={containerRef}>
         <div className={controlsGroupClasses}>
           {isSupportAudioFeature && (
             <div className={orientation === "vertical" ? "mb-2" : "px-1"}>
@@ -238,6 +360,7 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
 
         <div className={buttonGroupClasses}>
+          {/* Share button is ALWAYS visible */}
           {isSupportShareFeature && !isMobileDevice() && (
             <ShareScreenButton
               isMenuOpen={isShareMenuOpen}
@@ -245,16 +368,9 @@ export const Footer: React.FC<FooterProps> = ({
               orientation={orientation}
             />
           )}
-          {isSupportWhiteboardFeature && whiteboardEnabled && !isMobileDevice() && (
-            <WhiteboardButton
-              isMenuOpen={isWhiteboardMenuOpen}
-              setIsMenuOpen={setIsWhiteboardMenuOpen}
-              orientation={orientation}
-            />
-          )}
-          {isHostOrManager && !isInSubsession && <RecordButton orientation={orientation} />}
-          {isSupportRealTimeMediaStreamsFeature && <RealTimeMediaStreamsButton orientation={orientation} />}
-          {isSupportUserFeature && (
+          {/* Conditionally render buttons based on available space - ordered by priority */}
+          {/* High priority - core communication features */}
+          {visibleButtons.has("participants") && isSupportUserFeature && (
             <IconCountButton
               icon={Users}
               count={participantSize}
@@ -266,7 +382,7 @@ export const Footer: React.FC<FooterProps> = ({
               orientation={orientation}
             />
           )}
-          {isSupportChatFeature && (
+          {visibleButtons.has("chat") && isSupportChatFeature && (
             <IconCountButton
               icon={MessageSquare}
               count={unreadCount}
@@ -278,7 +394,20 @@ export const Footer: React.FC<FooterProps> = ({
               orientation={orientation}
             />
           )}
-          {isTranscriptionFeatureEnabled && (!isHostDisableCaptions || isHost) && (
+          {visibleButtons.has("whiteboard") && isSupportWhiteboardFeature && whiteboardEnabled && !isMobileDevice() && (
+            <WhiteboardButton
+              isMenuOpen={isWhiteboardMenuOpen}
+              setIsMenuOpen={setIsWhiteboardMenuOpen}
+              orientation={orientation}
+            />
+          )}
+          {visibleButtons.has("record") && isSupportRecordingFeature && isHostOrManager && !isInSubsession && (
+            <RecordButton orientation={orientation} />
+          )}
+          {visibleButtons.has("realTimeMediaStreams") && isSupportRealTimeMediaStreamsFeature && (
+            <RealTimeMediaStreamsButton orientation={orientation} />
+          )}
+          {visibleButtons.has("caption") && isTranscriptionFeatureEnabled && (!isHostDisableCaptions || isHost) && (
             <CaptionButton
               isCaptionOn={isShowCaption}
               handleCaptionClick={handleCaptionClick}
@@ -292,9 +421,10 @@ export const Footer: React.FC<FooterProps> = ({
             />
           )}
 
-          {(isHostOrManager ||
-            (isSubsessionSelectionEnabled && subStatus === SubsessionStatus.InProgress) ||
-            (subUserStatus === SubsessionUserStatus.Invited && subStatus === SubsessionStatus.InProgress)) &&
+          {visibleButtons.has("subsession") &&
+            (isHostOrManager ||
+              (isSubsessionSelectionEnabled && subStatus === SubsessionStatus.InProgress) ||
+              (subUserStatus === SubsessionUserStatus.Invited && subStatus === SubsessionStatus.InProgress)) &&
             isSupportSubsessionFeature &&
             isSubsessionEnabled && (
               <IconCountButton
@@ -306,7 +436,7 @@ export const Footer: React.FC<FooterProps> = ({
                 orientation={orientation}
               />
             )}
-          {isInSubsession && !isHostOrManager && isSupportSubsessionFeature && (
+          {visibleButtons.has("subsessionHelp") && isInSubsession && !isHostOrManager && isSupportSubsessionFeature && (
             <IconCountButton
               icon={BadgeHelp}
               isActive={isAskSubsessionHelpConfirm}
@@ -318,7 +448,8 @@ export const Footer: React.FC<FooterProps> = ({
             />
           )}
 
-          {isSupportSettingsFeature && (
+          {/* Show MoreButton if settings are enabled OR if there are overflow buttons */}
+          {(isSupportSettingsFeature || overflowButtons.length > 0) && (
             <MoreButton
               onOpenSettings={() => {
                 setIsSettingsOpen(true);
@@ -327,6 +458,48 @@ export const Footer: React.FC<FooterProps> = ({
               isSettingsOpen={isSettingsOpen}
               themeName={themeName}
               orientation={orientation}
+              overflowButtons={overflowButtons}
+              showSettings={isSupportSettingsFeature}
+              // Pass button data needed for overflow menu
+              buttonData={{
+                participantSize,
+                unreadCount,
+                isParticipantsPoppedOut,
+                isChatPoppedOut,
+                isSubsessionPoppedOut,
+                isAskSubsessionHelpConfirm,
+                isShowCaption,
+                activeSidePanel,
+                toggleParticipant,
+                toggleChat,
+                toggleSubsession,
+                askSubsessionHelp,
+                handleCaptionClick,
+                onViewTranscript: () => {
+                  dispatch(setIsShowCaptionHistory(!isShowCaptionHistory));
+                },
+                onCaptionSettings: () => {
+                  dispatch(setIsShowHostCaptionSettings(!isShowHostCaptionSettings));
+                },
+                isMenuOpen: isWhiteboardMenuOpen,
+                setIsMenuOpen: setIsWhiteboardMenuOpen,
+                isShareMenuOpen,
+                setIsShareMenuOpen,
+                recordingStatus,
+                startRecording,
+                pauseRecording,
+                resumeRecording,
+                stopRecording,
+                rtmsStatus,
+                rtmsIsLoading,
+                startRtms: handleStartRtms,
+                pauseRtms: handlePauseRtms,
+                resumeRtms: handleResumeRtms,
+                stopRtms: handleStopRtms,
+                isWhiteboardOpen: whiteboard.isWhiteboardOpen,
+                isWhiteboardPresenting: whiteboard.presenterID === currentUser?.userId,
+                toggleWhiteboard: handleWhiteboardToggle,
+              }}
             />
           )}
         </div>
@@ -343,6 +516,17 @@ export const Footer: React.FC<FooterProps> = ({
             type="error"
             onClose={() => setIsShowCaptionTimeoutError(false)}
             isVisible={true}
+          />
+        )}
+
+        {showWhiteboardScreenShareConfirm && (
+          <ConfirmDialog
+            onClose={() => setShowWhiteboardScreenShareConfirm(false)}
+            onConfirm={handleConfirmStartWhiteboard}
+            title={t("share.stop_screen_share_title")}
+            message={t("whiteboard.stop_screen_share_confirm")}
+            confirmText={t("whiteboard.start_button")}
+            cancelText={t("common.cancel")}
           />
         )}
       </div>

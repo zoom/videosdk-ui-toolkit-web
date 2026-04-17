@@ -1,5 +1,25 @@
+/* eslint-disable no-console */
 import { getExploreName } from "@/components/util/platform";
 let devConfig = {
+  sdkKey: "",
+  sdkSecret: "",
+  webEndpoint: "deva.zoomdev.us",
+};
+
+// only have audio and video. no additional plan
+const devaConfig = {
+  sdkKey: "",
+  sdkSecret: "",
+  webEndpoint: "deva.zoomdev.us",
+};
+
+const prodConfig = {
+  sdkKey: "",
+  sdkSecret: "",
+  webEndpoint: "zoom.us",
+};
+
+const goConfig = {
   sdkKey: "",
   sdkSecret: "",
   webEndpoint: "zoom.us",
@@ -8,19 +28,29 @@ let devConfig = {
 const commonConfig = {
   topic: "topic",
   name: getExploreName(),
-  password: "",
+  password: "123456",
   signature: "",
   sessionKey: "",
   userIdentity: "",
   role: 1,
-  enforceAB: 0,
-  enforceWebrtc: 0,
+  enforceAB: 1,
+  enforceWebrtc: 1,
 };
 
 const urlArgs: any = Object.fromEntries(new URLSearchParams(location.search));
 
-devConfig = { ...commonConfig, ...devConfig };
-// eslint-disable-next-line no-console
+if (urlArgs.env === "dev") {
+  devConfig = { ...commonConfig, ...devConfig };
+} else if (urlArgs.env === "deva") {
+  devConfig = { ...commonConfig, ...devaConfig };
+} else if (urlArgs.env === "prod") {
+  devConfig = { ...commonConfig, ...prodConfig };
+} else if (urlArgs.env === "go") {
+  devConfig = { ...commonConfig, ...goConfig };
+} else {
+  devConfig = { ...commonConfig, ...devConfig };
+}
+
 console.log({ devConfig });
 export { devConfig };
 export default devConfig;

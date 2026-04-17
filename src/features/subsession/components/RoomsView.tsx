@@ -176,6 +176,18 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
     [inProgress, unassignedParticipants, subsessionClient, localAssignOrMoveUserToRoom],
   );
 
+  const assignRoomFromModal = useCallback(
+    (userIds: number | number[], roomId: string) => {
+      if (inProgress) {
+        const ids = Array.isArray(userIds) ? userIds : [userIds];
+        ids.forEach((id) => assignRoom(id, roomId));
+      } else {
+        localAssignOrMoveUserToRoom(userIds, roomId);
+      }
+    },
+    [inProgress, assignRoom, localAssignOrMoveUserToRoom],
+  );
+
   const RoomActions = ({
     room,
     index,
@@ -467,7 +479,7 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
           roomName={assignModalOpen.subsessionName}
           onClose={() => setAssignModalOpen(null)}
           unassignedParticipants={unassignedParticipants}
-          assignParticipant={localAssignOrMoveUserToRoom}
+          assignParticipant={assignRoomFromModal}
           themeName={themeName}
         />
       )}

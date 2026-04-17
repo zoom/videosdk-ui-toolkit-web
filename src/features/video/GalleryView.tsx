@@ -15,7 +15,8 @@ import { useActive, useRenderVideo, usePagination, useSpotlight } from "./hooks"
 import { useCurrentUser } from "../participant/hooks";
 import { isShowAvatar } from "@/components/util/util";
 import { THEME_COLOR_CLASS } from "@/constant";
-// import { useWhiteboard } from "../whiteboard/hooks/useWhiteboard";
+import { useTranslation } from "react-i18next";
+
 type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
 
 declare global {
@@ -31,9 +32,10 @@ interface GalleryViewPros {
   mainContentHeight: number;
 }
 const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) => {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const videoPlayerRefList = useRef<Record<string, VideoPlayer>>({});
-  const { isSendingScreenShare, isReceivingScreenShare, avatarUrl, debug, activeSpeakerId } =
+  const { isSendingScreenShare, isReceivingScreenShare, avatarUrl, debug, activeSpeakerId, isSupportMultipleVideos } =
     useAppSelector(useSessionSelector);
   const { viewType } = useAppSelector(useSessionUISelector);
   const whiteboard = useAppSelector(useWhiteboardSelector);
@@ -128,6 +130,11 @@ const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) =>
       </div>
       <div className={`flex flex-col items-center ${isSidePanelOpen ? "w-4/5 max-w-4xl" : "w-full max-w-full"}`}>
         <div className="w-full overflow-hidden relative" style={{ maxWidth: `${canvasWidth - 50}px` }}>
+          {currentParticipants.length === 0 && !isSupportMultipleVideos && (
+            <div className="flex justify-center text-center text-2xl font-semibold m-2 text-theme-text">
+              <span>{t("gallery.no_other_participants")}</span>
+            </div>
+          )}
           <video-player-container>
             <div className={gridClassName}>
               {currentParticipants.map((participant: Participant, idx: number) => {

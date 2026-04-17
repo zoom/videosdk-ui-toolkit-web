@@ -1,6 +1,6 @@
 import { ClientContext } from "@/context/client-context";
 import { StreamContext } from "@/context/stream-context";
-import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
+import { useAppDispatch, useAppSelector, useSessionSelector, useSubsessionSelector } from "@/hooks/useAppSelector";
 import {
   setIsRemoveParticipantDialogOpen,
   setParticipantToRemove,
@@ -10,6 +10,7 @@ import {
   setPTZControlTargetUser,
 } from "@/store/uiSlice";
 import { Participant } from "@/types";
+import { SubsessionStatus, SubsessionUserStatus } from "@zoom/videosdk";
 import { useCallback, useContext, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,6 +25,9 @@ export function useParticipantMenu(
   const { stream } = useContext(StreamContext);
   const dispatch = useAppDispatch();
   const { spotlightUserList } = useAppSelector(useSessionSelector);
+  const { subStatus, subUserStatus } = useAppSelector(useSubsessionSelector);
+  const isInSubsession =
+    subStatus === SubsessionStatus.InProgress && subUserStatus === SubsessionUserStatus.InSubsession;
   const isManager = currentUser?.isManager;
   const isHost = currentUser?.isHost;
   const currentUserId = currentUser?.userId;
@@ -225,8 +229,8 @@ export function useParticipantMenu(
     const hostMenu = [
       participant?.audio === "computer" && !participant?.muted && getButtonLayoutData(MUTE_TEXT),
       participant?.audio === "computer" && participant?.muted && getButtonLayoutData(ASK_TO_UNMUTE_TEXT),
-      getButtonLayoutData(MAKE_HOST_TEXT),
-      getButtonLayoutData(participant?.isManager ? REVOKE_MANAGER_TEXT : MAKE_MANAGER_TEXT),
+      !isInSubsession && getButtonLayoutData(MAKE_HOST_TEXT),
+      !isInSubsession && getButtonLayoutData(participant?.isManager ? REVOKE_MANAGER_TEXT : MAKE_MANAGER_TEXT),
       onRenameClick && getButtonLayoutData(CHANGE_NAME_TEXT),
       canShowAdjustLocalVolumeDialog,
       participant?.bVideoOn &&
@@ -285,6 +289,7 @@ export function useParticipantMenu(
         getButtonLayoutData(SCREENSHOT_TEXT),
     ].filter(Boolean);
   }, [
+    isInSubsession,
     participant?.audio,
     participant?.muted,
     participant?.isManager,
