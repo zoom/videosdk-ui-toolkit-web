@@ -1,23 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import ZoomStreaming, {
-  type LiveVideo,
-  type LiveVideoContainer,
-  VideoQuality,
-} from "@zoom/videosdk/broadcast-streaming";
+import ZoomStreaming, { type LiveVideo, VideoQuality } from "@zoom/videosdk/broadcast-streaming";
 import { Activity } from "lucide-react";
 import { decodeJWTPlayload } from "@/components/util/util";
 import type { BroadcastViewerOptions } from "@/types/index.d";
-
-type CustomElement<T> = Partial<Omit<T, "children"> & React.DOMAttributes<T> & { children?: React.ReactNode }>;
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["live-video"]: React.DetailedHTMLProps<React.HTMLAttributes<LiveVideo>, LiveVideo> & { class?: string };
-      ["live-video-container"]: CustomElement<LiveVideoContainer> & { class?: string; webEndpoint?: string };
-    }
-  }
-}
 
 type BroadcastViewerProps = {
   /**

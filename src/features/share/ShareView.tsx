@@ -7,6 +7,7 @@ import AnnotationToolbar from "./components/AnnotationToolbar";
 import { useAnnotationEvents } from "./hooks/useAnnotationEvents";
 import { Camera } from "lucide-react";
 import SharePlayer from "./SharePlayer";
+import { getRemoteControlEnabled } from "@/components/util/util";
 
 interface ShareCanvasProps {
   isStartShareScreenWithVideoElement: boolean;
@@ -27,7 +28,7 @@ const ShareCanvas = (props: ShareCanvasProps) => {
     isOriginalSize,
   } = props;
   const { t } = useTranslation();
-  const { activeShareId } = useAppSelector(useSessionSelector);
+  const { activeShareId, userId, featuresOptions } = useAppSelector(useSessionSelector);
   const selfCanvasRef = useRef(null);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
   const { shareContentDimension } = useShareChange();
@@ -65,11 +66,14 @@ const ShareCanvas = (props: ShareCanvasProps) => {
     isOriginalSize,
   ]);
 
-  const getCanvasStyle = useCallback((isActive: boolean, isOriginalSize: boolean) => {
+  const shouldEnableRemoteControlPointerEvents =
+    getRemoteControlEnabled(featuresOptions) && Boolean(activeShareId) && userId !== activeShareId;
+
+  const getCanvasStyle = useCallback((isActive: boolean, isOriginalSize: boolean, enablePointerEvents = false) => {
     return {
       display: isActive ? "flex" : "none",
       height: isActive ? `100%` : 0,
-      pointerEvents: isOriginalSize ? "auto" : "none",
+      pointerEvents: isOriginalSize || enablePointerEvents ? "auto" : "none",
     };
   }, []);
 
@@ -92,7 +96,13 @@ const ShareCanvas = (props: ShareCanvasProps) => {
             activeSharerUserId={activeShareId}
             isReceivingScreenShare={isReceivingScreenShare}
             className={`rounded-[12px] ${isOriginalSize ? "cursor-move" : "cursor-default"} flex items-center justify-center`}
-            style={getCanvasStyle(isReceivingScreenShare, isOriginalSize) as CSSProperties}
+            style={
+              getCanvasStyle(
+                isReceivingScreenShare,
+                isOriginalSize,
+                shouldEnableRemoteControlPointerEvents,
+              ) as CSSProperties
+            }
             shareContentDimension={renderedShareContentDimension}
             containerDimension={canvasDimension}
             isOriginalSize={isOriginalSize}
@@ -117,7 +127,13 @@ const ShareCanvas = (props: ShareCanvasProps) => {
             activeSharerUserId={activeShareId}
             isReceivingScreenShare={isReceivingScreenShare}
             className={`rounded-[12px] relative ${isOriginalSize ? "cursor-move" : "cursor-default"} flex items-center justify-center`}
-            style={getCanvasStyle(isReceivingScreenShare, isOriginalSize) as CSSProperties}
+            style={
+              getCanvasStyle(
+                isReceivingScreenShare,
+                isOriginalSize,
+                shouldEnableRemoteControlPointerEvents,
+              ) as CSSProperties
+            }
             shareContentDimension={renderedShareContentDimension}
             containerDimension={canvasDimension}
             isOriginalSize={isOriginalSize}

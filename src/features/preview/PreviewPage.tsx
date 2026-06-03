@@ -1,14 +1,6 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-  HTMLAttributes,
-  DetailedHTMLProps,
-  DOMAttributes,
-} from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Video, User, Image as ImageIcon, X, MicOff, Headphones, VideoOff, TriangleAlert } from "lucide-react";
-import ZoomVideo, { TestMicrophoneReturn, TestSpeakerReturn, VideoPlayer, VideoPlayerContainer } from "@zoom/videosdk";
+import ZoomVideo, { TestMicrophoneReturn, TestSpeakerReturn, VideoPlayer } from "@zoom/videosdk";
 import AvatarPicker from "../../components/widget/AvatarPicker";
 import { CommonPopper } from "../../components/widget/CommonPopper";
 import Button from "../../components/widget/CommonButton";
@@ -32,16 +24,6 @@ import DeviceSelector from "../../components/widget/DeviceSelector";
 import PreviewVB from "./PreviewVB";
 import { b64DecodeUnicode, b64EncodeUnicode } from "@/components/util/util";
 import PreviewConsentDialog from "@/components/dialog/PreviewConsentDialog";
-
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["video-player"]: DetailedHTMLProps<HTMLAttributes<VideoPlayer>, VideoPlayer> & { className?: string };
-      ["video-player-container"]: CustomElement<VideoPlayerContainer> & { className?: string };
-    }
-  }
-}
 
 // Initialize Zoom Video SDK tracks
 let localAudio = ZoomVideo.createLocalAudioTrack();

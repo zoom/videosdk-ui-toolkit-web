@@ -83,6 +83,7 @@ import { useScreenshot } from "@/features/session-app/hooks";
 import { DialogContainer } from "@/components/widget/dialog/DialogContainer";
 import PTZControlPad from "@/features/video/components/PTZControlPad";
 import SelfPreview from "@/features/video/components/SelfPreview";
+import { ShareRemoteControlTargetProvider } from "@/features/share/ShareRemoteControlTargetContext";
 
 const MOBILE_BREAKPOINT = 768;
 const HEADER_HEIGHT = 49;
@@ -332,160 +333,162 @@ const MeetingUI = () => {
   );
 
   return (
-    <div className={wrapperClass} ref={wrapperRef} id="uikit-container-app">
-      {isMinimized && commonContent}
+    <ShareRemoteControlTargetProvider>
+      <div className={wrapperClass} ref={wrapperRef} id="uikit-container-app">
+        {isMinimized && commonContent}
 
-      {isMinimized && (
-        <div className="z-50">
-          <MobileMeetingToolbar
-            cameraList={cameraList}
-            microphoneList={microphoneList}
-            speakerList={speakerList}
-            changeCamera={changeCamera}
-            changeMicrophone={changeMicrophone}
-            changeSpeaker={changeSpeaker}
-            isHostOrManager={session.isHost || session.isManager}
-            themeName={sessionUI.themeName}
-          />
-        </div>
-      )}
-      <div className={`${wrapperClass} ${isMinimized ? "hidden" : ""}`}>
-        {isHeaderEnable && (
-          <header
-            className={`uikit-header py-1 px-2 flex justify-between items-center border-b shadow-sm relative ${THEME_COLOR_CLASS}`}
-            id="uikit-header"
-          >
-            <div className="w-1/4 flex items-center">
-              <SessionInfoButton onClick={toggleSessionInfo} />
-              <SessionInfoDropdown
-                isOpen={sessionUI.isSessionInfoOpen}
-                onClose={() => setIsSessionInfoOpen(false)}
-                sessionInfo={session.sessionInfo}
-                themeName={sessionUI.themeName}
-              />
-              <span className="text-red-500 text-sm max-w-[250px] truncate" title={session?.trackingId}>
-                {session?.trackingId && session?.debug ? `${session.trackingId}` : ""}
-              </span>
-            </div>
-
-            <div className="w-1/2 flex justify-center items-center">
-              <div className="flex items-center">
-                {session.isHost && session.broadcastStreamingStatus === BroadcastStreamingStatus.InProgress && (
-                  <span
-                    title={t("broadcast_streaming_live_indicator")}
-                    aria-label={t("broadcast_streaming_live_indicator")}
-                  >
-                    <Radio className="text-emerald-500 animate-pulse mr-2" />
-                  </span>
-                )}
-                <h1 className="text-xl font-semibold truncate flex items-center" id="uikit-header-session-info">
-                  <span className="truncate max-w-[400px] inline-block">{session?.sessionInfo?.topic}</span>
-                  {session?.debug && session?.isVideoWebRTC && <span className="text-red-500"> (WebRTC)</span>}
-                </h1>
-                {session.liveStreamStatus === LiveStreamStatus.InProgress && (
-                  <Radio className="text-red-500 animate-pulse mx-2" />
-                )}
-
-                <div className="flex items-center ml-2">
-                  {subUserStatus === SubsessionUserStatus.InSubsession && (
-                    <div className="flex items-center space-x-1" id="uikit-header-subsession-name">
-                      ({currentSubRoom.subsessionName})
-                    </div>
-                  )}
-                  {isRecording && <RecordingNotificationIcon className="text-red-500 animate-pulse" size="sm" />}
-                </div>
-
-                {isRtmsActive && (
-                  <span title={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? "RTMS is paused" : "RTMS is active"}>
-                    {rtmsStatus === RealTimeMediaStreamsStatus.Pause ? (
-                      <TvMinimal className="text-red-500 mx-2" size={14} />
-                    ) : (
-                      <Tv className="text-red-500 animate-pulse mx-2" size={14} />
-                    )}
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="w-1/4 flex justify-end">
-              <ViewToggleDropdown />
-            </div>
-
-            <NewMessageNotification />
-          </header>
-        )}
-        <main className={`uikit-main-content ${THEME_COLOR_CLASS} w-full h-full flex relative`} ref={mainContentRef}>
-          <div className={`${isSidePanelOpen ? "flex-grow" : "w-full"} h-full flex flex-col overflow-hidden `}>
-            <GalleryView isSidePanelOpen={isSidePanelOpen} mainContentHeight={mainContentHeight} />
-            <ShareView mainContentHeight={mainContentHeight} mainContentWidth={mainContentWidth} />
-            <WhiteboardContainer mainContentHeight={mainContentHeight} mainContentWidth={mainContentWidth} />
+        {isMinimized && (
+          <div className="z-50">
+            <MobileMeetingToolbar
+              cameraList={cameraList}
+              microphoneList={microphoneList}
+              speakerList={speakerList}
+              changeCamera={changeCamera}
+              changeMicrophone={changeMicrophone}
+              changeSpeaker={changeSpeaker}
+              isHostOrManager={session.isHost || session.isManager}
+              themeName={sessionUI.themeName}
+            />
           </div>
-          {!session.isSupportMultipleVideos && <SelfPreview mainContentWidth={mainContentWidth} />}
-          <div
-            className={`${
-              isSidePanelOpen ? "w-[400px] border-l" : "w-0"
-            } h-full flex flex-col relative overflow-hidden dark:border-bg-300`}
-            style={{ height: mainContentHeight }}
-          >
-            {isSidePanelOpen && (
-              <div
-                className="w-full  border-l dark:border-bg-300 flex flex-col shadow-lg relative"
-                style={{ height: mainContentHeight - SIDE_PANEL_HEADER_HEIGHT }}
-              >
-                <PanelHeader
-                  title={sessionUI.activeSidePanel === "participants" ? "Participants" : "Chat"}
-                  onClose={() => dispatch(setActiveSidePanel(null))}
-                  onPopOut={() => {
-                    if (sessionUI.activeSidePanel === "participants") {
-                      dispatch(setIsParticipantsPoppedOut(true));
-                    } else if (sessionUI.activeSidePanel === "chat") {
-                      dispatch(setIsChatPoppedOut(true));
-                    }
-                    dispatch(setActiveSidePanel(null));
-                  }}
+        )}
+        <div className={`${wrapperClass} ${isMinimized ? "hidden" : ""}`}>
+          {isHeaderEnable && (
+            <header
+              className={`uikit-header py-1 px-2 flex justify-between items-center border-b shadow-sm relative ${THEME_COLOR_CLASS}`}
+              id="uikit-header"
+            >
+              <div className="w-1/4 flex items-center">
+                <SessionInfoButton onClick={toggleSessionInfo} />
+                <SessionInfoDropdown
+                  isOpen={sessionUI.isSessionInfoOpen}
+                  onClose={() => setIsSessionInfoOpen(false)}
+                  sessionInfo={session.sessionInfo}
+                  themeName={sessionUI.themeName}
                 />
-                <div className="flex-grow" style={{ maxHeight: `${mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}px` }}>
-                  {sessionUI.activeSidePanel === "participants" && (
-                    <ParticipantsPanel
-                      participants={participants}
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      muteAll={muteAll}
-                      onRenameClick={handleRenameClick}
-                      onAdjustLocalVolumeClick={handleAdjustLocalVolumeClick}
-                      height={mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}
-                    />
+                <span className="text-red-500 text-sm max-w-[250px] truncate" title={session?.trackingId}>
+                  {session?.trackingId && session?.debug ? `${session.trackingId}` : ""}
+                </span>
+              </div>
+
+              <div className="w-1/2 flex justify-center items-center">
+                <div className="flex items-center">
+                  {session.isHost && session.broadcastStreamingStatus === BroadcastStreamingStatus.InProgress && (
+                    <span
+                      title={t("broadcast_streaming_live_indicator")}
+                      aria-label={t("broadcast_streaming_live_indicator")}
+                    >
+                      <Radio className="text-emerald-500 animate-pulse mr-2" />
+                    </span>
                   )}
-                  {sessionUI.activeSidePanel === "chat" && (
-                    <ChatPanel
-                      handleImageClick={handleImageClick}
-                      height={mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}
-                      handleSendMessage={handleSendMessage}
-                      cancelUpload={cancelUpload}
-                    />
+                  <h1 className="text-xl font-semibold truncate flex items-center" id="uikit-header-session-info">
+                    <span className="truncate max-w-[400px] inline-block">{session?.sessionInfo?.topic}</span>
+                    {session?.debug && session?.isVideoWebRTC && <span className="text-red-500"> (WebRTC)</span>}
+                  </h1>
+                  {session.liveStreamStatus === LiveStreamStatus.InProgress && (
+                    <Radio className="text-red-500 animate-pulse mx-2" />
+                  )}
+
+                  <div className="flex items-center ml-2">
+                    {subUserStatus === SubsessionUserStatus.InSubsession && (
+                      <div className="flex items-center space-x-1" id="uikit-header-subsession-name">
+                        ({currentSubRoom.subsessionName})
+                      </div>
+                    )}
+                    {isRecording && <RecordingNotificationIcon className="text-red-500 animate-pulse" size="sm" />}
+                  </div>
+
+                  {isRtmsActive && (
+                    <span title={rtmsStatus === RealTimeMediaStreamsStatus.Pause ? "RTMS is paused" : "RTMS is active"}>
+                      {rtmsStatus === RealTimeMediaStreamsStatus.Pause ? (
+                        <TvMinimal className="text-red-500 mx-2" size={14} />
+                      ) : (
+                        <Tv className="text-red-500 animate-pulse mx-2" size={14} />
+                      )}
+                    </span>
                   )}
                 </div>
               </div>
-            )}
-          </div>
-        </main>
-        {isFooterEnable && !isMinimized && (
-          <Footer
-            isSettingsOpen={sessionUI.isSettingsOpen}
-            setIsSettingsOpen={() => {
-              dispatch(setIsSettingsOpen(!sessionUI.isSettingsOpen));
-            }}
-            cameraList={cameraList}
-            microphoneList={microphoneList}
-            speakerList={speakerList}
-            changeCamera={changeCamera}
-            changeMicrophone={changeMicrophone}
-            changeSpeaker={changeSpeaker}
-          />
-        )}
-        {!isMinimized && commonContent}
+              <div className="w-1/4 flex justify-end">
+                <ViewToggleDropdown />
+              </div>
+
+              <NewMessageNotification />
+            </header>
+          )}
+          <main className={`uikit-main-content ${THEME_COLOR_CLASS} w-full h-full flex relative`} ref={mainContentRef}>
+            <div className={`${isSidePanelOpen ? "flex-grow" : "w-full"} h-full flex flex-col overflow-hidden `}>
+              <GalleryView isSidePanelOpen={isSidePanelOpen} mainContentHeight={mainContentHeight} />
+              <ShareView mainContentHeight={mainContentHeight} mainContentWidth={mainContentWidth} />
+              <WhiteboardContainer mainContentHeight={mainContentHeight} mainContentWidth={mainContentWidth} />
+            </div>
+            {!session.isSupportMultipleVideos && <SelfPreview mainContentWidth={mainContentWidth} />}
+            <div
+              className={`${
+                isSidePanelOpen ? "w-[400px] border-l" : "w-0"
+              } h-full flex flex-col relative overflow-hidden dark:border-bg-300`}
+              style={{ height: mainContentHeight }}
+            >
+              {isSidePanelOpen && (
+                <div
+                  className="w-full  border-l dark:border-bg-300 flex flex-col shadow-lg relative"
+                  style={{ height: mainContentHeight - SIDE_PANEL_HEADER_HEIGHT }}
+                >
+                  <PanelHeader
+                    title={sessionUI.activeSidePanel === "participants" ? "Participants" : "Chat"}
+                    onClose={() => dispatch(setActiveSidePanel(null))}
+                    onPopOut={() => {
+                      if (sessionUI.activeSidePanel === "participants") {
+                        dispatch(setIsParticipantsPoppedOut(true));
+                      } else if (sessionUI.activeSidePanel === "chat") {
+                        dispatch(setIsChatPoppedOut(true));
+                      }
+                      dispatch(setActiveSidePanel(null));
+                    }}
+                  />
+                  <div className="flex-grow" style={{ maxHeight: `${mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}px` }}>
+                    {sessionUI.activeSidePanel === "participants" && (
+                      <ParticipantsPanel
+                        participants={participants}
+                        searchTerm={searchTerm}
+                        setSearchTerm={setSearchTerm}
+                        muteAll={muteAll}
+                        onRenameClick={handleRenameClick}
+                        onAdjustLocalVolumeClick={handleAdjustLocalVolumeClick}
+                        height={mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}
+                      />
+                    )}
+                    {sessionUI.activeSidePanel === "chat" && (
+                      <ChatPanel
+                        handleImageClick={handleImageClick}
+                        height={mainContentHeight - SIDE_PANEL_HEADER_HEIGHT}
+                        handleSendMessage={handleSendMessage}
+                        cancelUpload={cancelUpload}
+                      />
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </main>
+          {isFooterEnable && !isMinimized && (
+            <Footer
+              isSettingsOpen={sessionUI.isSettingsOpen}
+              setIsSettingsOpen={() => {
+                dispatch(setIsSettingsOpen(!sessionUI.isSettingsOpen));
+              }}
+              cameraList={cameraList}
+              microphoneList={microphoneList}
+              speakerList={speakerList}
+              changeCamera={changeCamera}
+              changeMicrophone={changeMicrophone}
+              changeSpeaker={changeSpeaker}
+            />
+          )}
+          {!isMinimized && commonContent}
+        </div>
+        <DialogContainer />
       </div>
-      <DialogContainer />
-    </div>
+    </ShareRemoteControlTargetProvider>
   );
 };
 export default MeetingUI;

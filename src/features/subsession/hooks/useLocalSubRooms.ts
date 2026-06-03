@@ -3,7 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Subsession, SubsessionStatus } from "@zoom/videosdk";
 import { useMount, usePrevious } from "../../../hooks";
 
-import { getSubsessionParticipantListFromUserList } from "../subsession-utils";
+import { getSubsessionParticipantListFromUserList, mergeUnassignedWithRoomAssignments } from "../subsession-utils";
 
 import { useAppSelector, useParticipantSelector, useSubsessionSelector } from "@/hooks/useAppSelector";
 import { Participant } from "@/types";
@@ -29,9 +29,21 @@ export const useLocalSubsessionRooms = () => {
       setLocalSubsessionRoomList(subRoomList);
     }
     if (subUnassignedUsers) {
-      setLocalSubsessionUnassignedUsers(subUnassignedUsers);
+      const shouldReconcileUnassigned =
+        subStatus === SubsessionStatus.InProgress || subStatus === SubsessionStatus.Closing;
+      if (shouldReconcileUnassigned) {
+        if (subRoomList?.length) {
+          setLocalSubsessionUnassignedUsers(
+            mergeUnassignedWithRoomAssignments(subUnassignedUsers, subRoomList, participants, currentUser?.userId),
+          );
+        } else {
+          setLocalSubsessionUnassignedUsers(subUnassignedUsers);
+        }
+      } else {
+        setLocalSubsessionUnassignedUsers(subUnassignedUsers);
+      }
     }
-  }, [subRoomList, subUnassignedUsers]);
+  }, [subRoomList, subUnassignedUsers, subStatus, participants, currentUser?.userId]);
 
   useEffect(() => {
     syncLocalRoomList();
