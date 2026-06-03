@@ -1,4 +1,38 @@
+import { Subsession } from "@zoom/videosdk";
+
 import { Participant } from "@/types";
+
+export function mergeUnassignedWithRoomAssignments(
+  sdkUnassigned: Participant[],
+  rooms: Subsession[],
+  allParticipants: Participant[],
+  excludeUserId: number | undefined,
+): Participant[] {
+  if (!rooms.length) {
+    return sdkUnassigned;
+  }
+
+  const assignedIds = new Set<number>();
+  rooms.forEach((room) => {
+    room.userList?.forEach((u) => u && assignedIds.add(u.userId));
+  });
+
+  const derived = allParticipants.filter((p) => p.userId !== excludeUserId && !assignedIds.has(p.userId));
+
+  const byId = new Map<number, Participant>();
+  sdkUnassigned.forEach((p) => {
+    if (p && !assignedIds.has(p.userId)) {
+      byId.set(p.userId, p);
+    }
+  });
+  derived.forEach((p) => {
+    if (p && !byId.has(p.userId)) {
+      byId.set(p.userId, p);
+    }
+  });
+
+  return Array.from(byId.values());
+}
 
 export const isCurrentUserAbleToManageSubsession = (currentUser: Participant | null) => {
   if (currentUser?.isHost) return true;

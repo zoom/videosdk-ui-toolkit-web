@@ -1,30 +1,10 @@
 import { useAppSelector, useParticipantSelector, useSessionSelector } from "@/hooks/useAppSelector";
-import React, {
-  DetailedHTMLProps,
-  DOMAttributes,
-  HTMLAttributes,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  useRef,
-  useCallback,
-} from "react";
+import React, { useContext, useEffect, useState, useMemo, useRef, useCallback } from "react";
 import Draggable from "react-draggable";
-import { type VideoPlayer, type VideoPlayerContainer } from "@zoom/videosdk";
+import { type VideoPlayer } from "@zoom/videosdk";
 import { usePrevious } from "@/hooks";
 import { StreamContext } from "@/context/stream-context";
 import { isPortrait } from "@/components/util/service";
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["video-player"]: DetailedHTMLProps<HTMLAttributes<VideoPlayer>, VideoPlayer> & { className?: string };
-      ["video-player-container"]: CustomElement<VideoPlayerContainer> & { className?: string };
-    }
-  }
-}
 
 const SelfPreview = ({ mainContentWidth }: { mainContentWidth: number }) => {
   const { stream } = useContext(StreamContext);
@@ -64,11 +44,11 @@ const SelfPreview = ({ mainContentWidth }: { mainContentWidth: number }) => {
   useEffect(() => {
     const handleSelfVideo = async () => {
       if (stream && selfVideoRef.current) {
-        if (prevIsSelfVideoOn !== isSelfVideoOn && isSelfVideoOn) {
-          await stream.attachVideo(userId, 3, selfVideoRef.current);
-        }
         if (prevIsSelfVideoOn !== isSelfVideoOn && !isSelfVideoOn) {
           await stream.detachVideo(userId);
+        }
+        if (prevIsSelfVideoOn !== isSelfVideoOn && isSelfVideoOn) {
+          await stream.attachVideo(userId, 3, selfVideoRef.current);
         }
       }
     };
@@ -95,7 +75,8 @@ const SelfPreview = ({ mainContentWidth }: { mainContentWidth: number }) => {
               <div>
                 <video-player
                   ref={selfVideoRef}
-                  className={`rounded-lg aspect-video overflow-hidden ${isPortrait() ? "w-36 h-64" : "w-64 h-36"}`}
+                  className="rounded-lg"
+                  style={{ width: "100%", height: "auto", aspectRatio: isPortrait() ? "9/16" : "16/9" }}
                 />
               </div>
             </div>

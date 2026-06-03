@@ -3,29 +3,10 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { setActiveVbImage, setIsMirrorVideo } from "@/store/uiSlice";
 import { Loader } from "lucide-react";
-import React, {
-  useState,
-  useContext,
-  useCallback,
-  useRef,
-  useEffect,
-  DOMAttributes,
-  DetailedHTMLProps,
-  HTMLAttributes,
-} from "react";
-import { type VideoPlayer, type VideoPlayerContainer } from "@zoom/videosdk";
+import React, { useState, useContext, useCallback, useRef, useEffect } from "react";
+import { type VideoPlayer } from "@zoom/videosdk";
 import ImageWithValidation from "./ImageWithValidation";
 import BlurThumbnailButton from "./BlurThumbnailButton";
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["video-player"]: DetailedHTMLProps<HTMLAttributes<VideoPlayer>, VideoPlayer> & { className?: string };
-      ["video-player-container"]: CustomElement<VideoPlayerContainer> & { className?: string };
-    }
-  }
-}
 
 interface BackgroundSettingsProps {
   isActive: boolean;

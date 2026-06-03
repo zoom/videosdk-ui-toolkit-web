@@ -1,25 +1,14 @@
-import React, { useRef, useEffect, useMemo, DOMAttributes, DetailedHTMLProps, HTMLAttributes } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Participant } from "@/types";
 import { useAppDispatch, useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
 import { setCurrentPage } from "@/store/uiSlice";
-import { type VideoPlayer, type VideoPlayerContainer } from "@zoom/videosdk";
+import { type VideoPlayer } from "@zoom/videosdk";
 import { useActive, useRenderVideo, useSpotlight } from "./hooks";
 import { SessionState } from "@/store/sessionSlice";
 import { isPortrait } from "@/components/util/service";
 import AvatarMobile from "./components/AvatarMobile";
 import { isShowAvatar } from "@/components/util/util";
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["video-player"]: DetailedHTMLProps<HTMLAttributes<VideoPlayer>, VideoPlayer> & { className?: string };
-      ["video-player-container"]: CustomElement<VideoPlayerContainer> & { className?: string };
-    }
-  }
-}
-
 interface GalleryViewMobileProps {
   mainContentWidth: number;
   mainContentHeight: number;

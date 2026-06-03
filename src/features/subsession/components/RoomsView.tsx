@@ -153,7 +153,7 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
     }
   };
 
-  const filteredParticipants = (participants: Participant[]) => {
+  const filteredParticipants = <T extends { displayName: string }>(participants: T[]): T[] => {
     return participants.filter((participant) =>
       participant.displayName.toLowerCase().includes(searchTerm.toLowerCase()),
     );

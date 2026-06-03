@@ -8,6 +8,7 @@ import { useCallback, useContext, useEffect, useMemo, useReducer } from "react";
 import { useTranslation } from "react-i18next";
 
 import ShareIndicatorBarBase from "@/features/share/components/ShareIndicatorBarBase";
+import { useShareRemoteControlTarget } from "@/features/share/ShareRemoteControlTargetContext";
 
 enum RemoteControlState {
   Idle = "idle",
@@ -75,6 +76,7 @@ const ShareIndicatorBarRemoteControl = () => {
   const { stream } = useContext(StreamContext);
   const { activeShareId, userId } = useAppSelector(useSessionSelector);
   const dispatch = useAppDispatch();
+  const remoteControlTargetContext = useShareRemoteControlTarget();
 
   const [remoteControlState, dispatchRemoteControl] = useReducer(remoteControlReducer, RemoteControlState.Idle);
   const isRemoteControlRequesting = remoteControlState === RemoteControlState.Requesting;
@@ -162,15 +164,15 @@ const ShareIndicatorBarRemoteControl = () => {
 
     const onApprovedChange = async (payload: { state: ApprovedState }) => {
       if (payload?.state === ApprovedState.Approved) {
-        const canvas = document.getElementById("ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS") as HTMLElement | null;
-        if (!canvas) {
+        const remoteControlTarget = remoteControlTargetContext?.remoteControlTargetRef.current;
+        if (!remoteControlTarget) {
           enqueueSnackbar({ message: t("share.remote_control_canvas_missing"), variant: "warning" });
           dispatchRemoteControl({ type: "START_FAILED" });
           return;
         }
         dispatch(setIsOriginalShareContentSize(false));
         try {
-          await stream.startRemoteControl(canvas);
+          await stream.startRemoteControl(remoteControlTarget);
           dispatchRemoteControl({ type: "APPROVED" });
         } catch (e) {
           dispatchRemoteControl({ type: "START_FAILED" });
@@ -207,12 +209,12 @@ const ShareIndicatorBarRemoteControl = () => {
       client.off("remote-control-in-control-change", onInControlChange);
       client.off("remote-control-controlled-status-change", onSessionStatusChange);
     };
-  }, [client, dispatch, enqueueSnackbar, stream, t]);
+  }, [client, dispatch, enqueueSnackbar, remoteControlTargetContext, stream, t]);
 
   useEffect(() => {
     if (!isRemoteControlSessionActive || !stream) return;
-    const canvas = document.getElementById("ZOOM_VIDEO_SDK_RECEIVE_SHARE_CANVAS") as HTMLElement | null;
-    if (!canvas) return;
+    const remoteControlTarget = remoteControlTargetContext?.remoteControlTargetRef.current;
+    if (!remoteControlTarget) return;
 
     const onViewportClick = async (event: MouseEvent) => {
       if (!isRemoteControlSessionActive) return;
@@ -234,15 +236,16 @@ const ShareIndicatorBarRemoteControl = () => {
       }
     };
 
-    canvas.addEventListener("click", onViewportClick, true);
+    remoteControlTarget.addEventListener("click", onViewportClick, true);
     return () => {
-      canvas.removeEventListener("click", onViewportClick, true);
+      remoteControlTarget.removeEventListener("click", onViewportClick, true);
     };
   }, [
     enqueueSnackbar,
     isRemoteControlActionPending,
     isRemoteControlInControl,
     isRemoteControlSessionActive,
+    remoteControlTargetContext,
     stream,
     t,
   ]);

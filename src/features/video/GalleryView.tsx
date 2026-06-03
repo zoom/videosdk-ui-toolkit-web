@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, DOMAttributes, DetailedHTMLProps, HTMLAttributes, useContext } from "react";
+import React, { useRef, useEffect, useMemo, useContext } from "react";
 import { ChevronLeft, ChevronRight, UserRound } from "lucide-react";
 import Avatar from "./components/Avatar";
 import { Participant, SuspensionViewType } from "@/types/index.d";
@@ -10,23 +10,13 @@ import {
   useWhiteboardSelector,
 } from "@/hooks/useAppSelector";
 import { setCurrentPage } from "@/store/uiSlice";
-import { type VideoPlayer, type VideoPlayerContainer } from "@zoom/videosdk";
+import { type VideoPlayer } from "@zoom/videosdk";
 import { useActive, useRenderVideo, usePagination, useSpotlight } from "./hooks";
 import { useCurrentUser } from "../participant/hooks";
 import { isShowAvatar } from "@/components/util/util";
 import { THEME_COLOR_CLASS } from "@/constant";
 import { useTranslation } from "react-i18next";
 
-type CustomElement<T> = Partial<T & DOMAttributes<T> & { children: any }>;
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      ["video-player"]: DetailedHTMLProps<HTMLAttributes<VideoPlayer>, VideoPlayer> & { className?: string };
-      ["video-player-container"]: CustomElement<VideoPlayerContainer> & { className?: string };
-    }
-  }
-}
 interface GalleryViewPros {
   isSidePanelOpen: boolean;
   mainContentHeight: number;
