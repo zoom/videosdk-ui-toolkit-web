@@ -85,7 +85,6 @@ export const useShareChange = () => {
         dispatch(setActiveSharerName(activeShareUserInfo?.displayName));
         dispatch(setViewType(SuspensionViewType.Gallery));
         dispatch(setIsReceivingScreenShare(true));
-        dispatch(setIsLoadingShareRender(true));
       }
     }
   }, [dispatch, stream, participants]);
@@ -98,7 +97,6 @@ export const useShareChange = () => {
         if (stream) {
           dispatch(setViewType(SuspensionViewType.Gallery));
           dispatch(setIsReceivingScreenShare(true));
-          dispatch(setIsLoadingShareRender(true));
           dispatch(setActiveShareId(userId));
           const shareUserList = stream?.getShareUserList();
           const activeShareUserInfo = shareUserList?.find((item) => item.userId === userId) ?? undefined;
