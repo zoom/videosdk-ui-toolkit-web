@@ -48,7 +48,8 @@ export const useWhiteboardToggle = () => {
       .startWhiteboardScreen(document.getElementById(WHITEBOARD_CONTAINER_INNER_ID), {
         isDisableExport: whiteboard.isDisableExport,
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error(e);
         dispatch(
           setWhiteboardError({
             errorCode: ERROR_START_WHITEBOARD,

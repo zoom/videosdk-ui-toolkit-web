@@ -1,3 +1,4 @@
+import { useAppSelector, useSessionSelector } from "@/hooks/useAppSelector";
 import { useEffect, useState, useRef, useCallback } from "react";
 
 export type FooterButtonId =
@@ -42,6 +43,7 @@ export function useResponsiveFooter({
   });
 
   const isMountedRef = useRef(true);
+  const { status } = useAppSelector(useSessionSelector);
 
   // Calculate which buttons should be visible based on available width
   const calculateVisibleButtons = useCallback(
@@ -113,7 +115,7 @@ export function useResponsiveFooter({
       isMountedRef.current = false;
       resizeObserver.disconnect();
     };
-  }, [containerRef]);
+  }, [containerRef, status]);
 
   // Recalculate visible buttons when width or enabled buttons change
   useEffect(() => {
