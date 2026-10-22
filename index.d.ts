@@ -349,6 +349,7 @@ export type VideoClientEvent =
   | "audio-statistic-data-change"
   | "video-statistic-data-change"
   | "chat-on-message"
+  | "chat-delete-message"
   | "chat-privilege-change"
   | "command-channel-status"
   | "command-channel-message"

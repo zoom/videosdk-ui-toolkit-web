@@ -1,7 +1,9 @@
 # Zoom Video SDK UI toolkit
 
-> **⚠️ Action Required:**
-> We recommend that you upgrade to 2.3.15-1 or above if you use WebRTC video to prevent issues with future Chrome versions.
+> **⚠️ Action Required: Upgrade Video SDK for Web to 2.4.7 or later**  
+> We recommend upgrading to fix:
+> - Screen sharing fails to start on Safari 27.
+> - Video issues when using WebRTC video after a user's connection fails over.
 
 The [Zoom Video SDK UI toolkit](https://developers.zoom.us/docs/video-sdk/web/ui-toolkit/) is a prebuilt video chat user interface powered by the Zoom Video SDK.
 
