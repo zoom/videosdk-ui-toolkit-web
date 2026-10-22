@@ -45,7 +45,8 @@ export function useMediaSDKChange(client: SessionClient, dispatch: React.Dispatc
     (payload: MediaFailedPayload) => {
       dispatch(
         setMediaError({
-          errorCode: payload.code,
+          // The SDK emits numeric codes; ActiveMediaFailedCode uses strings.
+          errorCode: payload.code ? String(payload.code) : "",
           reason: payload.message,
           type: payload.type,
         }),

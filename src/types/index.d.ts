@@ -33,6 +33,7 @@ export type VideoClientEvent =
   | "audio-statistic-data-change"
   | "video-statistic-data-change"
   | "chat-on-message"
+  | "chat-delete-message"
   | "chat-privilege-change"
   | "command-channel-status"
   | "command-channel-message"
@@ -582,7 +583,7 @@ export interface networkQualityMapType {
 }
 
 export interface MediaFailedPayload {
-  code: string;
+  code: number;
   message: string;
   type: "audio" | "video" | "sharing";
 }

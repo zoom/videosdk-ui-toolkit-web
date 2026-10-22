@@ -24,7 +24,7 @@ const JoinAudioConsentPanel = () => {
       isOpen={isShowJoinAudioConsent}
       onClose={() => dispatch(setShowJoinAudioConsent(false))}
       width={360}
-      height={190}
+      height="auto"
     >
       <div className={`flex flex-col h-full justify-between bg-theme-surface p-1`}>
         <div className="space-y-3">

@@ -12,6 +12,7 @@ export const ActiveMediaFailedCode = {
   WebGLContextInvalid: "204" as const,
   WasmOutOfMemory: "205" as const,
   VideoStreamFailed: "206" as const,
+  VideoStreamMuted: "207" as const,
   SharingStreamFailed: "301" as const,
 } as const;
 

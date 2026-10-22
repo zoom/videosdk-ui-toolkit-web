@@ -127,3 +127,21 @@
   position: fixed;
   width: 100%;
 }
+
+.uikit-chat-message-actions {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.uikit-chat-message-actions-visible,
+.uikit-chat-message-actions:focus-within {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .uikit-chat-message-actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

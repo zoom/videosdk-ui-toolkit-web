@@ -10,6 +10,8 @@ export interface ChatReceive {
   userGuid: string;
 }
 
+type UnreadMessage = Pick<SessionChatMessage, "id">;
+
 export interface ChatState {
   messages: SessionChatMessage[];
   newMessage: string;
@@ -18,6 +20,7 @@ export interface ChatState {
   newMessageTip: boolean;
   isEnabledChatInSessionNotifications: boolean;
   unreadCount: number;
+  unreadMessages: UnreadMessage[];
   chatPrivilege: ChatPrivilege;
   chatFileDownloadProgress: ChatFileDownloadProgress[];
   chatFileUploadProgress: ChatFileUploadProgress[];
@@ -43,6 +46,7 @@ const initialState: ChatState = {
   newMessageTip: false,
   isEnabledChatInSessionNotifications: true,
   unreadCount: 0,
+  unreadMessages: [],
   chatPrivilege: ChatPrivilege.All,
   chatFileDownloadProgress: [],
   chatFileUploadProgress: [],
@@ -61,6 +65,24 @@ export const chatSlice = createSlice({
       state.receiveMessage = action.payload;
       state.messages.push(action.payload);
     },
+    addUnreadMessage: (state, action: PayloadAction<UnreadMessage>) => {
+      const { id } = action.payload;
+      if (!id || !state.unreadMessages.some((message) => message.id === id)) {
+        state.unreadMessages.push({ id });
+        state.unreadCount = state.unreadMessages.length;
+      }
+    },
+    removeMessage: (state, action: PayloadAction<string>) => {
+      state.messages = state.messages.filter((message) => message.id !== action.payload);
+      state.chatFileDownloadProgress = state.chatFileDownloadProgress.filter((item) => item.id !== action.payload);
+      if (state.unreadMessages.some((message) => message.id === action.payload)) {
+        state.unreadMessages = state.unreadMessages.filter((message) => message.id !== action.payload);
+        state.unreadCount = state.unreadMessages.length;
+      }
+      if (state.receiveMessage.id === action.payload) {
+        state.receiveMessage = emptyMessage;
+      }
+    },
     setChatReceive: (state, action: PayloadAction<ChatReceive>) => {
       state.chatReceiver = action.payload;
     },
@@ -78,10 +100,14 @@ export const chatSlice = createSlice({
       state.newMessageTip = action.payload;
       if (!action.payload) {
         state.unreadCount = 0;
+        state.unreadMessages = [];
       }
     },
     setUnreadCount: (state, action: PayloadAction<number>) => {
       state.unreadCount = action.payload;
+      if (action.payload === 0) {
+        state.unreadMessages = [];
+      }
     },
     setChatPrivilege: (state, action: PayloadAction<ChatPrivilege>) => {
       if (action.payload) {
@@ -146,6 +172,8 @@ export const chatSlice = createSlice({
 
 export const {
   addMessage,
+  addUnreadMessage,
+  removeMessage,
   setNewMessage,
   setReceiveMessage,
   setChatReceive,

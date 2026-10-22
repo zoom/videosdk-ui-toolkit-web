@@ -265,7 +265,7 @@ const PEPCConsentPanel: React.FC<PEPCConsentPanelProps> = ({ isOpen, onClose, on
       onClose={() => {}}
       allowClose={false}
       width={showEnableAudioChoice ? 360 : 450}
-      height={showEnableAudioChoice ? 190 : "auto"}
+      height="auto"
     >
       {content}
     </CommonNotification>
@@ -352,7 +352,7 @@ const JoinAudioConsentPanelWithPEPC = () => {
   }
 
   return (
-    <CommonNotification isOpen={isShowJoinAudioConsent} onClose={() => {}} allowClose={false} width={360} height={190}>
+    <CommonNotification isOpen={isShowJoinAudioConsent} onClose={() => {}} allowClose={false} width={360} height="auto">
       <div className="flex flex-col h-full justify-between bg-theme-surface p-1">
         <div className="space-y-3">
           <h2 className="text-xl font-medium text-theme-text" id="uikit-join-audio-consent-title">
