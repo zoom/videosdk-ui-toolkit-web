@@ -36,6 +36,7 @@ import Dropdown from "@/components/widget/Dropdown";
 import sessionAdditionalContext from "@/context/session-additional-context";
 import { ChatMsgType, ChatPrivilege } from "@zoom/videosdk";
 import { useSnackbar } from "notistack";
+import { canDeleteChatMessage } from "./chat-utils";
 
 const maxMessageLength = 1000;
 
@@ -233,6 +234,21 @@ export const ChatPanel: React.FC<{
     dispatch(setChatLinkUrl(link));
   };
 
+  const handleDeleteMessage = useCallback(
+    async (messageId: string) => {
+      if (!chatClient) return;
+      try {
+        await chatClient.deleteMessage(messageId);
+      } catch (error) {
+        const message = (error as { reason?: string; message?: string })?.reason;
+        const fallbackMessage = (error as { message?: string })?.message;
+        enqueueSnackbar(message || fallbackMessage || t("chat.delete_message_failed"), { variant: "error" });
+        throw error;
+      }
+    },
+    [chatClient, enqueueSnackbar, t],
+  );
+
   const rowRenderer = ({ index, key, parent, style }: ListRowProps) => {
     const message = messages[index];
     // eslint-disable-next-line prefer-destructuring
@@ -242,9 +258,12 @@ export const ChatPanel: React.FC<{
         {({ measure, registerChild }) => (
           <div ref={registerChild as any} style={style} onLoadCapture={measure}>
             <ChatMessage
+              key={message.id}
               message={message}
               onImageClick={handleImageClick}
               onClickLink={handleClickLink}
+              canDelete={Boolean(chatClient) && canDeleteChatMessage(message, currentUser?.userId, isHostOrManager)}
+              onDelete={handleDeleteMessage}
               downloadProgress={tmpDownloadProgress || null}
               measure={measure}
             />

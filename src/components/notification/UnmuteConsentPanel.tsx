@@ -23,7 +23,7 @@ const UnmuteConsentPanel = () => {
   };
 
   return (
-    <CommonNotification isOpen={isShowUnmuteConsent} onClose={onCancelClick} width={400} height={200}>
+    <CommonNotification isOpen={isShowUnmuteConsent} onClose={onCancelClick} width={400} height="auto">
       <div className="flex flex-col h-full justify-center space-y-4 pt-8">
         <h2 className="text-lg font-semibold text-theme-text">{title}</h2>
         <p className="text-sm text-theme-text">{content}</p>

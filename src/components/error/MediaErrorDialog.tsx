@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useMediaSDKChange } from "@/features/session-app/hooks/useMediaSDKChange";
 import ConfirmDialog from "../widget/dialog/ConfirmDialog";
-import { setIsShowAVLearnDialog, setMediaError } from "@/store/uiSlice";
+import { setIsShowAVLearnDialog } from "@/store/uiSlice";
 import { ActiveMediaFailedCode, ActiveMediaFailedCodeType } from "@/constant/error-codes";
 
 const PERMISSION_ERRORS = [
@@ -52,7 +52,13 @@ export const MediaErrorDialog = () => {
   const dispatch = useAppDispatch();
   const sessionUI = useAppSelector(useSessionUISelector);
   const { mediaError } = sessionUI;
-  const { onRetry } = useMediaSDKChange(window.zmClient, dispatch);
+  const { onRetry, clearError } = useMediaSDKChange(window.zmClient, dispatch);
+
+  // The SDK resumes interrupted media on the next click on the page.
+  const resumeMedia = () => {
+    document.body.click();
+    clearError();
+  };
 
   const mediaType =
     {
@@ -79,7 +85,10 @@ export const MediaErrorDialog = () => {
         title: t("media.error_permission_required", { deviceType: capitalizedDeviceType }),
         message: t("media.error_grant_permission", { deviceType }),
         okText: t("media.error_view_instructions"),
-        onOk: () => dispatch(setIsShowAVLearnDialog(true)),
+        onOk: () => {
+          clearError();
+          dispatch(setIsShowAVLearnDialog(true));
+        },
       };
     }
 
@@ -114,7 +123,7 @@ export const MediaErrorDialog = () => {
         title: t("media.error_connection_failed", { mediaType: capitalizedMediaType }),
         message,
         okText: requiresFullRestart ? t("common.ok") : t("media.error_refresh"),
-        onOk: requiresFullRestart ? () => dispatch(setMediaError({ errorCode: "", reason: "", type: "" })) : onRetry,
+        onOk: requiresFullRestart ? clearError : onRetry,
       };
     }
 
@@ -125,7 +134,7 @@ export const MediaErrorDialog = () => {
         title: t("media.error_audio_playback_issue"),
         message: isTemporary ? t("media.error_mic_temporarily_occupied") : t("media.error_audio_interrupted"),
         okText: t("media.error_resume_audio"),
-        onOk: () => document.body.click(),
+        onOk: resumeMedia,
       };
     }
 
@@ -136,7 +145,15 @@ export const MediaErrorDialog = () => {
           title: t("media.error_microphone_muted"),
           message: t("media.error_unmute_mic"),
           okText: t("common.ok"),
-          onOk: () => dispatch(setMediaError({ errorCode: "", reason: "", type: "" })),
+          onOk: clearError,
+        };
+
+      case ActiveMediaFailedCode.VideoStreamMuted:
+        return {
+          title: t("media.error_camera_interrupted"),
+          message: t("media.error_camera_interrupted_resume"),
+          okText: t("media.error_resume_video"),
+          onOk: resumeMedia,
         };
 
       case ActiveMediaFailedCode.WebGLContextInvalid:
@@ -144,7 +161,7 @@ export const MediaErrorDialog = () => {
           title: t("media.error_video_rendering_issue"),
           message: t("media.error_webgl_compatibility"),
           okText: t("common.ok"),
-          onOk: () => dispatch(setMediaError({ errorCode: "", reason: "", type: "" })),
+          onOk: clearError,
         };
 
       default: {
@@ -174,7 +191,7 @@ export const MediaErrorDialog = () => {
       message={errorContent.message}
       onConfirm={errorContent.onOk}
       confirmText={errorContent.okText}
-      onCancel={showCancel ? () => dispatch(setMediaError({ errorCode: "", reason: "", type: "" })) : undefined}
+      onCancel={showCancel ? clearError : undefined}
       cancelText={showCancel ? t("common.cancel") : undefined}
       id="uikit-media-error-dialog"
     />

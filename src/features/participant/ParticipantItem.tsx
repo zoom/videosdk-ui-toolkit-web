@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Crown, User, Mic, MicOff, Video, VideoOff, MonitorUp, MoreVertical } from "lucide-react";
+import { Crown, User, Mic, MicOff, Video, VideoOff, MonitorUp, MoreVertical, Loader } from "lucide-react";
 import Dropdown from "@/components/widget/Dropdown";
 import { Participant } from "@/types";
 import { useParticipantMenu, useCurrentUser } from "./hooks";
@@ -78,23 +78,26 @@ export const ParticipantItem: React.FC<ParticipantItemProps> = ({
             )}
           </div>
           <div className="flex items-center space-x-2 w-20 justify-end">
-            {!isHovered && (
-              <>
-                {participant?.sharerOn && <MonitorUp size={16} className="text-green-500" />}
-                {participant?.audio ? (
-                  participant?.muted ? (
-                    <MicOff size={16} className="text-red-500" />
+            {!isHovered &&
+              (participant?.isInFailover ? (
+                <Loader size={16} className="animate-spin" />
+              ) : (
+                <>
+                  {participant?.sharerOn && <MonitorUp size={16} className="text-green-500" />}
+                  {participant?.audio ? (
+                    participant?.muted ? (
+                      <MicOff size={16} className="text-red-500" />
+                    ) : (
+                      <Mic size={16} className="text-gray-500" />
+                    )
+                  ) : null}
+                  {participant?.bVideoOn ? (
+                    <Video size={16} className="text-gray-500" />
                   ) : (
-                    <Mic size={16} className="text-gray-500" />
-                  )
-                ) : null}
-                {participant?.bVideoOn ? (
-                  <Video size={16} className="text-gray-500" />
-                ) : (
-                  <VideoOff size={16} className="text-red-500" />
-                )}
-              </>
-            )}
+                    <VideoOff size={16} className="text-red-500" />
+                  )}
+                </>
+              ))}
             {isHovered && menuItems.length > 0 && (
               <Dropdown
                 menuItems={menuItems}

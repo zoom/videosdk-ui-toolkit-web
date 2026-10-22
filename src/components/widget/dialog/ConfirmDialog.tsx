@@ -60,13 +60,10 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   id = "",
 }) => {
   const { t } = useTranslation();
+
   const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      if (onClose) {
-        onClose();
-      } else {
-        onCancel();
-      }
+    if (e.target === e.currentTarget && onClose) {
+      onClose();
     }
   };
 
@@ -79,12 +76,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${className}`}
+      className={`fixed inset-0 flex overflow-y-auto bg-black/50 backdrop-blur-sm animate-in fade-in duration-200 ${className}`}
       style={{ zIndex: 9999 }}
       onClick={handleBackdropClick}
     >
       <div
-        className="rounded-2xl shadow-2xl p-8 w-full max-w-lg bg-theme-surface border border-theme-border/30 text-theme-text animate-in zoom-in-95 duration-200 backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/10"
+        className="rounded-2xl shadow-2xl p-8 m-auto w-full max-w-lg shrink-0 bg-theme-surface border border-theme-border/30 text-theme-text animate-in zoom-in-95 duration-200 backdrop-blur-xl ring-1 ring-black/5 dark:ring-white/10"
         id={id}
       >
         <div className="flex items-start mb-6">

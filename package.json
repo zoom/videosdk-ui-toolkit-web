@@ -2,7 +2,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "@zoom/probesdk": "1.0.4",
-    "@zoom/videosdk": "^2.5.0",
+    "@zoom/videosdk": "^2.6.0",
     "emoji-picker-react": "^4.17.2",
     "html2canvas": "^1.4.1",
     "i18next": "^25.8.0",

@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo, useState } from "react";
-import { EllipsisVertical, Headphones, MicOff, Signal, SignalLow, SignalMedium, VideoOff } from "lucide-react";
+import { EllipsisVertical, Headphones, Loader, MicOff, Signal, SignalLow, SignalMedium, VideoOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Participant } from "@/types";
 import Dropdown from "@/components/widget/Dropdown";
@@ -135,25 +135,33 @@ const Avatar = ({
             {/* {debug && participant.bVideoOn && <div className="bg-red-500 text-theme-text-button px-2 rounded">{"16:9"}</div>} */}
             {/* {debug && <div className="bg-red-500 text-theme-text-button px-2 rounded">{selectedQuality}</div>} */}
             <div className="flex items-center space-x-1">
-              {participant?.bVideoOn && networkQualityMap[participant?.userId] !== undefined && (
+              {participant?.isInFailover ? (
                 <div className="text-theme-text-button rounded">
-                  {getNetworkQualityIcon(networkQualityMap[participant?.userId].level)}
+                  <Loader size={16} className="animate-spin" />
                 </div>
-              )}
-              {participant?.audio === "" && (
-                <div className="text-theme-text-button rounded">
-                  <Headphones size={16} className="text-red-500" />
-                </div>
-              )}
-              {participant?.muted === true && (
-                <div className="text-theme-text-button rounded">
-                  <MicOff size={16} className="text-red-500 fill-red-500  " />
-                </div>
-              )}
-              {!participant?.bVideoOn && (
-                <div className="text-theme-text-button rounded">
-                  <VideoOff size={16} className="text-red-500 fill-red-500" />
-                </div>
+              ) : (
+                <>
+                  {participant?.bVideoOn && networkQualityMap[participant?.userId] !== undefined && (
+                    <div className="text-theme-text-button rounded">
+                      {getNetworkQualityIcon(networkQualityMap[participant?.userId].level)}
+                    </div>
+                  )}
+                  {participant?.audio === "" && (
+                    <div className="text-theme-text-button rounded">
+                      <Headphones size={16} className="text-red-500" />
+                    </div>
+                  )}
+                  {participant?.muted === true && (
+                    <div className="text-theme-text-button rounded">
+                      <MicOff size={16} className="text-red-500 fill-red-500  " />
+                    </div>
+                  )}
+                  {!participant?.bVideoOn && (
+                    <div className="text-theme-text-button rounded">
+                      <VideoOff size={16} className="text-red-500 fill-red-500" />
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

@@ -1,5 +1,14 @@
 import { ChatFileDownloadStatus, ChatFileUploadStatus, FileInfo } from "@zoom/videosdk";
-import type { ChatFileUploadProgress } from "@/types";
+import type { ChatFileUploadProgress, SessionChatMessage } from "@/types";
+
+export const canDeleteChatMessage = (
+  message: Pick<SessionChatMessage, "id" | "sender">,
+  currentUserId?: number,
+  isHostOrManager = false,
+) =>
+  Boolean(
+    message.id && (isHostOrManager || (typeof currentUserId === "number" && message.sender.userId === currentUserId)),
+  );
 
 export const getFileExtension = (fileName: string) => {
   const [ext] = fileName.split(".").reverse();

@@ -10,6 +10,7 @@ import {
 import { useAppSelector, useAppDispatch, useChatSelector } from "@/hooks/useAppSelector";
 import {
   addMessage,
+  addUnreadMessage,
   setNewMessage,
   setUnreadCount,
   setChatPrivilege,
@@ -18,6 +19,7 @@ import {
   setFileTransferEnabled,
   setFileSetting,
   removeChatFileUploadProgress,
+  removeMessage,
   updateChatFileUploadProgress,
   updateChatFileDownloadProgress,
 } from "../chatSlice";
@@ -53,7 +55,7 @@ export const useChatMessage = () => {
   const chatOnMessage = useCallback(
     (message: SessionChatMessage) => {
       if (message.sender.userId !== currentUser?.userId) {
-        dispatch(setUnreadCount(unreadCount + 1));
+        dispatch(addUnreadMessage(message));
       }
       if (message.receiver.userId === ChatPrivilege.All || message.receiver.userId === ChatPrivilege.EveryonePublicly) {
         dispatch(
@@ -67,7 +69,7 @@ export const useChatMessage = () => {
         dispatch(addMessage(message));
       }
     },
-    [dispatch, unreadCount, currentUser?.userId, t],
+    [dispatch, currentUser?.userId, t],
   );
   const chatPrivilegeChange = useCallback(
     (payload: { chatPrivilege: ChatPrivilege }) => {
@@ -117,6 +119,17 @@ export const useChatMessage = () => {
     },
     [dispatch],
   );
+  const onChatDeleteMessage = useCallback(
+    ({ id }: { id: string }) => {
+      const existingUrl = downloadPreviewUrlMapRef.current.get(id);
+      if (existingUrl) {
+        URL.revokeObjectURL(existingUrl);
+        downloadPreviewUrlMapRef.current.delete(id);
+      }
+      dispatch(removeMessage(id));
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (chatClient) {
@@ -131,15 +144,24 @@ export const useChatMessage = () => {
   useEffect(() => {
     client.on("chat-on-message", chatOnMessage);
     client.on("chat-privilege-change", chatPrivilegeChange);
+    client.on("chat-delete-message", onChatDeleteMessage);
     client.on("chat-file-download-progress", onChatFileDownloadProgress);
     client.on("chat-file-upload-progress", onChatFileUploadProgress);
     return () => {
       client.off("chat-on-message", chatOnMessage);
       client.off("chat-privilege-change", chatPrivilegeChange);
+      client.off("chat-delete-message", onChatDeleteMessage);
       client.off("chat-file-download-progress", onChatFileDownloadProgress);
       client.off("chat-file-upload-progress", onChatFileUploadProgress);
     };
-  }, [client, chatOnMessage, chatPrivilegeChange, onChatFileDownloadProgress, onChatFileUploadProgress]);
+  }, [
+    client,
+    chatOnMessage,
+    chatPrivilegeChange,
+    onChatDeleteMessage,
+    onChatFileDownloadProgress,
+    onChatFileUploadProgress,
+  ]);
 
   useEffect(() => {
     const urlMap = downloadPreviewUrlMapRef.current;

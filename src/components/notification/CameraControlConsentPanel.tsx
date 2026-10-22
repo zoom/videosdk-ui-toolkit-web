@@ -36,7 +36,7 @@ const CameraControlConsentPanel = () => {
   };
 
   return (
-    <CommonNotification isOpen={isShowCameraControlConsent} onClose={onCancelClick} width={400} height={220}>
+    <CommonNotification isOpen={isShowCameraControlConsent} onClose={onCancelClick} width={400} height="auto">
       <div className="flex flex-col h-full justify-between">
         <div className="space-y-4 pt-2">
           <h2 className="text-lg font-semibold text-theme-text">{title}</h2>

@@ -91,9 +91,9 @@ const CommonNotification: React.FC<CommonNotificationProps> = ({
 
   const getModalStyle = () => {
     const baseStyle = {
-      width: `min(${width}px, calc(100vw - 2rem))`,
-      maxWidth: "min(90vw, 600px)",
-      maxHeight: "calc(100vh - 4rem)",
+      width: `min(${width / 16}rem, calc(100vw - 2rem))`,
+      maxWidth: "min(90vw, 37.5rem)",
+      maxHeight: "calc(100vh - 32px)",
       wordWrap: "break-word" as const,
       overflowWrap: "break-word" as const,
     };
@@ -114,11 +114,11 @@ const CommonNotification: React.FC<CommonNotificationProps> = ({
   return (
     <div
       ref={overlayRef}
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4`}
+      className={`fixed inset-0 z-50 flex overflow-y-auto bg-black bg-opacity-50 p-4`}
       onMouseDown={(e) => e.target === overlayRef.current && allowClose && onClose()}
     >
       <div
-        className={`rounded-lg shadow-lg relative bg-theme-surface border-solid border overflow-hidden w-full`}
+        className={`rounded-lg shadow-lg relative bg-theme-surface border-solid border overflow-y-auto m-auto w-full shrink-0`}
         id={id}
         style={getModalStyle()}
       >
@@ -127,9 +127,9 @@ const CommonNotification: React.FC<CommonNotificationProps> = ({
             <X size={20} />
           </button>
         )}
-        <div className="p-4 sm:p-6 flex h-full min-h-0 overflow-hidden">
+        <div className="p-4 sm:p-6 flex min-h-0">
           {Icon && <Icon className="text-orange-500 mr-3 sm:mr-4 flex-shrink-0 mt-1" size={24} />}
-          <div className="flex-grow ml-2 min-h-0 flex flex-col w-full overflow-hidden">{children}</div>
+          <div className="flex-grow ml-2 min-h-0 flex flex-col w-full">{children}</div>
         </div>
         {timeout && <div className="absolute bottom-2 left-2 text-xs ">Closing in {Math.ceil(timeLeft! / 1000)}s</div>}
       </div>

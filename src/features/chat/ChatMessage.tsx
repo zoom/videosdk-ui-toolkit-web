@@ -1,25 +1,39 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { Copy } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import { Avatar, FileDownload, parseMessageWithLinks } from "./util";
 import { SessionChatMessage, ChatFileDownloadProgress } from "@/types";
 import { useCurrentUser } from "../participant/hooks";
 import { useAppDispatch } from "@/hooks/useAppSelector";
 import { setChatReceive } from "./chatSlice";
 import { ChatPrivilege } from "@/constant";
+import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 
 interface ChatMessageProps {
   message: SessionChatMessage;
   downloadProgress?: ChatFileDownloadProgress;
   onImageClick: (image: string) => void;
   onClickLink: (link: string) => void;
+  canDelete?: boolean;
+  onDelete?: (messageId: string) => Promise<void>;
   measure?: () => void;
 }
 
-const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, onImageClick, onClickLink, measure }) => {
+const ChatMessage: React.FC<ChatMessageProps> = ({
+  message,
+  downloadProgress,
+  onImageClick,
+  onClickLink,
+  canDelete = false,
+  onDelete,
+  measure,
+}) => {
   const { t } = useTranslation();
-  const [showCopy, setShowCopy] = useState(false);
+  const [showActions, setShowActions] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const dispatch = useAppDispatch();
   const currentUser = useCurrentUser();
 
@@ -28,6 +42,19 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
       await navigator.clipboard.writeText(message.message);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!message.id || !onDelete || isDeleting) return;
+    setIsDeleteConfirmOpen(false);
+    setIsDeleting(true);
+    try {
+      await onDelete(message.id);
+    } catch {
+      // The parent displays the SDK error.
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -110,13 +137,13 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
           </div>
 
           {/* Message Content */}
-          <div className="relative">
+          <div
+            className="relative"
+            onMouseEnter={() => setShowActions(true)}
+            onMouseLeave={() => setShowActions(false)}
+          >
             {message.message && (
-              <div
-                className="relative group"
-                onMouseEnter={() => setShowCopy(true)}
-                onMouseLeave={() => setShowCopy(false)}
-              >
+              <div className="relative group">
                 <div
                   className="bg-gray-200 rounded-lg p-3 inline-block w-full break-words"
                   id={`uikit-chat-message-content-${message.id}`}
@@ -125,13 +152,16 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
                     {parseMessageWithLinks(message.message, onClickLink, onImageClick)}
                   </div>
                 </div>
+              </div>
+            )}
 
-                {/* Copy Button */}
-                <div
-                  className={`absolute right-0 top-0 transform transition-opacity duration-200 ${
-                    showCopy ? "opacity-100" : "opacity-0"
-                  }`}
-                >
+            {(message.message || (canDelete && message.id)) && (
+              <div
+                className={`uikit-chat-message-actions absolute right-0 top-0 flex transform transition-opacity duration-200 ${
+                  showActions ? "uikit-chat-message-actions-visible" : ""
+                }`}
+              >
+                {message.message && (
                   <button
                     onClick={handleCopy}
                     className="p-1.5 rounded-md hover:bg-gray-100 transition-colors group-hover:opacity-100"
@@ -140,7 +170,20 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
                   >
                     <Copy size={16} className={copied ? "text-green-500" : "text-gray-400"} />
                   </button>
-                </div>
+                )}
+                {canDelete && message.id && (
+                  <button
+                    type="button"
+                    onClick={() => setIsDeleteConfirmOpen(true)}
+                    className="p-1.5 rounded-md hover:bg-red-50 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
+                    title={t("common.delete")}
+                    aria-label={t("common.delete")}
+                    id={`uikit-chat-message-delete-${message.id}`}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 size={16} className="text-gray-400" />
+                  </button>
+                )}
               </div>
             )}
 
@@ -158,6 +201,22 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, downloadProgress, on
           </div>
         </div>
       </div>
+      {isDeleteConfirmOpen &&
+        createPortal(
+          <div className="zoom-ui-toolkit-root">
+            <ConfirmDialog
+              title={t("chat.delete_message_title")}
+              message={t("chat.delete_message_confirmation")}
+              onConfirm={handleDelete}
+              confirmText={t("common.delete")}
+              confirmVariant="danger"
+              onCancel={() => setIsDeleteConfirmOpen(false)}
+              cancelText={t("common.cancel")}
+              id="uikit-chat-delete-message-dialog"
+            />
+          </div>,
+          document.body,
+        )}
     </div>
   );
 };
