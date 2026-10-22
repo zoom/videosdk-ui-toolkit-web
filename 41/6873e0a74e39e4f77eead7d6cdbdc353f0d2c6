@@ -1,0 +1,59 @@
+src/features/chat/chat-utils.ts
+  s_0c5745d8aa37d2::t_99d9fad660678a 2-11
+src/components/widget/CommonNotification.tsx
+  s_0c5745d8aa37d2::t_5fcff56bdade04 94-96,117,121,130,132
+src/features/chat/hook/useChatMessage.tsx
+  s_0c5745d8aa37d2::t_53cd36f14dd4a0 13,22,58,72,122-132,147,153,157-164
+src/features/session-app/hooks/useMediaSDKChange.ts
+  s_0c5745d8aa37d2::t_4c90f3d4386a53 48-49
+src/i18n/zh-CN.json
+  s_0c5745d8aa37d2::t_f7d2d217cd7ac3 57-59,255-256,272
+src/components/error/MediaErrorDialog.tsx
+  s_0c5745d8aa37d2::t_f80e26830ace05 5,55-61,88-91,126,137,148-156,164,194
+src/i18n/en-US.json
+  s_0c5745d8aa37d2::t_04770e28292c3f 57-59,255-256,272
+src/features/video/components/Avatar.tsx
+  s_0c5745d8aa37d2::t_14c28e3407ee2b 2,138,140,142-164
+src/features/chat/chatSlice.ts
+  s_0c5745d8aa37d2::t_26dcf3e17f49e8 13-14,23,49,68-85,103,108-110,175-176
+src/features/video/components/AvatarMobile.tsx
+  s_0c5745d8aa37d2::t_a57868a1254d75 2,86,88,90-112
+src/features/chat/ChatMessage.tsx
+  s_0c5745d8aa37d2::t_cbab6a485ab5e1 2,4,11,18-19,23-31,33,35-36,48-60,140-144,146,155-156,158-164,173-186,204-219
+src/components/notification/UnmuteConsentPanel.tsx
+  s_0c5745d8aa37d2::t_dc6454e9e45824 26
+src/components/widget/dialog/ConfirmDialog.tsx
+  s_0c5745d8aa37d2::t_1c8e35641ad555 63,65-66,79,84
+src/uikit/index.css
+  s_0c5745d8aa37d2::t_19f017dc0170b6 130-147
+src/features/participant/ParticipantItem.tsx
+  s_0c5745d8aa37d2::t_64c7172e914254 3,81-95,97-100
+src/components/notification/CameraControlConsentPanel.tsx
+  s_0c5745d8aa37d2::t_e588f8acd04b87 39
+src/types/index.d.ts
+  s_0c5745d8aa37d2::t_a3d17de96131e2 36,586
+src/constant/error-codes.ts
+  s_0c5745d8aa37d2::t_23471137119f54 15
+src/features/chat/ChatPanel.tsx
+  s_0c5745d8aa37d2::t_81ef9aa3fac073 39,237-251,261,265-266
+src/components/notification/JoinAudioConsentPanel.tsx
+  s_0c5745d8aa37d2::t_fc2ad2893edd1d 27
+src/components/notification/JoinAudioConsentPanelWithPEPC.tsx
+  s_0c5745d8aa37d2::t_80f84a59feda67 268,355
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "416873e0a74e39e4f77eead7d6cdbdc353f0d2c6",
+  "prompts": {},
+  "sessions": {
+    "s_0c5745d8aa37d2": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "12e67376-24db-4e28-b0a2-51cccf98a578",
+        "model": "grok-4.7"
+      },
+      "human_author": "Feiya Du <feiya.du@zoom.us>"
+    }
+  }
+}
