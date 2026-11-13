@@ -14,7 +14,7 @@
     "./style.css": "./dist/index.css"
   },
   "bin": {
-    "uitoolkit-skill-setup": "./bin/skill-setup.js"
+    "uitoolkit-skill-setup": "bin/skill-setup.js"
   },
   "author": "Zoom Communications",
   "contributors": [
