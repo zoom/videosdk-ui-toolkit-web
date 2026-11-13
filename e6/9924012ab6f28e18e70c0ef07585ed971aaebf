@@ -1,0 +1,14 @@
+package.json
+  h_e85d1ff5b62329 5,120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "e69924012ab6f28e18e70c0ef07585ed971aaebf",
+  "prompts": {},
+  "humans": {
+    "h_e85d1ff5b62329": {
+      "author": "Joyce Ma <joyce.ma@zoom.us>"
+    }
+  }
+}
