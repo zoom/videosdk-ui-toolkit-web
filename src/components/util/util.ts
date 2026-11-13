@@ -14,6 +14,7 @@ export function generateVideoToken(
   telemetry_tracking_id = "",
   audio_compatible_mode = 0,
   video_webrtc_mode = 1,
+  hold = 0,
 ) {
   let signature = "";
   try {
@@ -56,6 +57,14 @@ export function generateVideoToken(
 
     if (video_webrtc_mode) {
       Object.assign(oPayload, { video_webrtc_mode: Number(video_webrtc_mode) });
+    }
+
+    // Hold. 1 = on from the start, 2 = off but the host can turn it on mid-session.
+    // Set on the JWT of the first user to join, since that user's token decides whether the
+    // session supports it at all.
+    // Number() first: URL params arrive as strings, and "0" is truthy.
+    if (Number(hold)) {
+      Object.assign(oPayload, { hold: Number(hold) });
     }
 
     // Sign JWT

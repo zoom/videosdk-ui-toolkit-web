@@ -4,6 +4,8 @@ export enum SubsessionAllocationPattern {
   SelfSelect = 3,
 }
 
+export const MAIN_SESSION_ROOM_ID = "uikit-main-session";
+
 export interface Room {
   id: string | number;
   name: string;

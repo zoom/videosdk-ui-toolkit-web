@@ -9,6 +9,7 @@ import { SessionState } from "@/store/sessionSlice";
 import { isPortrait } from "@/components/util/service";
 import AvatarMobile from "./components/AvatarMobile";
 import { isShowAvatar } from "@/components/util/util";
+import { getSubsessionTransitionMessage } from "@/features/subsession/subsession-utils";
 interface GalleryViewMobileProps {
   mainContentWidth: number;
   mainContentHeight: number;
@@ -33,7 +34,10 @@ export const GalleryViewMobile = ({
   const videoPlayerRefList = useRef<Record<string, VideoPlayer>>({});
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const { debug }: SessionState = useAppSelector(useSessionSelector);
-  const { isReceivingScreenShare, isSendingScreenShare } = useAppSelector(useSessionSelector);
+  const { isReceivingScreenShare, isSendingScreenShare, reconnectReason, reconnectSubsessionName } =
+    useAppSelector(useSessionSelector);
+
+  const subsessionTransition = getSubsessionTransitionMessage(reconnectReason, reconnectSubsessionName);
 
   const currentPageVideos = useMemo(() => currentParticipants.filter((p) => p?.bVideoOn), [currentParticipants]);
 
@@ -127,8 +131,17 @@ export const GalleryViewMobile = ({
           </div>
           <div className={`${defaultGridClassName} absolute top-0 left-0`}>
             {currentParticipants?.length === 0 && (
-              <div className="flex justify-center items-center text-2xl font-semibold m-2 text-theme-text">
-                <span>{t("gallery.no_other_participants")}</span>
+              <div
+                className="flex flex-col justify-center items-center text-center m-2 text-theme-text"
+                role="status"
+                aria-live="polite"
+              >
+                <span className="text-2xl font-semibold">
+                  {subsessionTransition
+                    ? t(subsessionTransition.key, subsessionTransition.values)
+                    : t("gallery.no_other_participants")}
+                </span>
+                {subsessionTransition && <span className="text-base mt-2">{t("subsession.take_few_moments")}</span>}
               </div>
             )}
             {currentParticipants.map((participant: Participant, index: number) => (

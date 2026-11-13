@@ -1,4 +1,5 @@
 export * from "./useConnectionChange";
+export * from "./useHoldChange";
 export * from "./useMediaSDKChange";
 export * from "./useNetworkQuality";
 export * from "./useScreenshot";

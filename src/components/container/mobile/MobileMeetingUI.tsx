@@ -89,6 +89,7 @@ import SubsessionConfirmDialogs from "@/features/subsession/components/Subsessio
 import InviteAudioPanel from "@/features/audio/components/InviteAudioPanel";
 import { useChatMessage } from "@/features/chat/hook/useChatMessage";
 import NewMessageNotification from "@/features/chat/NewMessageNotification";
+import HoldNotification from "@/features/hold/HoldNotification";
 import LinkOpenConfirmDialog from "@/components/dialog/LinkOpenConfirmDialog";
 import useCaptionMenuLogic from "@/features/caption/hooks/useCaptionMenuLogic";
 import { SelectLanguageMenuMobile } from "@/features/caption/components/SelectLanguageMenu";
@@ -587,6 +588,7 @@ const MobileMeetingUI = () => {
       >
         {/* Toast chat new message container */}
         <NewMessageNotification />
+        <HoldNotification />
         <UnmuteConsentPanel />
         <CameraControlConsentPanel />
         <JoinAudioConsentPanelWithPEPC />

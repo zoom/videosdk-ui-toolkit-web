@@ -51,6 +51,7 @@ import { useWindowSizeCallback } from "@/hooks/useSizeCallback";
 import { useRecording } from "@/features/recording/hooks/useRecording";
 import { useCurrentUser } from "@/features/participant/hooks";
 import { useWhiteboardToggle } from "@/features/whiteboard/hooks/useWhiteboardToggle";
+import { useHoldActions } from "@/features/hold/hooks";
 import ConfirmDialog from "@/components/widget/dialog/ConfirmDialog";
 
 interface FooterProps {
@@ -129,6 +130,9 @@ export const Footer: React.FC<FooterProps> = ({
     isSubsessionEnabled,
   } = useAppSelector(useSubsessionSelector);
   const whiteboard = useAppSelector(useWhiteboardSelector);
+  const { canManage: canManageHold, onHoldParticipants } = useHoldActions();
+  // Only a host or manager can act on the hold, so only they get the count on the button.
+  const waitingCount = canManageHold ? onHoldParticipants.length : 0;
   const { enabled: whiteboardEnabled } = whiteboard;
   const isInSubsession = currentSubRoom && subUserStatus === SubsessionUserStatus.InSubsession;
   const currentUser = useCurrentUser();
@@ -374,6 +378,9 @@ export const Footer: React.FC<FooterProps> = ({
             <IconCountButton
               icon={Users}
               count={participantSize}
+              badgeCount={waitingCount}
+              badgeAriaLabel={t("hold.waiting_count", { count: waitingCount })}
+              ariaLabel={t("participant.panel_title")}
               isActive={isParticipantsPoppedOut || activeSidePanel === "participants"}
               onClick={toggleParticipant}
               id="uikit-footer-participants-button"

@@ -19,6 +19,15 @@ export interface SessionState {
   sessionId: string | null;
   userId: number;
   status: SessionStatus;
+  /**
+   * Why the session is currently reconnecting, from the SDK's `connection-change` payload. Empty
+   * while connected. Used to explain transitions such as moving into or out of a subsession.
+   */
+  reconnectReason: string;
+  /**
+   * Name of the subsession being joined, when the reconnect reason is a subsession move.
+   */
+  reconnectSubsessionName: string;
   config: CustomizationOptions;
   isHost: boolean;
   isOriginHost: boolean;
@@ -80,6 +89,8 @@ const initialState: SessionState = {
   sessionId: null,
   userId: 0,
   status: SessionStatus.Default,
+  reconnectReason: "",
+  reconnectSubsessionName: "",
   config: defaultConfig as CustomizationOptions, // defaultConfig as CustomizationOptions,
   isHost: false,
   isOriginHost: false,
@@ -163,6 +174,10 @@ export const sessionSlice = createSlice({
     },
     setSessionStatus: (state, action: PayloadAction<SessionStatus>) => {
       state.status = action.payload;
+    },
+    setReconnectInfo: (state, action: PayloadAction<{ reason?: string; subsessionName?: string }>) => {
+      state.reconnectReason = action.payload.reason ?? "";
+      state.reconnectSubsessionName = action.payload.subsessionName ?? "";
     },
     setIsHost: (state, action: PayloadAction<boolean>) => {
       state.isHost = action.payload;
@@ -362,6 +377,7 @@ export const {
   leaveSession,
   setUserId,
   setSessionStatus,
+  setReconnectInfo,
   setIsHost,
   setIsOriginHost,
   setIsManager,

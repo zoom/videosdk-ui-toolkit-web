@@ -1,8 +1,8 @@
 import { Participant } from "../../types";
 import i18n from "i18next";
 
-export const UIKIT_VERSION = process.env.UIKIT_VERSION.replace(/"/g, "");
-export const TAILWIND_VERSION = process.env.TAILWIND_VERSION.replace(/"/g, "").replace("^", "");
+export const UIKIT_VERSION = (process.env.UIKIT_VERSION ?? "").replace(/"/g, "");
+export const TAILWIND_VERSION = (process.env.TAILWIND_VERSION ?? "").replace(/"/g, "").replace("^", "");
 const baseUrl = "zoom.us";
 export let ZOOM_GLOBAL_IMAGE = `https://source.${baseUrl}/uitoolkit/image`;
 if (process.env.NODE_ENV === "development") {

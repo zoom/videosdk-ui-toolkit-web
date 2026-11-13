@@ -40,7 +40,7 @@ import {
   setLiveStreamStatus,
 } from "@/store/sessionSlice";
 
-import { useConnectionChange, useMediaSDKChange, useNetworkQuality, useSharePrivilege } from "./hooks";
+import { useConnectionChange, useHoldChange, useMediaSDKChange, useNetworkQuality, useSharePrivilege } from "./hooks";
 import { useRecordingChange } from "../recording/hooks/useRecordingChange";
 import { useCaption } from "../caption/hooks/useCaption";
 import { useWhiteboardEvents } from "../whiteboard/hooks/useWhiteboardEvents";
@@ -71,6 +71,8 @@ import { resetWhiteboard, setIsDisableExport, setWhiteboardEnabled } from "../wh
 import { resetRtms } from "../real-time-media-streams/rtmsSlice";
 import { resetMedia } from "../media/mediaSlice";
 import { setParticipants } from "../participant/participantSlice";
+import { resetHold, setOnHoldParticipants } from "../hold/holdSlice";
+import { readOnHoldUsers } from "../hold/util";
 import { checkIsFeatureEnable, decodeJWTPlayload } from "@/components/util/util";
 import { getZoomImgPath, isIpadOS, isMobileDevice } from "@/components/util/service";
 
@@ -286,6 +288,7 @@ const SessionAppInner = (props: SessionAppProps) => {
     // dispatch(setVbImageList([]));
     dispatch(setActiveVbImage(""));
     dispatch(setParticipants([]));
+    dispatch(resetHold());
   }, [dispatch]);
 
   useConnectionChange(client, dispatch, setupApp, resetApp);
@@ -309,6 +312,7 @@ const SessionAppInner = (props: SessionAppProps) => {
     //   ),
     // );
   });
+  useHoldChange(client, dispatch);
   useParticipantsChange(client, (participants) => {
     const currentUser = client?.getCurrentUserInfo();
     dispatch(setIsHost(!!currentUser?.isHost));
@@ -316,6 +320,11 @@ const SessionAppInner = (props: SessionAppProps) => {
     dispatch(setUserId(currentUser?.userId));
     dispatch(setParticipants(participants));
     dispatch(setParticipantSize(participants.length));
+    // Waiting participants live in the same underlying attendee list as in-session ones, so the
+    // user-added/updated/removed events above already cover arrivals and departures from the
+    // hold. `getOnHoldUsers` returns [] for anyone who is not a host or manager, and
+    // throws if read before the client has joined — this callback also runs on mount.
+    dispatch(setOnHoldParticipants(readOnHoldUsers(client)));
   });
 
   useNetworkQuality(client, dispatch);

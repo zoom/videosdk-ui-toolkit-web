@@ -76,6 +76,7 @@ import { ImagePreview } from "@/components/util/ImagePreview";
 import { useChatMessage } from "@/features/chat/hook/useChatMessage";
 import { useDevice } from "@/features/setting/hooks/useDevice";
 import NewMessageNotification from "@/features/chat/NewMessageNotification";
+import HoldNotification from "@/features/hold/HoldNotification";
 import RecordingNotificationIcon from "@/components/svg-icon/recordingNotificationIcon";
 import ShareIndicatorBar from "@/features/share/components/ShareIndicatorBar";
 import LiveStreamPanel from "@/features/live-stream/LiveStreamPanel";
@@ -413,6 +414,7 @@ const MeetingUI = () => {
               </div>
 
               <NewMessageNotification />
+              <HoldNotification />
             </header>
           )}
           <main className={`uikit-main-content ${THEME_COLOR_CLASS} w-full h-full flex relative`} ref={mainContentRef}>

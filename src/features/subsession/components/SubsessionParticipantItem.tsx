@@ -8,8 +8,11 @@ import { Subsession } from "@zoom/videosdk";
 import { getInitialsFirstLetter } from "@/components/util/util";
 import { getAvatarColor } from "@/features/chat/util";
 
+type SubsessionRosterUser = Pick<Participant, "userId" | "displayName" | "userGuid"> &
+  Partial<Pick<Participant, "isHost" | "isManager">>;
+
 const SubsessionParticipantItem: React.FC<{
-  participant: Participant;
+  participant: SubsessionRosterUser;
   style: any;
   rooms?: Subsession[];
   isUnassigned: boolean;
@@ -17,7 +20,22 @@ const SubsessionParticipantItem: React.FC<{
   assignRoom: (newRoomId: string) => void;
   isJoinSubsession: boolean;
   themeName: string;
-}> = ({ participant, style, rooms, isUnassigned, roomId, assignRoom, isJoinSubsession, themeName }) => {
+  /**
+   * Whether this row can be assigned or moved. Hidden for the local user while rooms are open,
+   * because that move uses a room user id the main session cannot resolve.
+   */
+  showMoveAction?: boolean;
+}> = ({
+  participant,
+  style,
+  rooms,
+  isUnassigned,
+  roomId,
+  assignRoom,
+  isJoinSubsession,
+  themeName,
+  showMoveAction = true,
+}) => {
   const { t } = useTranslation();
   const [isHovered, setIsHovered] = useState(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
@@ -72,7 +90,7 @@ const SubsessionParticipantItem: React.FC<{
                 )} */}
               </>
             )}
-            {isHovered && (
+            {isHovered && showMoveAction && (
               <>
                 <Button
                   variant="secondary"
@@ -87,7 +105,7 @@ const SubsessionParticipantItem: React.FC<{
                 </Button>
               </>
             )}
-            {isAssignModalOpen && (
+            {isAssignModalOpen && showMoveAction && (
               <AssignRoomsModal
                 roomId={roomId}
                 roomName={""}
@@ -95,6 +113,7 @@ const SubsessionParticipantItem: React.FC<{
                 rooms={rooms}
                 assignRoom={assignRoom}
                 themeName={themeName}
+                allowMainSession={!isUnassigned}
               />
             )}
           </div>
