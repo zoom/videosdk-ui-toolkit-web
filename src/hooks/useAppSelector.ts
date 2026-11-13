@@ -43,3 +43,7 @@ export const useWhiteboardSelector = (state: RootState) => {
 export const useRtmsSelector = (state: RootState) => {
   return state?.rtms;
 };
+
+export const useHoldSelector = (state: RootState) => {
+  return state?.hold;
+};

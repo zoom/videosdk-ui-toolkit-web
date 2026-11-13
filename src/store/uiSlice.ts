@@ -12,7 +12,7 @@ export interface SessionUIState {
     isNoiseSuppressionEnabled: boolean;
     syncButtonsOnHeadset: boolean;
   };
-  mediaError: { errorCode: string; reason: string; type: "audio" | "video" | "sharing" | "" };
+  mediaError: { errorCode: number; reason: string; type: "audio" | "video" | "sharing" | "" };
   isSkipPreview: boolean;
   isShowParticipant: boolean;
   isShowChat: boolean;
@@ -178,7 +178,7 @@ const initialState: SessionUIState = {
     isNoiseSuppressionEnabled: true,
     syncButtonsOnHeadset: false,
   },
-  mediaError: { errorCode: "", reason: "", type: "" },
+  mediaError: { errorCode: 0, reason: "", type: "" },
   isSkipPreview: false,
   isShowParticipant: false,
   isShowChat: false,
@@ -429,6 +429,13 @@ export const uiSlice = createSlice({
     setIsAudioConsentInitialized: (state, action: PayloadAction<boolean>) => {
       state.isAudioConsentInitialized = action.payload;
     },
+    /**
+     * Lets the join audio prompt run again for a guest admitted from hold. Someone who started
+     * audio in preview is joined automatically, so for them the prompt stays settled.
+     */
+    resetAudioConsentForAdmission: (state) => {
+      state.isAudioConsentInitialized = state.previewStatus.isAudioOn;
+    },
     setIsEnableHardwareAccelerationReceiving: (state, action: PayloadAction<boolean>) => {
       state.isEnableHardwareAccelerationReceiving = action.payload;
     },
@@ -661,7 +668,7 @@ export const uiSlice = createSlice({
     },
     setMediaError: (
       state,
-      action: PayloadAction<{ errorCode: string; reason: string; type: "" | "video" | "audio" | "sharing" }>,
+      action: PayloadAction<{ errorCode: number; reason: string; type: "" | "video" | "audio" | "sharing" }>,
     ) => {
       state.mediaError = action.payload;
     },
@@ -844,6 +851,7 @@ export const {
   setIsMirrorVideo,
   setShowJoinAudioConsent,
   setIsAudioConsentInitialized,
+  resetAudioConsentForAdmission,
   setIsShareTypeMenuOpen,
   setShowShareScreenToSubsessionModal,
   setShareScreenToSubsessionDontShowAgain,

@@ -14,7 +14,13 @@ import {
   setSessionInfo,
   setSessionStatus,
 } from "@/store/sessionSlice";
-import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
+import {
+  useAppDispatch,
+  useAppSelector,
+  useHoldSelector,
+  useSessionSelector,
+  useSessionUISelector,
+} from "@/hooks/useAppSelector";
 import { useMount } from "@/hooks";
 import {
   SessionUIState,
@@ -38,6 +44,7 @@ import { useTranslation } from "react-i18next";
 import { getZoomImgPath, isMobileDevice, isMobileDeviceNotIpad } from "./components/util/service";
 import AvatarPicker from "./components/widget/AvatarPicker";
 import PreviewPageAvatar from "./features/preview/PreviewPage";
+import HoldPage from "./features/hold/HoldPage";
 import { getBrowserTheme } from "./components/util/platform";
 import { ExposedEvents } from "./events/event-constant";
 import { emit } from "@/events/event-bus";
@@ -73,9 +80,10 @@ export const SessionApplication = ({
   options?: { onClickJoin: () => void };
 }) => {
   const dispatch = useAppDispatch();
-  const { status, featuresOptions } = useAppSelector(useSessionSelector);
+  const { status, featuresOptions, userId } = useAppSelector(useSessionSelector);
 
   const sessionUI: SessionUIState = useAppSelector(useSessionUISelector);
+  const { isSelfOnHold } = useAppSelector(useHoldSelector);
 
   const [, setState] = useState({});
   const forceUpdate = useCallback(() => setState({}), []);
@@ -139,6 +147,10 @@ export const SessionApplication = ({
 
         break;
       case SessionStatus.Reconnecting:
+        setIsLoading(true);
+        hadJoined = false;
+        setIsJoined(false);
+        break;
       case SessionStatus.Fail:
         hadJoined = false;
         setIsJoined(false);
@@ -181,11 +193,13 @@ export const SessionApplication = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sessionUI.language]);
 
+  // Connected arrives before the SDK says whether this user is held, and the local user is not in
+  // the participant list yet. Waiting for the user id keeps the meeting UI from flashing up first.
   useEffect(() => {
-    if (status === SessionStatus.Connected) {
+    if (status === SessionStatus.Connected && userId) {
       setIsLoading(false);
     }
-  }, [status]);
+  }, [status, userId]);
 
   useMount(() => {
     const setupClient = async () => {
@@ -415,6 +429,11 @@ export const SessionApplication = ({
         isClientInit={isClientInit}
       />
     );
+  }
+
+  // The user has joined but is held outside the session until a host or manager admits them.
+  if (isSelfOnHold) {
+    return <HoldPage />;
   }
 
   if (isLoading) {

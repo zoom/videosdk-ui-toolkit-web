@@ -5,6 +5,7 @@ import {
   setIsJoinSubsessionConfirm,
   setIsAskSubsessionHelpConfirm,
   setIsJoinSubsessionConfirmRemind,
+  setIsShowInvitedBackToMainSessDialog,
   setActivePopper,
   setIsSubsessionPoppedOut,
 } from "@/store/uiSlice";
@@ -34,6 +35,7 @@ const SubsessionConfirmDialogs = ({ subsessionClient }) => {
     ) {
       dispatch(setIsJoinSubsessionConfirm(false));
       dispatch(setIsJoinSubsessionConfirmRemind(false));
+      dispatch(setIsShowInvitedBackToMainSessDialog(false));
     } else if (subStatus === SubsessionStatus.InProgress && preSubStatus !== subStatus && !isOpenByYourself) {
       const isUserAssigned = currentSubRoom?.userStatus === SubsessionUserStatus.Invited;
       if (isUserAssigned || isSubsessionSelectionEnabled) {
@@ -68,6 +70,27 @@ const SubsessionConfirmDialogs = ({ subsessionClient }) => {
               ? t("subsession.invite_join_room_tip_content")
               : t("subsession.join_room__confirm_tip_sdk", { roomName: currentSubRoom.subsessionName })
           }
+        />
+      )}
+      {sessionUI.isShowInvitedBackToMainSessDialog && (
+        <ConfirmDialog
+          id="uikit-subsession-invited-back-to-main-session-confirm"
+          onClose={() => dispatch(setIsShowInvitedBackToMainSessDialog(false))}
+          closeText={t("subsession.later")}
+          closeId="uikit-subsession-invited-back-to-main-session-later"
+          onConfirm={() => {
+            Promise.resolve(subsessionClient.leaveSubsession()).catch((e) => {
+              // eslint-disable-next-line no-console
+              console.warn("Error returning to the main session", e);
+            });
+            dispatch(setIsShowInvitedBackToMainSessDialog(false));
+          }}
+          title={t("subsession.return_to_main_session")}
+          confirmText={t("subsession.return_to_main_session")}
+          confirmId="uikit-subsession-invited-back-to-main-session-return"
+          message={t("subsession.return_to_main_session_dialog", {
+            number: subsessionInviter.inviterName || t("subsession.invite_join_room_tip_default_host"),
+          })}
         />
       )}
       {sessionUI.isAskSubsessionHelpConfirm && (

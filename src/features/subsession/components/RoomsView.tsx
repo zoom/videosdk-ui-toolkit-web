@@ -1,5 +1,6 @@
-import React, { useState, useRef, useEffect, useContext, useCallback } from "react";
+import React, { useState, useRef, useEffect, useContext, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { enqueueSnackbar } from "notistack";
 import { Button } from "@/components/widget/CommonButton";
 import { ChevronDown, ChevronUp, Users, Check, X, XCircle } from "lucide-react";
 import { RoomConfirm } from "./RoomConfirm";
@@ -7,12 +8,16 @@ import SubsessionParticipantItem from "./SubsessionParticipantItem";
 import CommonTab from "@/components/widget/CommonTab";
 import { AssignParticipantsModal } from "./AssignParticipantsModal";
 import { isLandscape, isMobileDeviceNotIpad, isPortrait } from "@/components/util/service";
-import { Subsession, Subsession2 } from "@zoom/videosdk";
+import { Subsession, Subsession2, SubsessionUserStatus } from "@zoom/videosdk";
 import sessionAdditionalContext from "@/context/session-additional-context";
 import { Participant } from "@/types";
 import Dropdown from "@/components/widget/Dropdown";
 import { THEME_COLOR_CLASS } from "@/constant/ui-constant";
 import { translateSubsessionName } from "../utils/translateSubsessionName";
+import { MAIN_SESSION_ROOM_ID } from "../subsession-constants";
+import { hasUserJoinedSubsession, isLocalSubsessionUser } from "../subsession-utils";
+import { useAppSelector, useSubsessionSelector } from "@/hooks/useAppSelector";
+import { useCurrentUser } from "@/features/participant/hooks";
 
 interface Room {
   id: string;
@@ -36,7 +41,7 @@ interface RoomsViewProps {
   rooms: Subsession[];
   unassignedParticipants: Participant[];
   localAssignOrMoveUserToRoom: (participantId: number | number[], roomId: string) => void;
-  localUnassignUserInRoom: (participantId: number, roomId: string) => void;
+  localUnassignUserInRoom: (participantId: number) => void;
   addLocalRooms: (rooms: Subsession[]) => void;
   removeLocalRoom: (index: number) => void;
   renameLocalRoom: (index: number, name: string) => void;
@@ -62,6 +67,8 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
   isSelfSelectSubsession = false,
 }) => {
   const { t } = useTranslation();
+  const currentUser = useCurrentUser();
+  const { currentSubRoom, subUserStatus } = useAppSelector(useSubsessionSelector);
   const [expandedRooms, setExpandedRooms] = useState<Set<string>>(new Set());
   const [assignModalOpen, setAssignModalOpen] = useState<Subsession | null>(null);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
@@ -161,19 +168,50 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
 
   const allParticipants = [...unassignedParticipants, ...rooms.flatMap((room) => room.userList)];
 
+  // When the local user is inside a room, `participants` is that room's user list, so it tells us
+  // who is really in there regardless of what the SDK's `isInSubsession` flag says.
+  const localUserRoomId =
+    subUserStatus === SubsessionUserStatus.InSubsession ? currentSubRoom?.subsessionId : undefined;
+
+  const localRoomParticipantGuids = useMemo(() => {
+    const guids = new Set<string>();
+    participants?.forEach((participant) => {
+      if (participant?.userGuid) {
+        guids.add(participant.userGuid);
+      }
+    });
+    return guids;
+  }, [participants]);
+
   const assignRoom = useCallback(
     async (participantId: number, newRoomId: string) => {
-      if (inProgress) {
-        if (unassignedParticipants.some((user) => user.userId === participantId)) {
-          subsessionClient.assignUserToSubsession(participantId, newRoomId);
+      const isMainSession = newRoomId === MAIN_SESSION_ROOM_ID;
+
+      if (!inProgress) {
+        if (isMainSession) {
+          // Rooms are not open yet, so "main session" just means back to the unassigned list.
+          localUnassignUserInRoom(participantId);
         } else {
-          subsessionClient.moveUserToSubsession(participantId, newRoomId);
+          localAssignOrMoveUserToRoom(participantId, newRoomId);
         }
-      } else {
-        localAssignOrMoveUserToRoom(participantId, newRoomId);
+        return;
+      }
+
+      try {
+        if (isMainSession) {
+          await subsessionClient.moveBackToMainSession(participantId);
+        } else if (unassignedParticipants.some((user) => user.userId === participantId)) {
+          await subsessionClient.assignUserToSubsession(participantId, newRoomId);
+        } else {
+          await subsessionClient.moveUserToSubsession(participantId, newRoomId);
+        }
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn("Error moving participant", e);
+        enqueueSnackbar(t("subsession.move_failed"), { variant: "error" });
       }
     },
-    [inProgress, unassignedParticipants, subsessionClient, localAssignOrMoveUserToRoom],
+    [inProgress, unassignedParticipants, subsessionClient, localAssignOrMoveUserToRoom, localUnassignUserInRoom, t],
   );
 
   const assignRoomFromModal = useCallback(
@@ -437,21 +475,32 @@ export const RoomsView: React.FC<RoomsViewProps> = ({
             {expandedRooms.has(room.subsessionId) && (
               <div className="p-4 border-t border-gray-200">
                 <ul className="space-y-1">
-                  {filteredParticipants(room.userList).map((participant: any) => (
-                    <SubsessionParticipantItem
-                      key={participant.userId}
-                      participant={participant}
-                      style={{}}
-                      rooms={rooms}
-                      isUnassigned={false}
-                      roomId={room.subsessionId}
-                      isJoinSubsession={participant?.isInSubsession as boolean}
-                      assignRoom={(newRoomId: string) => {
-                        assignRoom(participant.userId, newRoomId);
-                      }}
-                      themeName={themeName}
-                    />
-                  ))}
+                  {filteredParticipants(room.userList).map((participant) => {
+                    // While rooms are open, the web client hides Move to on your own row. The roster
+                    // id can belong to the room, and moving that id back to the main session never lands.
+                    const showMoveAction = !(inProgress && isLocalSubsessionUser(participant, currentUser));
+                    return (
+                      <SubsessionParticipantItem
+                        key={participant.userId}
+                        participant={participant}
+                        style={{}}
+                        rooms={rooms}
+                        isUnassigned={false}
+                        roomId={room.subsessionId}
+                        isJoinSubsession={hasUserJoinedSubsession(
+                          participant,
+                          room.subsessionId,
+                          localUserRoomId,
+                          localRoomParticipantGuids,
+                        )}
+                        assignRoom={(newRoomId: string) => {
+                          assignRoom(participant.userId, newRoomId);
+                        }}
+                        themeName={themeName}
+                        showMoveAction={showMoveAction}
+                      />
+                    );
+                  })}
                 </ul>
               </div>
             )}

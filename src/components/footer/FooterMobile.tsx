@@ -17,6 +17,7 @@ import { SessionUIState, setIsActionSheetOpen, setIsChatPoppedOut, setIsParticip
 import { MediaDevice, Participant, SessionStatus } from "@/types/index.d";
 import ControlButton from "../widget/ControlButton";
 import { THEME_COLOR_CLASS } from "@/constant/ui-constant";
+import { useHoldActions } from "@/features/hold/hooks";
 
 export const FooterMobile = ({
   cameraList,
@@ -43,6 +44,9 @@ export const FooterMobile = ({
   const sessionUI: SessionUIState = useAppSelector(useSessionUISelector);
   const currentUser: Participant = client.getCurrentUserInfo();
   const { unreadCount } = useAppSelector(useChatSelector);
+  const { canManage: canManageHold, onHoldParticipants } = useHoldActions();
+  // Only a host or manager can act on the hold, so only they get the count on the button.
+  const waitingCount = canManageHold ? onHoldParticipants.length : 0;
 
   const {
     config: {
@@ -119,6 +123,8 @@ export const FooterMobile = ({
             className="rounded-full text-theme-text"
             title={t("participant.panel_title")}
             count={sessionUI.participantSize}
+            badgeCount={waitingCount}
+            badgeAriaLabel={t("hold.waiting_count", { count: waitingCount })}
             id="uikit-footer-participants-button"
             showBorder={true}
           />

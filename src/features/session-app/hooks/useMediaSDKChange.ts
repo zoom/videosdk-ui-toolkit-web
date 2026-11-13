@@ -18,7 +18,7 @@ export function useMediaSDKChange(client: SessionClient, dispatch: React.Dispatc
           payload: result === "success",
         } as MediaStatePayload),
       );
-      if (type === "video" && result === "success") {
+      if (type === "video" && result === "success" && client.getSessionInfo?.()?.isInMeeting) {
         const stream = client.getMediaStream();
         if (action === "encode") {
           const result = await stream.enableHardwareAcceleration({
@@ -45,8 +45,7 @@ export function useMediaSDKChange(client: SessionClient, dispatch: React.Dispatc
     (payload: MediaFailedPayload) => {
       dispatch(
         setMediaError({
-          // The SDK emits numeric codes; ActiveMediaFailedCode uses strings.
-          errorCode: payload.code ? String(payload.code) : "",
+          errorCode: payload.code,
           reason: payload.message,
           type: payload.type,
         }),
@@ -76,7 +75,7 @@ export function useMediaSDKChange(client: SessionClient, dispatch: React.Dispatc
     clearError: useCallback(() => {
       dispatch(
         setMediaError({
-          errorCode: "",
+          errorCode: 0,
           reason: "",
           type: "",
         }),

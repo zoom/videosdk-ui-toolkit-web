@@ -16,6 +16,7 @@ import { useCurrentUser } from "../participant/hooks";
 import { isShowAvatar } from "@/components/util/util";
 import { THEME_COLOR_CLASS } from "@/constant";
 import { useTranslation } from "react-i18next";
+import { getSubsessionTransitionMessage } from "@/features/subsession/subsession-utils";
 
 interface GalleryViewPros {
   isSidePanelOpen: boolean;
@@ -25,8 +26,16 @@ const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) =>
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const videoPlayerRefList = useRef<Record<string, VideoPlayer>>({});
-  const { isSendingScreenShare, isReceivingScreenShare, avatarUrl, debug, activeSpeakerId, isSupportMultipleVideos } =
-    useAppSelector(useSessionSelector);
+  const {
+    isSendingScreenShare,
+    isReceivingScreenShare,
+    avatarUrl,
+    debug,
+    activeSpeakerId,
+    isSupportMultipleVideos,
+    reconnectReason,
+    reconnectSubsessionName,
+  } = useAppSelector(useSessionSelector);
   const { viewType } = useAppSelector(useSessionUISelector);
   const whiteboard = useAppSelector(useWhiteboardSelector);
 
@@ -97,6 +106,8 @@ const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) =>
     }
   };
 
+  const subsessionTransition = getSubsessionTransitionMessage(reconnectReason, reconnectSubsessionName);
+
   const { updateVideoResolution } = useRenderVideo(currentPageVideos, videoPlayerRefList.current);
   useActive();
   useSpotlight();
@@ -121,8 +132,17 @@ const GalleryView = ({ isSidePanelOpen, mainContentHeight }: GalleryViewPros) =>
       <div className={`flex flex-col items-center ${isSidePanelOpen ? "w-4/5 max-w-4xl" : "w-full max-w-full"}`}>
         <div className="w-full overflow-hidden relative" style={{ maxWidth: `${canvasWidth - 50}px` }}>
           {currentParticipants.length === 0 && !isSupportMultipleVideos && (
-            <div className="flex justify-center text-center text-2xl font-semibold m-2 text-theme-text">
-              <span>{t("gallery.no_other_participants")}</span>
+            <div
+              className="flex flex-col justify-center text-center m-2 text-theme-text"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="text-2xl font-semibold">
+                {subsessionTransition
+                  ? t(subsessionTransition.key, subsessionTransition.values)
+                  : t("gallery.no_other_participants")}
+              </span>
+              {subsessionTransition && <span className="text-base mt-2">{t("subsession.take_few_moments")}</span>}
             </div>
           )}
           <video-player-container>

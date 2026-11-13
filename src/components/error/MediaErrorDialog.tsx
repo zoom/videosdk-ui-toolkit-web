@@ -1,14 +1,14 @@
 import { useTranslation } from "react-i18next";
+import { ActiveMediaFailedCode } from "@zoom/videosdk";
 import { useAppDispatch, useAppSelector, useSessionUISelector } from "@/hooks/useAppSelector";
 import { useMediaSDKChange } from "@/features/session-app/hooks/useMediaSDKChange";
 import ConfirmDialog from "../widget/dialog/ConfirmDialog";
 import { setIsShowAVLearnDialog } from "@/store/uiSlice";
-import { ActiveMediaFailedCode, ActiveMediaFailedCodeType } from "@/constant/error-codes";
 
 const PERMISSION_ERRORS = [
   ActiveMediaFailedCode.MicrophonePermissionReset,
   ActiveMediaFailedCode.CameraPermissionReset,
-] as const;
+];
 
 // Group all stream failures that require browser restart
 const STREAM_FAILURE_ERRORS = [
@@ -20,32 +20,16 @@ const STREAM_FAILURE_ERRORS = [
   ActiveMediaFailedCode.AudioStreamEnded,
   ActiveMediaFailedCode.SharingStreamFailed,
   ActiveMediaFailedCode.WasmOutOfMemory,
-] as const;
+];
 
 const FULL_RESTART_ERRORS = [
   ActiveMediaFailedCode.AudioStreamFailed,
   ActiveMediaFailedCode.SharingStreamFailed,
   ActiveMediaFailedCode.WasmOutOfMemory,
   ActiveMediaFailedCode.VideoStreamFailed,
-] as const;
+];
 
-const AUDIO_PLAYBACK_ERRORS = [
-  ActiveMediaFailedCode.AudioStreamMuted,
-  ActiveMediaFailedCode.AudioPlaybackInterrupted,
-] as const;
-
-type PermissionErrorType = (typeof PERMISSION_ERRORS)[number];
-type StreamFailureErrorType = (typeof STREAM_FAILURE_ERRORS)[number];
-type AudioPlaybackErrorType = (typeof AUDIO_PLAYBACK_ERRORS)[number];
-type FullRestartErrorType = (typeof FULL_RESTART_ERRORS)[number];
-
-const isAudioPlaybackError = (code: ActiveMediaFailedCodeType): code is AudioPlaybackErrorType => {
-  return AUDIO_PLAYBACK_ERRORS.includes(code as AudioPlaybackErrorType);
-};
-
-const needsFullRestart = (code: StreamFailureErrorType): code is FullRestartErrorType => {
-  return FULL_RESTART_ERRORS.includes(code as FullRestartErrorType);
-};
+const AUDIO_PLAYBACK_ERRORS = [ActiveMediaFailedCode.AudioStreamMuted, ActiveMediaFailedCode.AudioPlaybackInterrupted];
 
 export const MediaErrorDialog = () => {
   const { t } = useTranslation();
@@ -72,12 +56,10 @@ export const MediaErrorDialog = () => {
   const getErrorContent = () => {
     if (!errorCode) return null;
 
-    const code = errorCode as ActiveMediaFailedCodeType;
-
     // Permission reset cases
-    if (PERMISSION_ERRORS.includes(code as PermissionErrorType)) {
+    if (PERMISSION_ERRORS.includes(errorCode)) {
       const deviceType =
-        code === ActiveMediaFailedCode.MicrophonePermissionReset
+        errorCode === ActiveMediaFailedCode.MicrophonePermissionReset
           ? t("media.error_microphone")
           : t("media.error_camera");
       const capitalizedDeviceType = deviceType.charAt(0).toUpperCase() + deviceType.slice(1);
@@ -93,14 +75,14 @@ export const MediaErrorDialog = () => {
     }
 
     // Stream failure cases that require browser refresh
-    if (STREAM_FAILURE_ERRORS.includes(code as StreamFailureErrorType)) {
-      const requiresFullRestart = needsFullRestart(code as StreamFailureErrorType);
+    if (STREAM_FAILURE_ERRORS.includes(errorCode)) {
+      const requiresFullRestart = FULL_RESTART_ERRORS.includes(errorCode);
       let message = "";
 
       if (requiresFullRestart) {
         message = t("media.error_close_browser");
       } else {
-        switch (code) {
+        switch (errorCode) {
           case ActiveMediaFailedCode.VideoConnectionFailed:
             message = t("media.error_refresh_connection");
             break;
@@ -128,8 +110,8 @@ export const MediaErrorDialog = () => {
     }
 
     // Audio playback interruption cases
-    if (isAudioPlaybackError(code)) {
-      const isTemporary = code === ActiveMediaFailedCode.AudioStreamMuted;
+    if (AUDIO_PLAYBACK_ERRORS.includes(errorCode)) {
+      const isTemporary = errorCode === ActiveMediaFailedCode.AudioStreamMuted;
       return {
         title: t("media.error_audio_playback_issue"),
         message: isTemporary ? t("media.error_mic_temporarily_occupied") : t("media.error_audio_interrupted"),
@@ -139,7 +121,7 @@ export const MediaErrorDialog = () => {
     }
 
     // Specific cases that need unique handling
-    switch (code) {
+    switch (errorCode) {
       case ActiveMediaFailedCode.MicrophoneMuted:
         return {
           title: t("media.error_microphone_muted"),
@@ -156,7 +138,7 @@ export const MediaErrorDialog = () => {
           onOk: resumeMedia,
         };
 
-      case ActiveMediaFailedCode.WebGLContextInvalid:
+      case ActiveMediaFailedCode.WebGlContextInvalid:
         return {
           title: t("media.error_video_rendering_issue"),
           message: t("media.error_webgl_compatibility"),

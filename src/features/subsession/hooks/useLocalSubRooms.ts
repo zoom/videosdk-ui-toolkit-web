@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-import { Subsession, SubsessionStatus } from "@zoom/videosdk";
+import { Subsession, SubsessionStatus, SubsessionUserStatus } from "@zoom/videosdk";
 import { useMount, usePrevious } from "../../../hooks";
 
 import { getSubsessionParticipantListFromUserList, mergeUnassignedWithRoomAssignments } from "../subsession-utils";
@@ -12,7 +12,7 @@ import { useCurrentUser } from "@/features/participant/hooks";
 export const useLocalSubsessionRooms = () => {
   const { participants } = useAppSelector(useParticipantSelector);
   const currentUser = useCurrentUser();
-  const { subRoomList, subUnassignedUsers, subStatus } = useAppSelector(useSubsessionSelector);
+  const { subRoomList, subUnassignedUsers, subStatus, subUserStatus } = useAppSelector(useSubsessionSelector);
 
   const [localSubsessionRoomList, setLocalSubsessionRoomList] = useState<Subsession[]>([]);
   const [localSubsessionUnassignedUsers, setLocalSubsessionUnassignedUsers] = useState<Participant[]>([]);
@@ -24,13 +24,19 @@ export const useLocalSubsessionRooms = () => {
   const prevParticipants = usePrevious(participants);
   const prevSubsessionRoomList = usePrevious(subRoomList);
 
+  const isLocalUserInMainSession =
+    subUserStatus !== SubsessionUserStatus.InSubsession &&
+    subUserStatus !== SubsessionUserStatus.Joining &&
+    subUserStatus !== SubsessionUserStatus.Leaving;
+
   const syncLocalRoomList = useCallback(() => {
     if (subRoomList) {
       setLocalSubsessionRoomList(subRoomList);
     }
     if (subUnassignedUsers) {
       const shouldReconcileUnassigned =
-        subStatus === SubsessionStatus.InProgress || subStatus === SubsessionStatus.Closing;
+        (subStatus === SubsessionStatus.InProgress || subStatus === SubsessionStatus.Closing) &&
+        isLocalUserInMainSession;
       if (shouldReconcileUnassigned) {
         if (subRoomList?.length) {
           setLocalSubsessionUnassignedUsers(
@@ -43,7 +49,7 @@ export const useLocalSubsessionRooms = () => {
         setLocalSubsessionUnassignedUsers(subUnassignedUsers);
       }
     }
-  }, [subRoomList, subUnassignedUsers, subStatus, participants, currentUser?.userId]);
+  }, [subRoomList, subUnassignedUsers, subStatus, isLocalUserInMainSession, participants, currentUser?.userId]);
 
   useEffect(() => {
     syncLocalRoomList();

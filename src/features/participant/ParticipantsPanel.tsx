@@ -7,6 +7,7 @@ import { CommonPopper } from "@/components/widget/CommonPopper";
 import { Participant } from "@/types";
 import { setActivePopper, setIsInviteDialogOpen, setIsParticipantsPoppedOut } from "@/store/uiSlice";
 import { useAppDispatch, useAppSelector, useSessionSelector, useSessionUISelector } from "@/hooks/useAppSelector";
+import HoldSection from "../hold/HoldSection";
 
 interface ParticipantsPanelProps {
   participants: Participant[];
@@ -95,8 +96,8 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
       id={"zoom-ui-toolkit-users-popper"}
     >
       <div className="w-full h-full flex flex-col font-sans">
-        <div className="p-3">
-          <div className="mb-4 relative">
+        <div className="px-3 pt-3 pb-3">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
             <input
               type="text"
@@ -104,8 +105,12 @@ const ParticipantsPanel: React.FC<ParticipantsPanelProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
+              aria-label={t("participant.search_placeholder")}
             />
           </div>
+        </div>
+        <HoldSection searchTerm={searchTerm} />
+        <div className="px-3 pt-3 pb-2">
           <h3 className="text-xs font-semibold mb-2 uppercase tracking-wider">
             {t("participant.in_session")} • {filteredParticipants.length}
           </h3>

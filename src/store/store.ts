@@ -9,6 +9,7 @@ import mediaReducer from "../features/media/mediaSlice";
 import subsessionReducer from "../features/subsession/subsessionSlice";
 import whiteboardReducer from "../features/whiteboard/whiteboardSlice";
 import rtmsReducer from "../features/real-time-media-streams/rtmsSlice";
+import holdReducer from "../features/hold/holdSlice";
 
 export const store = configureStore({
   reducer: {
@@ -22,6 +23,7 @@ export const store = configureStore({
     subsession: subsessionReducer,
     whiteboard: whiteboardReducer,
     rtms: rtmsReducer,
+    hold: holdReducer,
   },
 });
 

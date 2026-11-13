@@ -2,6 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, AlertCircle, CheckCircle, AlertTriangle, Info, MessageSquareText } from "lucide-react";
 import { isMobileDeviceNotIpad } from "@/components/util/service";
 
+/** Default cap, kept narrow so a short toast does not stretch across the session view. */
+const DEFAULT_MAX_WIDTH = "min(420px, calc(100vw - 32px))";
+
 interface DraggableToastProps {
   message: string;
   type: "info" | "success" | "warning" | "error" | "chat";
@@ -12,6 +15,8 @@ interface DraggableToastProps {
   icon?: React.ReactNode;
   id?: string;
   action?: React.ReactNode;
+  maxWidth?: string;
+  wrapMessage?: boolean;
 }
 
 const DraggableToast: React.FC<DraggableToastProps> = ({
@@ -24,17 +29,9 @@ const DraggableToast: React.FC<DraggableToastProps> = ({
   icon,
   id = "",
   action,
-}: {
-  message: string;
-  type: "info" | "success" | "warning" | "error" | "chat";
-  duration?: number;
-  onClose: () => void;
-  onClick?: () => void;
-  isVisible: boolean;
-  icon?: React.ReactNode;
-  id?: string;
-  action?: React.ReactNode;
-}) => {
+  maxWidth = DEFAULT_MAX_WIDTH,
+  wrapMessage = false,
+}: DraggableToastProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isOpen, setIsOpen] = useState(isVisible);
@@ -111,17 +108,17 @@ const DraggableToast: React.FC<DraggableToastProps> = ({
     <div
       ref={toastRef}
       className={`
-        ${icon ? "" : toastStyles} 
-        px-4 py-2 
+        ${icon ? "" : toastStyles}
+        px-4 py-2
         rounded-xl
-        shadow-lg 
-        flex items-center 
-        justify-between 
-        cursor-move 
+        shadow-lg
+        flex items-center
+        justify-between
+        cursor-move
         border
         backdrop-blur-xl
-        transition-all 
-        duration-200 
+        transition-all
+        duration-200
         ease-in-out
         hover:bg-theme-background
         ${isDragging ? "scale-[0.98]" : "scale-100"}
@@ -133,7 +130,7 @@ const DraggableToast: React.FC<DraggableToastProps> = ({
         top: `${position.y}px`,
         zIndex: 50,
         minWidth: "min(320px, calc(100vw - 32px))",
-        maxWidth: "min(420px, calc(100vw - 32px))",
+        maxWidth,
         width: "100%",
       }}
       onMouseDown={handleMouseDown}
@@ -142,7 +139,10 @@ const DraggableToast: React.FC<DraggableToastProps> = ({
       <div className="flex items-center space-x-3 flex-grow min-w-0">
         {!icon && <IconComponent size={18} className={iconColors} />}
         {icon && <div>{icon}</div>}
-        <span className="text-sm font-medium truncate break-words" id={`${id ? `${id}-message` : ""}`}>
+        <span
+          className={`text-sm font-medium ${wrapMessage ? "break-words" : "truncate"}`}
+          id={`${id ? `${id}-message` : ""}`}
+        >
           {message}
         </span>
       </div>
