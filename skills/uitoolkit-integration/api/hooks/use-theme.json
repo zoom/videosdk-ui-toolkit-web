@@ -1,0 +1,48 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "theme",
+  "kind": "hook",
+  "name": "useTheme",
+  "hook": {
+    "name": "useTheme",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Reads the current theme.",
+    "requiresProvider": false,
+    "signature": "useTheme(): ToolkitTheme",
+    "returns": "The current 'light' or 'dark' theme. Defaults to 'dark' outside ZoomUIToolkitProvider and ThemeProvider.",
+    "notes": [
+      "Inside ZoomUIToolkitProvider, the value follows its theme prop (default 'dark') unless a ThemeProvider closer to the component sets a different value.",
+      "Built-in components apply the current theme themselves, including their menus, dialogs, and panels. Your own elements are not restyled automatically. Use the returned value to pick your own light or dark styles, for example by setting data-theme={theme} and targeting it in your CSS."
+    ],
+    "returnType": "ToolkitTheme"
+  },
+  "types": [
+    {
+      "name": "ToolkitTheme",
+      "description": "Light or dark theme.",
+      "definition": "'light' | 'dark'"
+    }
+  ],
+  "providerInteraction": {
+    "description": "ZoomUIToolkitProvider passes its theme prop to the components inside it, and its notifications use the same theme. Set the theme there. Use ThemeProvider only to give part of your layout a different theme; notifications keep the provider's theme.",
+    "rules": [
+      "ThemeProvider can supply light or dark to a custom subtree.",
+      "ThemeProvider renders no extra element. Components inside it follow its theme automatically; read the value with useTheme() to style your own elements."
+    ]
+  },
+  "usageExamples": [
+    {
+      "scenario": "With ZoomUIToolkitProvider (typical)",
+      "code": "<ZoomUIToolkitProvider clientInstance={client} theme=\"light\">{children}</ZoomUIToolkitProvider>"
+    },
+    {
+      "scenario": "Give part of a layout a different theme inside ZoomUIToolkitProvider",
+      "code": "<ThemeProvider theme=\"light\"><Toolbar /></ThemeProvider>"
+    },
+    {
+      "scenario": "Reading the theme inside a component",
+      "code": "const theme = useTheme();\nreturn <div data-theme={theme}>{children}</div>;"
+    }
+  ]
+}

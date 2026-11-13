@@ -1,0 +1,27 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "app",
+  "kind": "component",
+  "name": "ZoomUIToolkitRoot",
+  "component": {
+    "name": "ZoomUIToolkitRoot",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Optional wrapper that places layouts you build from the individual components in their own stacking layer at the ZoomUIToolkitProvider baseZIndex.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Components rendered inside the container."
+      }
+    ]
+  },
+  "behavior": [
+    "Layered parts of the components inside it don't mix with your page's stacking order.",
+    "Menus, panels, dialogs, and bottom sheets still open above the page, outside this wrapper.",
+    "It accepts no className or style.",
+    "ZoomUIToolkitApp already forms the same stacking layer, so don't wrap the app in it."
+  ]
+}

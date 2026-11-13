@@ -1,0 +1,55 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "theme",
+  "kind": "component",
+  "name": "ThemeProvider",
+  "component": {
+    "name": "ThemeProvider",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Supplies a light or dark theme to the components inside it. Renders no extra element.",
+    "requiresProvider": false,
+    "props": [
+      {
+        "name": "theme",
+        "type": "ToolkitTheme",
+        "required": true,
+        "description": "Light or dark appearance for descendant components."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Components that receive the selected theme."
+      }
+    ]
+  },
+  "types": [
+    {
+      "name": "ToolkitTheme",
+      "description": "Light or dark theme.",
+      "definition": "'light' | 'dark'"
+    }
+  ],
+  "providerInteraction": {
+    "description": "ZoomUIToolkitProvider passes its theme prop to the components inside it, and its notifications use the same theme. Set the theme there. Use ThemeProvider only to give part of your layout a different theme; notifications keep the provider's theme.",
+    "rules": [
+      "ThemeProvider can supply light or dark to a custom subtree.",
+      "ThemeProvider renders no extra element. Components inside it follow its theme automatically; read the value with useTheme() to style your own elements."
+    ]
+  },
+  "usageExamples": [
+    {
+      "scenario": "With ZoomUIToolkitProvider (typical)",
+      "code": "<ZoomUIToolkitProvider clientInstance={client} theme=\"light\">{children}</ZoomUIToolkitProvider>"
+    },
+    {
+      "scenario": "Give part of a layout a different theme inside ZoomUIToolkitProvider",
+      "code": "<ThemeProvider theme=\"light\"><Toolbar /></ThemeProvider>"
+    },
+    {
+      "scenario": "Reading the theme inside a component",
+      "code": "const theme = useTheme();\nreturn <div data-theme={theme}>{children}</div>;"
+    }
+  ]
+}

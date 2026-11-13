@@ -1,0 +1,67 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "component",
+  "name": "MobileVideoLayout",
+  "component": {
+    "name": "MobileVideoLayout",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Displays up to four participant videos in a fixed four-cell grid: one row of four when the container is more than twice as wide as it is tall, otherwise two rows of two. Unused cells stay empty. The device's video limit can lower the count.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "participants",
+        "type": "Participant[]",
+        "required": true,
+        "description": "Participants to render, in display order. At most four are rendered."
+      },
+      {
+        "name": "width",
+        "type": "number",
+        "required": true,
+        "description": "Container width in pixels."
+      },
+      {
+        "name": "height",
+        "type": "number",
+        "required": true,
+        "description": "Container height in pixels."
+      },
+      {
+        "name": "gap",
+        "type": "number",
+        "required": false,
+        "default": 8,
+        "description": "Space in pixels between tiles and around the grid's edges."
+      },
+      {
+        "name": "activeSpeakerBorder",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Highlights the active video participant when the session has more than two participants."
+      },
+      {
+        "name": "renderVideo",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Whether to display participant video streams. When false, tiles show participant names instead of video."
+      }
+    ]
+  },
+  "notes": [
+    "Tiles are displayed only while the session is connected.",
+    "When the device cannot render multiple videos, only the first participant is rendered.",
+    "Tiles stretch to fill their grid cells, so their shape follows the container's shape rather than a fixed aspect ratio.",
+    "Use the MobileParticipantView module when you want pagination and received-share handling in addition to this low-level grid."
+  ],
+  "types": [
+    {
+      "name": "Participant",
+      "description": "Zoom Video SDK Participant type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').Participant"
+    }
+  ]
+}

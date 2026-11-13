@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zoom.us/schemas/ui-toolkit/api-manifest.schema.json",
+  "title": "Zoom UI Toolkit API manifest",
+  "type": "object",
+  "required": ["$schema", "package", "items"],
+  "properties": {
+    "$schema": {
+      "const": "./schemas/api-manifest.schema.json"
+    },
+    "package": {
+      "const": "@zoom/videosdk-ui-toolkit"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "name", "area", "description", "path"],
+        "properties": {
+          "kind": {
+            "enum": ["component", "module", "hook"]
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+          },
+          "area": {
+            "type": "string",
+            "pattern": "^[a-z]+(?:-[a-z]+)*$"
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "path": {
+            "type": "string",
+            "pattern": "^(components|modules|hooks)/[a-z0-9]+(?:-[a-z0-9]+)*\\.json$"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

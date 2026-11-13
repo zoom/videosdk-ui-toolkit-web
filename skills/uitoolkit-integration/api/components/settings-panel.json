@@ -1,0 +1,89 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "settings",
+  "kind": "component",
+  "name": "SettingsPanel",
+  "component": {
+    "name": "SettingsPanel",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Settings panel with Audio, Video, Share screen, and Statistics tabs. Use inside your own container, or use SettingsButton to provide the button and popup.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the panel root."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the panel root."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Set to false to hide the panel."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Renders the mobile layout, with tabs across the top. It has no sheet or container of its own; place it in yours."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Shows a close button and is called when it is pressed. Without onClose, no close button is shown."
+      },
+      {
+        "name": "activeTab",
+        "type": "SettingsTab",
+        "required": false,
+        "description": "Controlled active tab. Invalid or hidden values fall back to the first visible tab. When set, update it from onTabChange so users can switch tabs. When omitted, the panel starts on the first visible tab."
+      },
+      {
+        "name": "onTabChange",
+        "type": "(tab: SettingsTab) => void",
+        "required": false,
+        "description": "Called when the user changes tabs."
+      },
+      {
+        "name": "tabs",
+        "type": "SettingsTab[]",
+        "required": false,
+        "default": "['audio', 'video', 'share', 'qos']",
+        "description": "Visible tabs in display order. An empty array falls back to all tabs."
+      },
+      {
+        "name": "testSoundUrl",
+        "type": "string",
+        "required": false,
+        "description": "URL of the sound played by \"Test speaker\". The SDK ring tone is used when omitted. The speaker test is only shown when a localAudioTrack is passed to ZoomUIToolkitProvider."
+      }
+    ]
+  },
+  "types": [
+    {
+      "name": "SettingsTab",
+      "description": "Settings category. Tab labels: 'audio' is \"Audio\", 'video' is \"Video\", 'share' is \"Share screen\", and 'qos' is \"Statistics\". The share tab currently has no controls.",
+      "definition": "'audio' | 'video' | 'share' | 'qos'"
+    }
+  ],
+  "behavior": [
+    "Tab contents display a loading state until the session is connected.",
+    "Audio tab: Microphone and Speaker pickers, \"Original Sound\", \"Noise Suppression\" when supported, and \"Sync Headset Buttons\" when the browser supports it.",
+    "Microphone and speaker tests: Only shown when a localAudioTrack is passed to ZoomUIToolkitProvider.",
+    "\"Test microphone\" records from the selected microphone. Click \"Stop recording\" to play the recording back through the selected speaker, and \"Stop playing\" to end playback.",
+    "\"Test speaker\" plays the test sound through the selected speaker. The button reads \"Stop\" while the sound plays. Both tests show a level meter.",
+    "Video tab: Camera picker, \"Mirror my video\", \"Enable Hardware Acceleration (Receiving)\", and \"Enable Hardware Acceleration (Sending)\". When virtual backgrounds are supported, it also shows a self-preview and a background picker with None, Blur, and the images from sessionOptions.video.virtualBackground.",
+    "The share tab currently has no controls.",
+    "Statistics tab: Audio, Video, and Share views with Send and Receive columns for latency, jitter, and packet loss, plus frequency for audio and resolution and frame rate for video and share. A dash means no data yet."
+  ]
+}

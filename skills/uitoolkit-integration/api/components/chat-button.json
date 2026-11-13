@@ -1,0 +1,180 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "chat",
+  "kind": "component",
+  "name": "ChatButton",
+  "component": {
+    "name": "ChatButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "requiresProvider": true,
+    "description": "Opens the session chat. Shows an unread badge, lets you pick a recipient and send messages, and lets you delete messages you are allowed to delete. Hosts and co-hosts can also choose who participants can chat with. Uses a draggable panel on desktop and a bottom sheet on mobile.",
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the button."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the button."
+      },
+      {
+        "name": "renderContent",
+        "type": "() => ReactNode",
+        "required": false,
+        "description": "Replaces the default chat icon. The unread badge is still shown."
+      },
+      {
+        "name": "onOpen",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel opens."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel closes, including when the mobile sheet is dismissed. On desktop, the panel closes only when you click the button again or use the panel's close button."
+      },
+      {
+        "name": "onMessageSent",
+        "type": "(message: string, receiverId: number) => void",
+        "required": false,
+        "description": "Called after a message is sent successfully, with the trimmed text and the recipient's user ID (0 when sent to everyone)."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Shows the panel in a mobile bottom sheet instead of the desktop panel. Not detected automatically. The sheet closes when you swipe it down, tap outside it, or use its close button."
+      },
+      {
+        "name": "panelClassName",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the chat panel. On mobile, it applies to the panel body inside the sheet."
+      },
+      {
+        "name": "panelStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the chat panel. On mobile, they apply to the panel body inside the sheet."
+      },
+      {
+        "name": "messageBubbleStyles",
+        "type": "ChatMessageBubbleStyles",
+        "required": false,
+        "description": "Inline style overrides for incoming and outgoing message bubbles, including grouped continuation bubbles."
+      },
+      {
+        "name": "anchor",
+        "type": "VirtualElement | null",
+        "required": false,
+        "description": "Anchors the desktop panel to this element instead of the button. Pass an HTML element or any object with getBoundingClientRect(). Ignored on mobile."
+      },
+      {
+        "name": "popoverProps",
+        "type": "ChatButtonPopoverProps",
+        "required": false,
+        "description": "Initial position of the desktop panel: side, align, sideOffset, alignOffset, and collisionPadding. By default the panel opens above the button, aligned to its start edge, and moves to the opposite side when there isn't enough room. Ignored on mobile."
+      }
+    ]
+  },
+  "behavior": [
+    "The trigger is disabled unless the session is connected and chat is available.",
+    "An open panel stays open during reconnecting, but composing, recipient selection, and sending are disabled and privilege controls are hidden while disconnected or chat is unavailable.",
+    "An unsent draft and its selected recipient are preserved when the panel closes and reopens. Selecting a different recipient keeps the message. The message clears after a successful send.",
+    "If the selected recipient is unavailable, the panel clears the draft and selects the first available recipient when open or reopened. The draft also resets when the connection reconnects, closes, or fails.",
+    "A pending send is preserved when the panel closes and reopens, so reopening chat does not allow the same pending draft to be sent again.",
+    "Participants can delete their own messages; hosts and co-hosts can delete any message visible in their chat history.",
+    "On desktop, hover over a message bubble or focus its action with the keyboard to reveal a Delete button on its right. Clicking Delete opens confirmation directly. On mobile, tap the message to open a bottom sheet with Delete and Cancel actions. Confirmation is required before requesting deletion for everyone.",
+    "The SDK enforces account settings and permissions. Failed deletions preserve the message and display an error.",
+    "Deleted messages disappear from history, and deleting an unread message updates the unread badge even while chat is closed.",
+    "Delete is offered only when your Video SDK version supports deleting chat messages and the message has a message ID.",
+    "Use the To: picker to choose a recipient. When no recipients are available, the picker shows 'No available recipients' and the message box shows 'Chat is disabled' and can't be used.",
+    "Press Enter to send and Shift+Enter for a new line. Messages are limited to 1024 characters. If sending fails, an error notification appears.",
+    "Hosts and co-hosts get a More chat options menu to set 'Participants Can Chat with:' to No one, Everyone, or Everyone and anyone directly.",
+    "The unread badge counts messages from other participants, shows '99+' above 99, and clears once the latest message is in view in the chat panel.",
+    "When you scroll away from the latest message, a 'Jump to latest messages' button appears.",
+    "On desktop, drag the panel by its header to move it.",
+    "On desktop, the panel closes only when you click the button again or use the panel's close button.",
+    "On mobile, the sheet closes when you swipe it down, tap outside it, or use its close button."
+  ],
+  "types": [
+    {
+      "name": "ChatButtonPopoverProps",
+      "description": "Initial placement of the desktop chat panel.",
+      "fields": [
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "required": false,
+          "default": "'top'",
+          "description": "Preferred side of the button or anchor. Moves to the opposite side when there isn't enough room."
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "required": false,
+          "default": "'start'",
+          "description": "Alignment along that side."
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "required": false,
+          "default": 8,
+          "description": "Distance from the button or anchor, in pixels."
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "required": false,
+          "description": "Offset from the chosen alignment, in pixels."
+        },
+        {
+          "name": "collisionPadding",
+          "type": "number | undefined",
+          "required": false,
+          "default": 12,
+          "description": "Minimum gap kept from the viewport edges, in pixels."
+        }
+      ]
+    },
+    {
+      "name": "ChatMessageBubbleStyles",
+      "description": "Inline styles for chat message bubbles.",
+      "fields": [
+        {
+          "name": "incoming",
+          "type": "CSSProperties | undefined",
+          "required": false,
+          "description": "Styles for messages from other participants."
+        },
+        {
+          "name": "outgoing",
+          "type": "CSSProperties | undefined",
+          "required": false,
+          "description": "Styles for your own messages."
+        }
+      ]
+    },
+    {
+      "name": "VirtualElement",
+      "description": "Not exported by name. Pass an HTML element, or any object with a getBoundingClientRect() method that returns a DOMRect.",
+      "fields": [
+        {
+          "name": "getBoundingClientRect",
+          "type": "() => DOMRect",
+          "required": true,
+          "description": "Returns the position and size to anchor to."
+        }
+      ]
+    }
+  ]
+}

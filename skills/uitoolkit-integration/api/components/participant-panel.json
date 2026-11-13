@@ -1,0 +1,112 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "participant",
+  "kind": "component",
+  "name": "ParticipantPanel",
+  "component": {
+    "name": "ParticipantPanel",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Searchable participant list with role-based action menus, Mute All, and Reclaim host when eligible. Can be displayed inline, anchored to an element, or, with isMobile, embedded in your own mobile container such as a bottom sheet.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Shows the panel when true and hides it when false."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Renders the panel without its own frame or positioning so you can place it in your own container, and opens row action menus as bottom sheets. anchor and placement are ignored."
+      },
+      {
+        "name": "anchor",
+        "type": "HTMLElement | null",
+        "required": false,
+        "description": "Positions the panel beside this element and keeps it within the viewport. Omit to display the panel inline. Ignored when isMobile is true."
+      },
+      {
+        "name": "placement",
+        "type": "'top' | 'bottom'",
+        "required": false,
+        "default": "'top'",
+        "description": "Preferred side of the anchor. The panel may move to stay within the viewport. Only used with anchor."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the user closes the panel with its close button. With anchor set, pressing Escape or clicking outside also calls it. The panel does not hide itself; set open to false in response. The close button is shown only when onClose is provided."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the desktop panel."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the desktop panel."
+      }
+    ],
+    "notes": [
+      "The header shows the participant count, for example 'Participants (5)'.",
+      "Search matches participant names case-insensitively after trimming whitespace. A search with no matches shows 'No participants found'.",
+      "The local user is first, followed by the host, co-hosts, then other participants. Within each group, participants keep the order the session reports.",
+      "Each row shows the participant's avatar, name, role (Host or Manager), '(me)' for you, and audio, video, and screen-share status, plus the actions your role allows. Active speakers are highlighted. Participants without a name are shown as 'Guest'.",
+      "Role-appropriate row menus support rename, mute, ask to unmute, role changes, and removal. Desktop and mobile expose the same actions.",
+      "Until the session is connected, the list shows a loading indicator and the Mute All and Reclaim host buttons are disabled.",
+      "Hosts and co-hosts see a Mute All button, which acts immediately without a confirmation step.",
+      "The original host sees a Reclaim host button while they are not the current host and are not in a breakout room."
+    ]
+  },
+  "actionVisibilityRules": {
+    "description": "Available participant actions depend on your role, the selected participant, and session permissions. Manager means co-host. The action menu is hidden when no actions are available.",
+    "order": ["Rename", "Mute", "Ask to unmute", "Make Host", "Make Manager", "Demote from Manager", "Remove"],
+    "orderNote": "Rename is first and Remove is last when those actions are available; desktop and mobile use the same ordering.",
+    "rules": [
+      {
+        "action": "Rename",
+        "shownWhen": "For your own name when renaming is allowed. Hosts can rename other participants; co-hosts can rename participants who are neither hosts nor co-hosts."
+      },
+      {
+        "action": "Mute",
+        "shownWhen": "For any participant who has joined audio and is unmuted. You can always mute yourself; hosts and co-hosts can also mute other participants except the host."
+      },
+      {
+        "action": "Ask to unmute",
+        "shownWhen": "For a muted participant who has joined audio. Hosts can ask any other participant; co-hosts can ask participants who are neither hosts nor co-hosts."
+      },
+      {
+        "action": "Make Host",
+        "shownWhen": "For another participant when you are the current host."
+      },
+      {
+        "action": "Make Manager",
+        "shownWhen": "For a participant who is neither host nor co-host, when you are the current host."
+      },
+      {
+        "action": "Demote from Manager",
+        "shownWhen": "For a co-host when you are the current host."
+      },
+      {
+        "action": "Remove",
+        "shownWhen": "Hosts can remove other participants. Co-hosts can remove participants who are neither hosts nor co-hosts."
+      }
+    ],
+    "notes": [
+      "Other participants cannot moderate the host.",
+      "Only the host can transfer the host role, assign co-hosts, or remove co-host privileges.",
+      "Co-hosts can mute other co-hosts, but cannot rename them, remove them, or ask them to unmute.",
+      "Ask to unmute sends a request that the participant can accept or decline.",
+      "Make Host opens a 'Change host to <name>' confirmation with Cancel and Change host buttons. The dialog notes: \"You can't assign co-owner access to Zoom Room or users from different accounts.\""
+    ]
+  }
+}

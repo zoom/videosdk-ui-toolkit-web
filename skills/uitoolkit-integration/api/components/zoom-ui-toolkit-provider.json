@@ -1,0 +1,193 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "app",
+  "kind": "component",
+  "name": "ZoomUIToolkitProvider",
+  "component": {
+    "name": "ZoomUIToolkitProvider",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Connects the built-in components to your initialized Video SDK client and supplies session settings, theme, and notifications.",
+    "requiresProvider": false,
+    "props": [
+      {
+        "name": "clientInstance",
+        "type": "typeof VideoClient | null",
+        "required": true,
+        "description": "Client created with ZoomVideo.createClient() and initialized by the caller. Keep the same client while a session is open; replacing it or switching it to null mid-session is not supported. After the session closes, you can destroy it with ZoomVideo.destroyClient() and pass a new one. Pass null until the client exists; the built-in components stay inactive until a client is provided."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": true,
+        "description": "Components to connect to this provider."
+      },
+      {
+        "name": "sessionOptions",
+        "type": "SessionOptions",
+        "required": false,
+        "default": "{}",
+        "description": "Audio, video, recording consent, and reclaim-host banner settings. Pass a stable object, such as a module constant or a memoized value. Each new object applies the default virtual background again, replacing the user's choice."
+      },
+      {
+        "name": "theme",
+        "type": "ToolkitTheme",
+        "required": false,
+        "default": "'dark'",
+        "description": "Theme used by the built-in components."
+      },
+      {
+        "name": "baseZIndex",
+        "type": "number",
+        "required": false,
+        "default": 1000,
+        "description": "Stacking order of ZoomUIToolkitApp and ZoomUIToolkitRoot. Also the starting value for the panels, menus, dialogs, bottom sheets, and reclaim-host banner that the built-in components open above the page; these use values up to baseZIndex + 7. Pop-up notifications are not affected."
+      },
+      {
+        "name": "localAudioTrack",
+        "type": "LocalAudioTrack",
+        "required": false,
+        "description": "Local audio track created with ZoomVideo.createLocalAudioTrack(). When you pass it, the SettingsPanel Audio tab shows 'Test microphone' and 'Test speaker' controls that use it. Without it, those controls are hidden."
+      }
+    ]
+  },
+  "types": [
+    {
+      "name": "ToolkitTheme",
+      "description": "Light or dark theme.",
+      "definition": "'light' | 'dark'"
+    },
+    {
+      "name": "SessionOptions",
+      "description": "Audio, video, recording, and session behavior configured through ZoomUIToolkitProvider.",
+      "fields": [
+        {
+          "name": "audio",
+          "type": "AudioOptionType | undefined",
+          "description": "Audio defaults and host unmute-request consent settings.",
+          "required": false
+        },
+        {
+          "name": "video",
+          "type": "VideoOptionType | undefined",
+          "description": "Video defaults, including custom virtual background images and the initially selected background.",
+          "required": false
+        },
+        {
+          "name": "recording",
+          "type": "RecordingOptionType | undefined",
+          "required": false,
+          "description": "Recording consent dialog configuration."
+        },
+        {
+          "name": "session",
+          "type": "SessionOptionType | undefined",
+          "description": "Reclaim-host banner setting.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "AudioOptionType",
+      "description": "Configuration accepted by SessionOptions.audio.",
+      "fields": [
+        {
+          "name": "noiseSuppression",
+          "type": "boolean | undefined",
+          "description": "Whether AudioButton and useAudioController turn on background noise suppression when they join audio. Default false.",
+          "required": false
+        },
+        {
+          "name": "disableUnmuteConsentDialog",
+          "type": "boolean | undefined",
+          "description": "Hides the dialog that AudioButton shows when the host asks you to unmute. Default false.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VideoOptionType",
+      "description": "Configuration accepted by SessionOptions.video.",
+      "fields": [
+        {
+          "name": "virtualBackground.virtualBackgroundImageList",
+          "type": "VirtualBackgroundImage[] | undefined",
+          "description": "Custom background choices { id, name, url }. Entries with an empty name or url, a duplicate id, or a reserved id ('' or 'blur') are ignored. The effective list starts with the built-in None and Blur choices.",
+          "required": false
+        },
+        {
+          "name": "virtualBackground.defaultVirtualBackgroundImageId",
+          "type": "string | undefined",
+          "description": "Default background ID: '' for none, 'blur', or an ID in the configured list. Invalid IDs fall back to ''. The default is reapplied when the connection state changes or when you pass a new sessionOptions object.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "SessionOptionType",
+      "description": "Configuration accepted by SessionOptions.session.",
+      "fields": [
+        {
+          "name": "disableReclaimHostBanner",
+          "type": "boolean | undefined",
+          "description": "Set to true to stop ZoomUIToolkitProvider from showing the banner that lets the session's original host take back the host role (\"Reclaim host\") while someone else is host. Default false.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VideoClient",
+      "description": "The Zoom Video SDK client returned by ZoomVideo.createClient(). Import the type with `import type { VideoClient } from '@zoom/videosdk'` and write it as `typeof VideoClient`. Call client.init() yourself before passing the client to ZoomUIToolkitProvider.",
+      "definition": "typeof VideoClient"
+    },
+    {
+      "name": "RecordingOptionType",
+      "description": "Configuration accepted by SessionOptions.recording.",
+      "fields": [
+        {
+          "name": "disableRecordingConsentDialog",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Hides the recording consent dialogs that ZoomUIToolkitProvider shows when a recording needs your consent. Default false."
+        }
+      ]
+    },
+    {
+      "name": "LocalAudioTrack",
+      "description": "Local audio track from the Zoom Video SDK, created with ZoomVideo.createLocalAudioTrack(). Import the type with `import type { LocalAudioTrack } from '@zoom/videosdk'`.",
+      "definition": "import('@zoom/videosdk').LocalAudioTrack"
+    },
+    {
+      "name": "VirtualBackgroundImage",
+      "description": "A virtual background choice. Use this shape for images you pass in `sessionOptions.video.virtualBackground.virtualBackgroundImageList`. `videoState.virtualBackgroundImageList` also starts with the built-in None (id '', url '') and Blur (id 'blur', url 'blur') choices, whose names are English only.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique image ID. The values '' and 'blur' are reserved for no background and blur. If an ID is reserved or repeated, only the first entry with that ID is kept.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Non-empty accessible label for the image. Supply a translated label for your application. Entries with empty names are ignored.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "description": "Non-empty image URL. Entries with empty URLs are ignored.",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "providerNotes": {
+    "lifecycleResponsibility": "Create and initialize the Video SDK client before rendering ZoomUIToolkitProvider. Keep that client instance while a session is open; after the session closes, you can destroy it with ZoomVideo.destroyClient() and pass a new one. Unmounting the provider does not leave the session or destroy the client; do both yourself.",
+    "joining": "Obtain a Video SDK JWT from your server, then join through the SDK or JoinButton.joinParameters. The provider does not fetch tokens or join automatically.",
+    "stateAccess": "Read live state through useZoomUIToolkit and perform media actions through the controller hooks.",
+    "notifications": "Shows pop-up notifications, most of them at the top center of the page: \"Microphone access is required.\" or \"Camera access is required.\" when access is blocked, a notice titled by the problem (for example \"Camera connection failed\") for media problems that can't be recovered automatically, with a Refresh button when refreshing the browser fixes it, a notice when your screen share is stopped because the host changed sharing privileges, and errors from the built-in controls and controller hooks. Also shows the reclaim-host banner and the recording consent dialogs (\"This session is being recorded\" with Leave and Stay, and \"Allow individual cloud recording?\" with Allow and Decline). Turn these off with sessionOptions.session.disableReclaimHostBanner and sessionOptions.recording.disableRecordingConsentDialog. If you render ReclaimHostBanner yourself, turn off the provider's banner. AudioButton, not the provider, shows the dialog for host unmute requests.",
+    "language": "Built-in text is shown in English.",
+    "hardwareAcceleration": "After the video engine loads, the provider turns on video hardware acceleration for sending and receiving where the device supports it. videoState.hardwareAccelerationSending and videoState.hardwareAccelerationReceiving from useZoomUIToolkit show the result."
+  }
+}

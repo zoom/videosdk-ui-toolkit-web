@@ -1,0 +1,35 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "module",
+  "name": "SharePresenterView",
+  "module": {
+    "name": "SharePresenterView",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Previews the local participant's shared screen, scaled to fit its container while keeping the shared content's aspect ratio. Displays an empty area when the local participant is not sharing.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root container. Set width and height here or size the parent container."
+      },
+      {
+        "name": "hidden",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Hides the preview while keeping it mounted."
+      }
+    ]
+  },
+  "notes": ["The view stays empty until the session is connected.", "The preview has no name label."]
+}

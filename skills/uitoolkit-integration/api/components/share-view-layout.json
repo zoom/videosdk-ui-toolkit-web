@@ -1,0 +1,67 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "component",
+  "name": "ShareViewLayout",
+  "component": {
+    "name": "ShareViewLayout",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Arranges shared screens in a grid sized to the supplied container dimensions.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "participants",
+        "type": "Participant[]",
+        "required": true,
+        "description": "Participants who are currently sharing their screen, in display order."
+      },
+      {
+        "name": "width",
+        "type": "number",
+        "required": true,
+        "description": "Container width in pixels."
+      },
+      {
+        "name": "height",
+        "type": "number",
+        "required": true,
+        "description": "Container height in pixels."
+      },
+      {
+        "name": "minTileWidth",
+        "type": "number",
+        "required": false,
+        "default": 160,
+        "description": "Minimum tile width in pixels. The layout picks the row and column count that gives the largest tiles at least this wide, and tiles never get narrower than this. If no arrangement fits, tiles are still this wide, so the grid extends past the container and is clipped at its edges."
+      },
+      {
+        "name": "gap",
+        "type": "number",
+        "required": false,
+        "default": 8,
+        "description": "Space between tiles in pixels."
+      },
+      {
+        "name": "shareTileAspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Width-to-height ratio for each shared-screen tile."
+      }
+    ]
+  },
+  "notes": [
+    "Shared screens are displayed only while the session is connected.",
+    "The number of shared screens shown is limited by what the device can display.",
+    "Rows are centered, including a partly filled last row.",
+    "Each shared screen is scaled to fit its tile, keeping its proportions, with a name tag that reads \"<name>'s screen\"."
+  ],
+  "types": [
+    {
+      "name": "Participant",
+      "description": "Zoom Video SDK Participant type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').Participant"
+    }
+  ]
+}

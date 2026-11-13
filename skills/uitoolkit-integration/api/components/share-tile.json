@@ -1,0 +1,85 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "component",
+  "name": "ShareTile",
+  "component": {
+    "name": "ShareTile",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Displays one participant's shared screen at the specified size.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "participant",
+        "type": "Participant | null",
+        "required": true,
+        "description": "Participant sharing content. Null or a participant who is not sharing renders no tile."
+      },
+      {
+        "name": "width",
+        "type": "number",
+        "required": true,
+        "description": "Tile width in pixels."
+      },
+      {
+        "name": "height",
+        "type": "number",
+        "required": true,
+        "description": "Tile height in pixels. Shared content is scaled to fit within width × height."
+      },
+      {
+        "name": "aspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Width-to-height ratio used for the shared-content area until the shared screen's dimensions are known. The tile itself uses width and height."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the tile."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the tile. The tile size comes from the width and height props (or from the shared content when fitToContent is true) and overrides any width or height in style. The background color is always transparent."
+      },
+      {
+        "name": "customNameTag",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Custom content replacing the default presenter name tag."
+      },
+      {
+        "name": "fitToContent",
+        "type": "boolean",
+        "required": false,
+        "description": "Sizes the tile to the displayed shared content instead of the supplied container dimensions.",
+        "default": false
+      },
+      {
+        "name": "showContentOriginalSize",
+        "type": "boolean",
+        "required": false,
+        "description": "Displays shared content at its original pixel dimensions instead of fitting it to the container. Unless fitToContent is also true, content larger than the tile is cropped.",
+        "default": false
+      }
+    ]
+  },
+  "notes": [
+    "By default, the shared content is scaled to fit the tile, keeping its proportions, and centered.",
+    "The default name tag reads \"<name>'s screen\". Names longer than 15 characters are shortened with \"…\".",
+    "When used on its own, ShareTile must be rendered inside a <video-player-container> element that is separate from the one used for participant videos. ShareViewLayout provides this container for you.",
+    "Neither this package nor the Zoom Video SDK declares <video-player-container> as a JSX element. In TypeScript, add it to React's JSX.IntrinsicElements in your own declaration file."
+  ],
+  "types": [
+    {
+      "name": "Participant",
+      "description": "Zoom Video SDK Participant type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').Participant"
+    }
+  ]
+}

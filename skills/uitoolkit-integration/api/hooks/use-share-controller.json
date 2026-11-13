@@ -1,0 +1,158 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "hook",
+  "name": "useShareController",
+  "hook": {
+    "name": "useShareController",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "returns": "ShareController",
+    "requiresProvider": true,
+    "signature": "useShareController(): ShareController",
+    "description": "Provides screen-sharing status and actions for custom controls or keyboard shortcuts.",
+    "actions": [
+      {
+        "name": "toggleShare",
+        "signature": "(options?: ScreenShareOption) => Promise<void>",
+        "description": "Starts screen sharing and labels annotations with the name of the person who drew them. Call it when you are not sharing; to stop sharing, call stopShare. If starting fails, an error notification appears, for example when the host has locked sharing or another participant is already sharing."
+      },
+      {
+        "name": "stopShare",
+        "signature": "() => Promise<void>",
+        "description": "Stops your screen share. No effect when you are not sharing."
+      },
+      {
+        "name": "pauseShare",
+        "signature": "() => Promise<void>",
+        "description": "Pauses your screen share. No effect when you are not sharing or the share is already paused."
+      },
+      {
+        "name": "resumeShare",
+        "signature": "() => Promise<void>",
+        "description": "Resumes your paused screen share. No effect when you are not sharing or the share is not paused."
+      },
+      {
+        "name": "changeSharePrivilege",
+        "signature": "(privilege: SharePrivilege) => Promise<void>",
+        "description": "Changes who can share. No effect unless canChangeSharePrivilege is true."
+      },
+      {
+        "name": "toggleOptimizeForSharedVideo",
+        "signature": "() => Promise<void>",
+        "description": "Turns optimization for shared video on or off, based on isEnableOptimizeForSharedVideo. No effect when you are not sharing or isSupportOptimizedForSharedVideo is false."
+      }
+    ],
+    "notes": [
+      "Actions do nothing when the Video SDK client has no media stream. Unlike ShareButton, they don't check the connection state or whether the device is a phone or tablet.",
+      "Actions never reject. Only a failed start shows an error notification; other failures are not reported."
+    ],
+    "returnType": "ShareController"
+  },
+  "types": [
+    {
+      "name": "ShareController",
+      "description": "Return value of useShareController.",
+      "fields": [
+        {
+          "name": "isSharing",
+          "type": "boolean",
+          "description": "True when the local user is currently sharing.",
+          "required": true
+        },
+        {
+          "name": "sharePrivilege",
+          "type": "SharePrivilege",
+          "description": "Who may share in this session. Starts as MultipleShare and updates when the host changes it.",
+          "required": true
+        },
+        {
+          "name": "canChangeSharePrivilege",
+          "type": "boolean",
+          "description": "Whether the current user is a host or co-host/manager.",
+          "required": true
+        },
+        {
+          "name": "isSharingPaused",
+          "type": "boolean",
+          "description": "True when the local user's active share is paused.",
+          "required": true
+        },
+        {
+          "name": "isSupportOptimizedForSharedVideo",
+          "type": "boolean",
+          "description": "True when the current browser or platform supports optimizing a screen share for video playback.",
+          "required": true
+        },
+        {
+          "name": "isEnableOptimizeForSharedVideo",
+          "type": "boolean",
+          "description": "True after toggleOptimizeForSharedVideo turns optimization on. Resets to false when your share ends. Not updated by the optimizedForSharedVideo start option or by direct Video SDK calls.",
+          "required": true
+        },
+        {
+          "name": "toggleShare",
+          "type": "(options?: ScreenShareOption) => Promise<void>",
+          "description": "Starts the local screen share. To stop it, call stopShare.",
+          "required": true
+        },
+        {
+          "name": "stopShare",
+          "type": "() => Promise<void>",
+          "description": "Stops the local screen share.",
+          "required": true
+        },
+        {
+          "name": "pauseShare",
+          "type": "() => Promise<void>",
+          "description": "Pauses the active share.",
+          "required": true
+        },
+        {
+          "name": "resumeShare",
+          "type": "() => Promise<void>",
+          "description": "Resumes a paused share.",
+          "required": true
+        },
+        {
+          "name": "changeSharePrivilege",
+          "type": "(privilege: SharePrivilege) => Promise<void>",
+          "description": "Changes the session sharing privilege when the current user is a host or co-host/manager.",
+          "required": true
+        },
+        {
+          "name": "toggleOptimizeForSharedVideo",
+          "type": "() => Promise<void>",
+          "description": "Turns optimization for shared video on or off.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "SharePrivilege",
+      "description": "Share privilege enum from the Zoom Video SDK. Import it with `import { SharePrivilege } from '@zoom/videosdk'`.",
+      "values": [
+        {
+          "name": "Unlocked",
+          "value": 0,
+          "description": "One participant can share at a time; only the host or a co-host can start sharing while someone else is sharing."
+        },
+        {
+          "name": "Locked",
+          "value": 1,
+          "description": "Only the host or a co-host can share."
+        },
+        {
+          "name": "MultipleShare",
+          "value": 3,
+          "description": "Multiple participants can share simultaneously."
+        }
+      ]
+    },
+    {
+      "name": "ScreenShareOption",
+      "description": "Screen share options from the Zoom Video SDK, accepted by toggleShare. Import the type with `import type { ScreenShareOption } from '@zoom/videosdk'`. Available options depend on your Video SDK version.",
+      "definition": "import('@zoom/videosdk').ScreenShareOption"
+    }
+  ]
+}

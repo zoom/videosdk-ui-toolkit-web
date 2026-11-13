@@ -1,0 +1,175 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session",
+  "kind": "component",
+  "name": "LeaveButton",
+  "component": {
+    "name": "LeaveButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Leaves the session. Participants leave immediately. The host chooses to end the session for everyone or to leave, assigning a new host first when others are present.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the default trigger button."
+      },
+      {
+        "name": "fullWidth",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Expands the default button to fill its container width."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Displays the host menu and host-transfer options in a mobile bottom sheet. Not detected automatically."
+      },
+      {
+        "name": "renderContent",
+        "type": "(props: LeaveButtonRenderContent) => ReactNode",
+        "required": false,
+        "description": "Renders a custom trigger button. Apply the supplied onClick handler and disabled value. For the host, return a button that accepts a ref and click events so it can open the menu."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the default trigger button."
+      },
+      {
+        "name": "onClick",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the trigger is clicked. For the host, it is also called after \"End meeting for all\", \"Assign and leave\", or \"Leave meeting\" when the host is alone. It runs even if leaving fails; to confirm the session ended, check sessionState.connectionState."
+      },
+      {
+        "name": "anchor",
+        "type": "VirtualElement | null",
+        "required": false,
+        "description": "Host menu only. Anchors the desktop menu to this element instead of the button. Pass an HTML element or any object with getBoundingClientRect(). Ignored on mobile."
+      },
+      {
+        "name": "popoverProps",
+        "type": "LeaveButtonPopoverProps",
+        "required": false,
+        "description": "Host menu only. Position of the desktop menu: side, align, sideOffset, alignOffset, and collisionPadding. By default the menu opens above the button, aligned to its start edge, and moves to the opposite side when there isn't enough room. Ignored on mobile."
+      },
+      {
+        "name": "menuClassName",
+        "type": "string",
+        "required": false,
+        "description": "Host menu only. Additional CSS class for the desktop menu or the mobile sheet body."
+      },
+      {
+        "name": "menuStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Host menu only. Inline styles for the desktop menu or the mobile sheet body."
+      }
+    ]
+  },
+  "behavior": [
+    "Participants and co-hosts leave as soon as they click the button. There is no confirmation.",
+    "The host gets a menu with \"End meeting for all\" and \"Leave meeting\". \"End meeting for all\" ends the session for everyone right away.",
+    "When other participants are present, \"Leave meeting\" asks the host to choose a new host. \"Assign and leave\" stays disabled until someone is selected, then transfers the host role and leaves. If the transfer fails, the error is reported in sessionState.errorMessage and the host still leaves.",
+    "When the host is alone, \"Leave meeting\" leaves right away.",
+    "The host can close the menu without leaving. On desktop, click the button again, click outside the menu, or press Escape. On mobile, swipe the sheet down or tap outside it.",
+    "Disabled until the session is connected and while leaving."
+  ],
+  "types": [
+    {
+      "name": "LeaveButtonRenderContent",
+      "description": "Button status and click handler provided to custom LeaveButton content.",
+      "fields": [
+        {
+          "name": "isHost",
+          "type": "boolean",
+          "description": "Whether the local participant is the session host.",
+          "required": true
+        },
+        {
+          "name": "isBusy",
+          "type": "boolean",
+          "description": "Whether leaving the session is in progress.",
+          "required": true
+        },
+        {
+          "name": "isConnected",
+          "type": "boolean",
+          "description": "Whether the session is connected.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean",
+          "description": "Whether the custom button should be disabled. Apply this to its disabled prop.",
+          "required": true
+        },
+        {
+          "name": "onClick",
+          "type": "() => void",
+          "description": "Pass this to your custom button's onClick. For participants, it leaves the session. For the host, clicking the button opens the menu.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "LeaveButtonPopoverProps",
+      "description": "Placement of the desktop host menu.",
+      "fields": [
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "default": "'top'",
+          "required": false,
+          "description": "Preferred side of the button or anchor. Moves to the opposite side when there isn't enough room."
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "default": "'start'",
+          "required": false,
+          "description": "Alignment along that side."
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "default": 10,
+          "required": false,
+          "description": "Distance from the button or anchor, in pixels."
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "required": false,
+          "description": "Offset from the chosen alignment, in pixels."
+        },
+        {
+          "name": "collisionPadding",
+          "type": "number | undefined",
+          "default": 12,
+          "required": false,
+          "description": "Minimum gap kept from the viewport edges, in pixels."
+        }
+      ]
+    },
+    {
+      "name": "VirtualElement",
+      "description": "Not exported by name. Pass an HTML element, or any object with a getBoundingClientRect() method that returns a DOMRect.",
+      "fields": [
+        {
+          "name": "getBoundingClientRect",
+          "type": "() => DOMRect",
+          "required": true,
+          "description": "Returns the position and size to anchor to."
+        }
+      ]
+    }
+  ]
+}

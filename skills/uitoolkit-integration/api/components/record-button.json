@@ -1,0 +1,242 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "recording",
+  "kind": "component",
+  "name": "RecordButton",
+  "component": {
+    "name": "RecordButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Toolbar button for cloud recording. Clicking it starts a recording. While a recording is active or paused, clicking it opens a menu with Pause recording or Resume recording, and Stop recording. Only hosts and co-hosts can use it.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the toolbar button."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the toolbar button."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Opens the recording-action menu as a bottom sheet instead of a dropdown. Not detected automatically."
+      },
+      {
+        "name": "showMenu",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Shows pause, resume, and stop actions while recording is active."
+      },
+      {
+        "name": "menuGroups",
+        "type": "ToolbarMenuGroup[]",
+        "required": false,
+        "description": "Extra menu groups shown after Pause/Resume recording and Stop recording. Shown only while a recording is active or paused."
+      },
+      {
+        "name": "dropdownOptions",
+        "type": "ToolbarMenuDropdownOptions",
+        "required": false,
+        "description": "Menu placement, styling, and container options. Ignored when isMobile is true."
+      }
+    ]
+  },
+  "visibilityRules": [
+    "Always renders the recording button.",
+    "Disabled while disconnected, when your participant information is not yet available, when you are not a host or co-host/manager, when cloud recording is unavailable, or while an action is in progress.",
+    "When recording is active and showMenu is false, the button is disabled because there is no recording-action menu.",
+    "When the button is disabled because you are not a host or co-host, or because cloud recording is not enabled for the account, its title text explains why: 'Only the host or co-host can control cloud recording.' or 'Cloud recording is not enabled for this account.'",
+    "The button's accessible name is 'Start recording' when no recording is active, 'Recording' while a recording is active or paused, and 'Working...' while an action is in progress.",
+    "If an action fails, an error notification appears, for example 'Could not start cloud recording' or 'This account does not allow cloud recording to be paused or stopped.'"
+  ],
+  "types": [
+    {
+      "name": "ToolbarMenuActionItem",
+      "description": "A selectable menu action. In a single-selection group, the selected action displays a check mark.",
+      "fields": [
+        {
+          "name": "selected",
+          "type": "boolean | undefined",
+          "description": "Marks the selected action in a group with selectionMode: 'single'.",
+          "required": false
+        },
+        {
+          "name": "onSelect",
+          "type": "((item: ToolbarMenuActionItem, group: ToolbarMenuGroup) => void | Promise<void>) | undefined",
+          "description": "Called when the action is selected, with the item and its group. Handle errors in asynchronous callbacks.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "undefined",
+          "description": "Omit this property for an action item.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique action ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Label content rendered inside the menu item.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the item is rendered with disabled state and is non-interactive.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuDropdownOptions",
+      "description": "Styling, placement, and portal container options for desktop dropdown menus. Only the listed options are supported.",
+      "fields": [
+        {
+          "name": "className",
+          "type": "string | undefined",
+          "description": "Additional CSS class for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties | undefined",
+          "description": "Inline styles for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "portalContainer",
+          "type": "Element | DocumentFragment | null | undefined",
+          "description": "Container for the dropdown and its nested submenus. Defaults to document.body.",
+          "required": false
+        },
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "description": "Preferred side of the trigger. Defaults to 'bottom'. The menu may move to stay visible.",
+          "required": false
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "description": "Distance from the trigger in pixels. Defaults to 10.",
+          "required": false
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "description": "Alignment along the trigger. Defaults to 'start'.",
+          "required": false
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "description": "Offset from the chosen alignment in pixels.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuGroup",
+      "description": "A section of menu items with an optional heading and empty-state label.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique group ID.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Optional section heading.",
+          "required": false
+        },
+        {
+          "name": "emptyLabel",
+          "type": "string | undefined",
+          "description": "Text to show when the group has no items. An empty group without this label is hidden.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Items belonging to this group.",
+          "required": true
+        },
+        {
+          "name": "selectionMode",
+          "type": "'single' | undefined",
+          "description": "Set to 'single' for a group of mutually exclusive choices. Mark the current action with selected: true.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuItem",
+      "description": "A menu action or a nested menu. Any item with an items property is a nested menu, so leave items out of menu actions.",
+      "fields": [
+        {
+          "name": "(union)",
+          "type": "ToolbarMenuActionItem | ToolbarMenuSubmenuItem",
+          "description": "An item is a submenu when it has an 'items' property; otherwise it is a leaf action."
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuSubmenuItem",
+      "description": "A menu item that opens a nested menu.",
+      "fields": [
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Nested items rendered inside the submenu. May themselves contain further submenus (recursive).",
+          "required": true
+        },
+        {
+          "name": "onSelect",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "selected",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique submenu ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Submenu label and mobile submenu heading.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the submenu trigger is rendered with disabled state and the submenu cannot be opened.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "module",
+  "name": "ShareViewerView",
+  "module": {
+    "name": "ShareViewerView",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Displays screen shares received from other participants. Single-share mode shows the active share with a \"You are viewing {name}'s screen\" banner and a View Options menu: Fit to window (default) or Original size, where larger content can be dragged to pan. Multi-share mode shows a paginated grid that labels each sharer by name.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "pageSize",
+        "type": "number",
+        "required": false,
+        "default": 4,
+        "description": "Maximum shared screens per page in multi-share mode. Use a positive integer. Changing pageSize returns to page 1. The last page shows the final pageSize screens, so it can repeat screens from the previous page. Each page shows at most as many shared screens as the device can render; if pageSize is larger, the remaining shares on that page are not shown."
+      },
+      {
+        "name": "tileAspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Width-to-height ratio for each shared-screen tile in multi-share mode."
+      },
+      {
+        "name": "paginationDirection",
+        "type": "PaginationDirection",
+        "required": false,
+        "default": "'horizontal'",
+        "description": "Pagination direction: 'horizontal' for left and right buttons, or 'vertical' for up and down buttons. Each button appears only when there is a page in that direction."
+      },
+      {
+        "name": "hidePagination",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "When true, hides the previous and next page buttons in multi-share mode, so users can't change pages and shares on other pages aren't shown. The page number (for example, 2 / 3) still appears briefly when the view first renders and each time the page changes."
+      },
+      {
+        "name": "hidden",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Hides the view while keeping it mounted."
+      },
+      {
+        "name": "isMultiShareRender",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Displays all received shares in a paginated grid when true. Otherwise, displays only the active share. More than one share appears only when the session allows multiple participants to share at the same time."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root container. backgroundColor also fills the area behind shared screens. color also applies to sharer name labels in multi-share mode, the page buttons, and the page number."
+      }
+    ]
+  },
+  "notes": [
+    "The view is empty until the session is connected.",
+    "When there is no share to show, the view displays \"No active screen share\".",
+    "In single-share mode, the view returns to Fit to window whenever a different participant becomes the active sharer.",
+    "In single-share mode, the shared screen isn't displayed while the local user is sharing their own screen."
+  ],
+  "types": [
+    {
+      "name": "PaginationDirection",
+      "description": "Page navigation direction: 'horizontal' (left and right) or 'vertical' (up and down). Not exported by name; pass 'horizontal' or 'vertical' directly.",
+      "definition": "'horizontal' | 'vertical'"
+    }
+  ]
+}

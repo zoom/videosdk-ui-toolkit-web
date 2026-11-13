@@ -1,0 +1,178 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "audio",
+  "kind": "hook",
+  "name": "useAudioController",
+  "hook": {
+    "name": "useAudioController",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Reads local audio state and exposes join, leave, mute, device selection, and audio setting actions for custom controls.",
+    "requiresProvider": true,
+    "signature": "useAudioController(): AudioController",
+    "returns": "AudioController with audioState, capability flags, and asynchronous audio actions. See types for every returned field.",
+    "notes": [
+      "canControlAudio is true when the Video SDK client has a media stream. It does not check the connection state. To match AudioButton, enable controls only when canControlAudio is true and useZoomUIToolkit().sessionState.connectionState === ConnectionState.Connected.",
+      "Actions do nothing while canControlAudio is false.",
+      "toggleAudio joins unmuted when audio is not joined; otherwise it toggles mute. joinAudio defaults to muted: false.",
+      "Each time audio is joined, noise suppression is set to sessionOptions.audio.noiseSuppression (default false). This replaces any earlier setNoiseSuppression choice. Turning on noise suppression with setNoiseSuppression turns original sound off, and turning on original sound with setOriginalSound turns noise suppression off.",
+      "Actions never reject. Failures are reported in audioState.warning. If joining audio fails, an error notification is also shown.",
+      "joinAudio, leaveAudio, and muting or unmuting set audioState.isLoading while in progress.",
+      "Get microphone and speaker IDs from useZoomUIToolkit().deviceState.microphones and useZoomUIToolkit().deviceState.speakers. While a switch is in progress, deviceState.isSwitchingMicrophone or deviceState.isSwitchingSpeaker is true.",
+      "AudioButton shows a reminder when you speak while muted, a notice when the host mutes you, a prompt to join audio when the browser blocks audio playback, and the host's request-to-unmute dialog (turn the dialog off with sessionOptions.audio.disableUnmuteConsentDialog). Custom controls built only on this hook don't get these prompts. To build your own, listen for the Video SDK client events speaking-while-muted, current-audio-change, auto-play-audio-failed, and host-ask-unmute-audio."
+    ],
+    "returnType": "AudioController"
+  },
+  "types": [
+    {
+      "name": "AudioController",
+      "description": "Local audio status, available features, and actions returned by useAudioController.",
+      "fields": [
+        {
+          "name": "audioState",
+          "type": "AudioState",
+          "description": "Current local audio status and settings.",
+          "required": true
+        },
+        {
+          "name": "canControlAudio",
+          "type": "boolean",
+          "description": "True when the Video SDK client has a media stream. Does not check the connection state.",
+          "required": true
+        },
+        {
+          "name": "canUseNoiseSuppression",
+          "type": "boolean",
+          "required": true,
+          "description": "Whether background noise suppression is supported by the SDK media stream."
+        },
+        {
+          "name": "canUseHeadsetSync",
+          "type": "boolean",
+          "required": true,
+          "description": "Whether the browser exposes WebHID device selection for headset button synchronization."
+        },
+        {
+          "name": "toggleAudio",
+          "type": "() => Promise<void>",
+          "description": "Joins audio unmuted when not joined; otherwise mutes or unmutes the microphone.",
+          "required": true
+        },
+        {
+          "name": "joinAudio",
+          "type": "(options?: { muted?: boolean; }) => Promise<void>",
+          "description": "Joins audio using the selected microphone and speaker. The muted option defaults to false. Noise suppression is set to sessionOptions.audio.noiseSuppression. If joining fails, audioState.warning is set and an error notification is also shown.",
+          "required": true
+        },
+        {
+          "name": "leaveAudio",
+          "type": "() => Promise<void>",
+          "description": "Leaves audio while staying in the session.",
+          "required": true
+        },
+        {
+          "name": "switchMicrophone",
+          "type": "(deviceId: string) => Promise<void>",
+          "description": "Switches to the microphone with this device ID (from useZoomUIToolkit().deviceState.microphones). The selection is kept only while the session is connected. On failure, audioState.warning is set with type 'operation'.",
+          "required": true
+        },
+        {
+          "name": "switchSpeaker",
+          "type": "(deviceId: string) => Promise<void>",
+          "description": "Switches to the speaker with this device ID (from useZoomUIToolkit().deviceState.speakers). The selection is kept only while the session is connected. On failure, audioState.warning is set with type 'operation'.",
+          "required": true
+        },
+        {
+          "name": "setNoiseSuppression",
+          "type": "(enabled: boolean) => Promise<void>",
+          "required": true,
+          "description": "Enables or disables background noise suppression. Enabling it disables original sound. The next joinAudio sets it back to sessionOptions.audio.noiseSuppression."
+        },
+        {
+          "name": "setOriginalSound",
+          "type": "(enabled: boolean) => Promise<void>",
+          "required": true,
+          "description": "Enables or disables original sound. Enabling it disables background noise suppression."
+        },
+        {
+          "name": "setHeadsetSync",
+          "type": "(enabled: boolean) => Promise<void>",
+          "required": true,
+          "description": "Enables or disables synchronization with headset buttons."
+        }
+      ]
+    },
+    {
+      "name": "AudioState",
+      "description": "Local audio status and settings.",
+      "fields": [
+        {
+          "name": "isJoined",
+          "type": "boolean",
+          "description": "Whether the local participant has joined audio. Updated only while AudioButton, the SettingsPanel Audio tab, or a component that calls useAudioController is mounted.",
+          "required": true
+        },
+        {
+          "name": "isMuted",
+          "type": "boolean",
+          "description": "True when the local microphone is muted. Always true while not joined. Updated under the same conditions as isJoined.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while joining, leaving, muting, or unmuting audio.",
+          "required": true
+        },
+        {
+          "name": "noiseSuppression",
+          "type": "boolean",
+          "description": "The noise suppression value applied when audio is joined, taken from sessionOptions.audio.noiseSuppression (default false). setNoiseSuppression does not change it; see noiseSuppressionEnabled for the current setting.",
+          "required": true
+        },
+        {
+          "name": "noiseSuppressionEnabled",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current background noise suppression setting, when known. Undefined until audio is joined with AudioButton or useAudioController, or the setting is changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "originalSound",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current original sound setting, when known. Undefined until changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "headsetSync",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current headset button synchronization setting, when known. Undefined until changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "warning",
+          "type": "MediaWarning | null",
+          "description": "Latest audio error, or null when there is no error.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaWarning",
+      "description": "An audio or video error, such as denied permission or a failed operation.",
+      "fields": [
+        {
+          "name": "type",
+          "type": "'permission' | 'operation' | 'unknown'",
+          "description": "'permission' when microphone or camera access is denied, 'operation' when an action fails. 'unknown' is reserved and not currently produced.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string | undefined",
+          "description": "Details about the failure, when available. It may be a Video SDK error code or reason (for example 'INSUFFICIENT_PRIVILEGES') rather than a user-facing sentence, so show your own text based on `type`.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

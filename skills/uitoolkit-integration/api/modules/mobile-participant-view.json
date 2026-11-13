@@ -1,0 +1,95 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "module",
+  "name": "MobileParticipantView",
+  "module": {
+    "name": "MobileParticipantView",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Swipeable participant pages for small screens, with page indicators. A received screen share appears on the first page and is selected automatically.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "isShowSelf",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "When true, the local participant appears in the pages. When false, the local participant is excluded."
+      },
+      {
+        "name": "paginationDirection",
+        "type": "PaginationDirection",
+        "required": false,
+        "default": "'horizontal'",
+        "description": "Swipe axis. 'horizontal' = swipe left/right with dots along the bottom; 'vertical' = swipe up/down with dots along the right edge."
+      },
+      {
+        "name": "hidePagination",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "When true, the page dots are hidden. Swiping between pages still works."
+      },
+      {
+        "name": "hidden",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Hides the view with display: none while keeping it mounted."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root container. backgroundColor and color also apply to the tiles."
+      }
+    ]
+  },
+  "notes": [
+    "Fills its parent (100% width and height), so give the parent a size.",
+    "Each page holds up to 4 participants in a centered, fixed grid: two rows of two, or one row of four when the view is more than twice as wide as it is tall. Tiles stretch to fill their cells, and unused cells stay empty. Page size and tile shape are fixed, so this view has no pageSize or tileAspectRatio props.",
+    "Remote participants with video on come before those with video off. When isShowSelf is true, the local participant comes after the first remote participant, or first when alone. The order updates live as participants turn their video on or off.",
+    "Only the page in view plays video. Neighboring pages show participant names until you swipe to them.",
+    "Page dots appear only when there are two or more pages, including the share page. Tapping a dot jumps to that page.",
+    "The view is empty until the session is connected. It is also empty while reconnecting and after leaving."
+  ],
+  "types": [
+    {
+      "name": "PaginationDirection",
+      "description": "Page navigation direction: 'horizontal' (left and right) or 'vertical' (up and down). Not exported by name; pass 'horizontal' or 'vertical' directly.",
+      "definition": "'horizontal' | 'vertical'"
+    }
+  ],
+  "shareBehavior": {
+    "description": "Received screen shares appear automatically in this view.",
+    "rules": [
+      {
+        "rule": "Share page position",
+        "value": "A received share is shown as the first page (before the participant pages)."
+      },
+      {
+        "rule": "Share starts",
+        "value": "When the view starts receiving a screen share, it swipes to the share page."
+      },
+      {
+        "rule": "Share stops",
+        "value": "When no received shares remain, the share page is removed and the view swipes back to the first participant page."
+      },
+      {
+        "rule": "Multi-share",
+        "value": "Only the single active share is shown; concurrent shares are not paginated on mobile."
+      },
+      {
+        "rule": "Share page contents",
+        "value": "A banner at the top reads \"You are viewing <name>'s screen\" and has a \"View Options\" menu with \"Fit to window\" (the default) and \"Original size\". In original size, drag the shared screen to pan."
+      }
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session",
+  "kind": "component",
+  "name": "ReclaimHostBanner",
+  "component": {
+    "name": "ReclaimHostBanner",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Prompts the original host to reclaim the host role from the current host. Remains visible until dismissed or the participant is no longer eligible.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the banner."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the banner."
+      },
+      {
+        "name": "withOwnViewport",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Renders the area the banner appears in. Keep the default. With false, the banner appears only if another ReclaimHostBanner is mounted in the same ZoomUIToolkitProvider."
+      }
+    ]
+  },
+  "behavior": [
+    "ZoomUIToolkitProvider already shows this banner. To render your own, set sessionOptions.session.disableReclaimHostBanner to true so it doesn't appear twice.",
+    "Shown to the original host (the participant whose token has role_type 1) whenever another participant is host, whether or not they are still a co-host.",
+    "Shows \"<host name> is currently host. Reclaiming host may disrupt current session experience.\" with \"Reclaim host\" and \"Stay participant\" buttons. Co-hosts see \"Stay manager\" instead of \"Stay participant\". Either button dismisses the banner.",
+    "The banner is hidden while the participant is already host or is in a breakout room. It does not dismiss automatically.",
+    "Once dismissed, it stays hidden until the participant becomes host again and then loses the role."
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "toolbar",
+  "kind": "module",
+  "name": "Toolbar",
+  "module": {
+    "name": "Toolbar",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Prebuilt session control bar with Audio, Video, Participants, Chat, Share, Record, Settings, More, and Leave buttons. Choose which buttons appear with visibleButtons. Buttons that don't fit move into More automatically on desktop and mobile.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root toolbar element."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root toolbar element."
+      },
+      {
+        "name": "isHorizontal",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "True arranges controls in a row; false arranges them in a column. The containing layout controls toolbar placement. Horizontal toolbars fill the container width; vertical toolbars fill the container height. Give the container a defined height or set one directly: <Toolbar isHorizontal={false} style={{ height: 400 }} />. Controls move into More as available width or height runs out. A maxHeight limit can further constrain the vertical toolbar, but does not replace a defined height."
+      },
+      {
+        "name": "audioButtonProps",
+        "type": "AudioButtonProps",
+        "required": false,
+        "description": "Props forwarded to the rendered AudioButton. The Toolbar sets isMobile automatically based on the device platform."
+      },
+      {
+        "name": "videoButtonProps",
+        "type": "VideoButtonProps",
+        "required": false,
+        "description": "Props forwarded to the rendered VideoButton. The Toolbar sets isMobile automatically based on the device platform."
+      },
+      {
+        "name": "chatButtonProps",
+        "type": "ChatButtonProps",
+        "required": false,
+        "description": "Props forwarded to the rendered ChatButton. The Toolbar sets isMobile automatically based on the device platform."
+      },
+      {
+        "name": "visibleButtons",
+        "type": "ToolbarButtonVisibility",
+        "required": false,
+        "description": "Boolean allow-list of included controls. Omit visibleButtons to include all controls. When provided, only entries set to true are included; false and unspecified entries are hidden. An empty object hides all controls except More."
+      },
+      {
+        "name": "recordButtonProps",
+        "type": "RecordButtonProps",
+        "required": false,
+        "description": "Props forwarded to the rendered RecordButton. The Toolbar sets isMobile automatically based on the device platform."
+      }
+    ],
+    "defaultButtons": [
+      "AudioButton",
+      "VideoButton",
+      "ParticipantButton",
+      "ChatButton",
+      "ShareButton",
+      "RecordButton",
+      "SettingsButton",
+      "MoreButton",
+      "LeaveButton"
+    ],
+    "customizationSlots": {
+      "children": false,
+      "renderContent": false,
+      "description": "Toolbar does not accept children or a render slot. Customize embedded controls with audioButtonProps, videoButtonProps, recordButtonProps, and chatButtonProps. Participants, Share, Settings, and Leave always use their default configuration. Configure visibility with visibleButtons. To add custom controls or change their order, build your own bar from AudioButton, VideoButton, ParticipantButton, ChatButton, ShareButton, RecordButton, SettingsButton, LeaveButton, MoreButton, and ToolbarButton."
+    },
+    "responsiveBehavior": "On desktop and mobile, included Settings, Record, Share, Chat, and Participants controls temporarily move into More in that order as space runs out and return in reverse order as space grows. Horizontal orientation measures available width; vertical orientation measures available height. Audio, Video, and Leave stay on the toolbar. If even those controls and More cannot fit, the toolbar scrolls. More is always shown. It opens a desktop popover or mobile bottom sheet with controls arranged in a grid, each with a text label. If no controls have moved into More, it shows \"No additional controls\". Hidden controls appear in neither location. In a horizontal desktop toolbar, Audio and Video sit at the start, the other controls and More are centered, and Leave sits at the end. A vertical desktop toolbar stacks the controls from the top in the same order. On mobile, controls are evenly spaced."
+  },
+  "notes": [
+    "All controls except More stay visible but are disabled until the session is connected.",
+    "Record is enabled only for the host or a co-host (manager) when cloud recording is available.",
+    "Chat is disabled when chat isn't available in the session.",
+    "Share is shown but disabled on phones and tablets.",
+    "While you share your screen, a floating sharing control appears that you can drag. It belongs to the Share button, so it doesn't appear when Share is hidden with visibleButtons."
+  ],
+  "types": [
+    {
+      "name": "ToolbarButtonVisibility",
+      "description": "Controls which toolbar buttons are included. Omit visibleButtons to include all buttons. When provided, only entries set to true are included. The More button remains available.",
+      "definition": "{ audio?: boolean; video?: boolean; participant?: boolean; chat?: boolean; share?: boolean; record?: boolean; settings?: boolean; leave?: boolean }"
+    }
+  ]
+}

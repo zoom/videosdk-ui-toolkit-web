@@ -1,0 +1,106 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "component",
+  "name": "ParticipantTile",
+  "component": {
+    "name": "ParticipantTile",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Displays one participant's video with a name tag. When their video is off, or renderVideo is false, shows their name and name tag instead.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "participant",
+        "type": "Participant",
+        "required": true,
+        "description": "Participant to display. Use the Participant type exported by this package."
+      },
+      {
+        "name": "width",
+        "type": "number",
+        "required": true,
+        "description": "Tile width in pixels. The name text scales with the tile width."
+      },
+      {
+        "name": "height",
+        "type": "number",
+        "required": true,
+        "description": "Fallback tile height in pixels, used only when aspectRatio is 0. Otherwise the height is width divided by aspectRatio (16/9 by default)."
+      },
+      {
+        "name": "aspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Tile width-to-height ratio. The tile height is width divided by this ratio."
+      },
+      {
+        "name": "videoQuality",
+        "type": "VideoQuality",
+        "required": false,
+        "default": "VideoQuality.Video_360P",
+        "description": "Requested video quality for this participant. VideoQuality comes from @zoom/videosdk."
+      },
+      {
+        "name": "isActive",
+        "type": "boolean",
+        "required": false,
+        "description": "Highlights the tile. Customize the highlight with activeClassName and activeStyle."
+      },
+      {
+        "name": "activeClassName",
+        "type": "string",
+        "required": false,
+        "description": "CSS class applied in place of the default active-tile class when isActive is true."
+      },
+      {
+        "name": "activeStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline style added to the tile when isActive is true."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the tile."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the tile. The width and height props set the tile size and override any width or height in style."
+      },
+      {
+        "name": "customNameTag",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Replaces the default name tag. By default, the tag shows the participant's name, with a phone icon for phone audio, or a muted-microphone icon when computer audio is muted. Before the participant joins audio, it shows a connecting indicator instead of the name. The video-off view also shows the participant's name on its own."
+      },
+      {
+        "name": "renderVideo",
+        "type": "boolean",
+        "required": false,
+        "description": "Whether to render the participant video. False shows the video-off presentation.",
+        "default": true
+      }
+    ]
+  },
+  "notes": [
+    "When used on its own, ParticipantTile must be rendered inside a <video-player-container> element. Use one container for all video tiles, and don't put ShareTile components in it. VideoLayout and MobileVideoLayout provide this container for you.",
+    "Neither this package nor the Zoom Video SDK declares <video-player-container> as a JSX element. In TypeScript, add it to React's JSX.IntrinsicElements in your own declaration file."
+  ],
+  "types": [
+    {
+      "name": "Participant",
+      "description": "Zoom Video SDK Participant type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').Participant"
+    },
+    {
+      "name": "VideoQuality",
+      "description": "Video quality enum from the Zoom Video SDK. Import it with `import { VideoQuality } from '@zoom/videosdk'`.",
+      "definition": "enum VideoQuality { Video_90P = 0, Video_180P = 1, Video_360P = 2, Video_720P = 3, Video_1080P = 4 }"
+    }
+  ]
+}

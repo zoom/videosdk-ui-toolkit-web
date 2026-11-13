@@ -1,0 +1,166 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session-info",
+  "kind": "component",
+  "name": "SessionInfoButton",
+  "component": {
+    "name": "SessionInfoButton",
+    "description": "Opens a panel with the session topic, session ID, your display name and user ID, and an optional invite link. The desktop panel can be dragged; mobile uses a bottom sheet.",
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the button."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the button."
+      },
+      {
+        "name": "renderContent",
+        "type": "() => ReactNode",
+        "required": false,
+        "description": "Render custom leading content in place of the default Info icon."
+      },
+      {
+        "name": "ariaLabel",
+        "type": "string",
+        "required": false,
+        "description": "Accessible label for the button and panel. Defaults to \"Session Info\"."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Shows the panel in a mobile bottom sheet instead of the desktop panel. Not detected automatically. The sheet closes when you swipe it down, tap outside it, or use its close button."
+      },
+      {
+        "name": "panelClassName",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the desktop session info panel."
+      },
+      {
+        "name": "panelStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the desktop session info panel."
+      },
+      {
+        "name": "anchor",
+        "type": "VirtualElement | null",
+        "required": false,
+        "description": "Anchors the desktop panel to this element instead of the button. Pass an HTML element or any object with getBoundingClientRect(). Ignored on mobile."
+      },
+      {
+        "name": "popoverProps",
+        "type": "SessionInfoButtonPopoverProps",
+        "required": false,
+        "description": "Initial position of the desktop panel: side, align, sideOffset, alignOffset, and collisionPadding. By default the panel opens below the button, aligned to its start edge, and moves to the opposite side when there isn't enough room. Ignored on mobile."
+      },
+      {
+        "name": "onOpen",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel opens."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel closes, including when the mobile sheet is dismissed. On desktop, the panel closes only when you click the button again or use the panel's close button."
+      },
+      {
+        "name": "inviteLink",
+        "type": "string",
+        "required": false,
+        "description": "Invite URL supplied by your application. Shows a copyable link in the panel; omit or leave empty to hide it."
+      },
+      {
+        "name": "showSessionName",
+        "type": "boolean",
+        "required": false,
+        "description": "Shows the session topic next to the info icon.",
+        "default": true
+      }
+    ],
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "requiresProvider": true
+  },
+  "displayedFields": {
+    "description": "Session metadata is read automatically. Rows appear in this order. The invite link comes from the inviteLink prop and is hidden when empty.",
+    "fields": {
+      "topic": "string",
+      "sessionId": "string",
+      "yourName": "string",
+      "yourUserId": "string",
+      "inviteLink": "string (from the inviteLink prop; row hidden when empty)"
+    }
+  },
+  "notes": [
+    "Displays the session topic, session ID, and your display name and user ID. The session password is not shown.",
+    "Supply inviteLink to show an invite link and its copy action. Session ID also supports copying.",
+    "Use SessionInfoButton for a managed trigger and popup, or SessionInfoPanel inside a custom surface.",
+    "On desktop, the panel closes only when you click the button again or use the panel's close button.",
+    "The button is disabled until the session is connected."
+  ],
+  "types": [
+    {
+      "name": "SessionInfoButtonPopoverProps",
+      "description": "Initial placement of the desktop session info panel.",
+      "fields": [
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "default": "'bottom'",
+          "required": false,
+          "description": "Preferred side of the button or anchor. Moves to the opposite side when there isn't enough room."
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "default": "'start'",
+          "required": false,
+          "description": "Alignment along that side."
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "default": 8,
+          "required": false,
+          "description": "Distance from the button or anchor, in pixels."
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "required": false,
+          "description": "Offset from the chosen alignment, in pixels."
+        },
+        {
+          "name": "collisionPadding",
+          "type": "number | undefined",
+          "default": 12,
+          "required": false,
+          "description": "Minimum gap kept from the viewport edges, in pixels."
+        }
+      ]
+    },
+    {
+      "name": "VirtualElement",
+      "description": "Not exported by name. Pass an HTML element, or any object with a getBoundingClientRect() method that returns a DOMRect.",
+      "fields": [
+        {
+          "name": "getBoundingClientRect",
+          "type": "() => DOMRect",
+          "required": true,
+          "description": "Returns the position and size to anchor to."
+        }
+      ]
+    }
+  ]
+}

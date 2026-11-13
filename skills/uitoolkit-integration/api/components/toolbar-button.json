@@ -1,0 +1,84 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "toolbar",
+  "kind": "component",
+  "name": "ToolbarButton",
+  "component": {
+    "name": "ToolbarButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Styled native button with active, tone, size, and full-width options. Forwards a button ref and native button props.",
+    "requiresProvider": false,
+    "props": [
+      {
+        "name": "active",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Highlights the button as active."
+      },
+      {
+        "name": "renderContent",
+        "type": "() => ReactNode",
+        "required": false,
+        "description": "Renders custom content before children. When omitted, a default placeholder icon is rendered before children. Pass renderContent={() => null} to show only children."
+      },
+      {
+        "name": "children",
+        "type": "ReactNode",
+        "required": false,
+        "description": "Standard children, rendered after renderContent output."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the button."
+      },
+      {
+        "name": "...rest",
+        "type": "ComponentPropsWithoutRef<'button'>",
+        "required": false,
+        "description": "Additional native button attributes, including aria-* and data-*."
+      },
+      {
+        "name": "tone",
+        "type": "'neutral' | 'accent' | 'danger'",
+        "required": false,
+        "description": "Visual color treatment of the button.",
+        "default": "'neutral'"
+      },
+      {
+        "name": "size",
+        "type": "'sm' | 'md' | 'lg'",
+        "required": false,
+        "description": "Button size.",
+        "default": "'md'"
+      },
+      {
+        "name": "fullWidth",
+        "type": "boolean",
+        "required": false,
+        "description": "Expands the button to fill its container width.",
+        "default": false
+      },
+      {
+        "name": "onClick",
+        "type": "MouseEventHandler<HTMLButtonElement>",
+        "required": false,
+        "description": "Native click handler."
+      },
+      {
+        "name": "disabled",
+        "type": "boolean",
+        "required": false,
+        "description": "Disables the native button."
+      }
+    ],
+    "accessibilityAttributes": [
+      "Defaults to type=\"button\"; an explicit native type prop can override it.",
+      "Pass an accessible name using aria-label or visible text. Native aria-* and data-* props are forwarded."
+    ]
+  },
+  "behavior": ["Outside ZoomUIToolkitProvider or ThemeProvider, the button uses the dark theme."]
+}

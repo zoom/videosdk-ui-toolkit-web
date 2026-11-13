@@ -1,0 +1,352 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "share",
+  "kind": "component",
+  "name": "ShareButton",
+  "component": {
+    "name": "ShareButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Starts screen sharing. While you share, shows a draggable floating bar with pause, resume, stop, and sharing options, including annotation settings. Hosts and co-hosts can also change who may share. Disabled when the session is not connected or on a phone or tablet.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the control root."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the control root."
+      },
+      {
+        "name": "showMenu",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Shows an options menu next to the button while connected, when you are a host or co-host or menuGroups are supplied. Otherwise a single button is shown."
+      },
+      {
+        "name": "showPresenterControl",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Shows the floating sharing bar while you share. useShareController offers pause, resume, stop, and optimization for your own controls, but not the annotation options."
+      },
+      {
+        "name": "menuGroups",
+        "type": "ToolbarMenuGroup[]",
+        "required": false,
+        "description": "Extra menu groups. For hosts and co-hosts they appear after the built-in sharing options. For other participants, supplying them makes the options menu appear."
+      },
+      {
+        "name": "dropdownOptions",
+        "type": "ToolbarMenuDropdownOptions",
+        "required": false,
+        "description": "Menu placement, styling, and container options."
+      },
+      {
+        "name": "renderContent",
+        "type": "ShareButtonRenderContent",
+        "required": false,
+        "description": "Custom button content keyed by state ('idle' | 'sharing'). Each entry is a ReactNode or a function receiving a ShareButtonRenderContext. Defaults to a screen-share icon, which is also used when the entry for the current state is omitted. Only the main button changes; the options menu trigger stays."
+      }
+    ]
+  },
+  "behavior": [
+    "Clicking the button starts screen sharing. To stop sharing, use 'Stop share' on the floating bar, or call useShareController().stopShare if you hide the bar.",
+    "If sharing cannot start, an error notification appears, for example 'Host disabled attendee screen sharing.' or 'You cannot start screen share while another participant is sharing.'",
+    "For hosts and co-hosts, the options menu offers 'One participant can share at a time' and 'Multiple participants can share simultaneously', with the current choice checked, plus 'Screen share options'. That item opens a dialog with those two choices and 'Only host or cohost can share screen'.",
+    "While you share, the floating bar appears unless showPresenterControl is false. You can drag it. It shows 'You're screen sharing', a pause or resume button, and 'Stop share'.",
+    "The floating bar's Share options menu has 'Disable annotation for others' and 'Hide names of annotators'. 'Optimize for video clip' appears only when the browser supports it and sharing is not set to multiple participants.",
+    "The button and its options menu trigger are disabled when the session is not connected or on a phone or tablet (Android, iPhone, iPad)."
+  ],
+  "types": [
+    {
+      "name": "ShareButtonRenderContext",
+      "description": "Context object passed to ShareButtonRenderContent render functions.",
+      "fields": [
+        {
+          "name": "isSharing",
+          "type": "boolean",
+          "description": "Whether the local user is currently sharing.",
+          "required": true
+        },
+        {
+          "name": "sharePrivilege",
+          "type": "SharePrivilege",
+          "description": "Current session share privilege.",
+          "required": true
+        },
+        {
+          "name": "canChangeSharePrivilege",
+          "type": "boolean",
+          "description": "True when you are a host or co-host.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Localized label for the current sharing state.",
+          "required": true
+        },
+        {
+          "name": "menuLabel",
+          "type": "string",
+          "description": "Localized accessible label for the options menu trigger.",
+          "required": true
+        },
+        {
+          "name": "isDisabled",
+          "type": "boolean",
+          "description": "True when the session is not connected or the device is a phone or tablet.",
+          "required": true
+        },
+        {
+          "name": "isMenuTriggerDisabled",
+          "type": "boolean",
+          "description": "True when the session is not connected, on a phone or tablet, or when the menu would be empty (you are not a host or co-host and no menuGroups were supplied).",
+          "required": true
+        },
+        {
+          "name": "toggleShare",
+          "type": "() => Promise<void>",
+          "description": "Starts screen sharing. To stop sharing, use stopShare from useShareController.",
+          "required": true
+        },
+        {
+          "name": "changeSharePrivilege",
+          "type": "(privilege: SharePrivilege) => Promise<void>",
+          "description": "Changes who can share. No effect unless canChangeSharePrivilege is true.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ShareButtonRenderContent",
+      "description": "Per-state custom content for ShareButton.",
+      "fields": [
+        {
+          "name": "idle",
+          "type": "ShareButtonContentRenderer",
+          "description": "Content shown when not sharing.",
+          "required": false
+        },
+        {
+          "name": "sharing",
+          "type": "ShareButtonContentRenderer",
+          "description": "Content shown while sharing.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ShareButtonContentRenderer",
+      "definition": "ReactNode | ((context: ShareButtonRenderContext) => ReactNode)",
+      "description": "Either static content or a function that receives the ShareButtonRenderContext."
+    },
+    {
+      "name": "SharePrivilege",
+      "description": "Share privilege enum from the Zoom Video SDK. Import it with `import { SharePrivilege } from '@zoom/videosdk'`.",
+      "values": [
+        {
+          "name": "Unlocked",
+          "value": 0,
+          "description": "One participant can share at a time; only the host or a co-host can start sharing while someone else is sharing."
+        },
+        {
+          "name": "Locked",
+          "value": 1,
+          "description": "Only the host or a co-host can share."
+        },
+        {
+          "name": "MultipleShare",
+          "value": 3,
+          "description": "Multiple participants can share simultaneously."
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuActionItem",
+      "description": "A selectable menu action. In a single-selection group, the selected action displays a check mark.",
+      "fields": [
+        {
+          "name": "selected",
+          "type": "boolean | undefined",
+          "description": "Marks the selected action in a group with selectionMode: 'single'.",
+          "required": false
+        },
+        {
+          "name": "onSelect",
+          "type": "((item: ToolbarMenuActionItem, group: ToolbarMenuGroup) => void | Promise<void>) | undefined",
+          "description": "Called when the action is selected, with the item and its group. Handle errors in asynchronous callbacks.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "undefined",
+          "description": "Omit this property for an action item.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique action ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Label content rendered inside the menu item.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the item is rendered with disabled state and is non-interactive.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuDropdownOptions",
+      "description": "Styling, placement, and portal container options for desktop dropdown menus. Only the listed options are supported.",
+      "fields": [
+        {
+          "name": "className",
+          "type": "string | undefined",
+          "description": "Additional CSS class for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties | undefined",
+          "description": "Inline styles for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "portalContainer",
+          "type": "Element | DocumentFragment | null | undefined",
+          "description": "Container for the dropdown and its nested submenus. Defaults to document.body.",
+          "required": false
+        },
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "description": "Preferred side of the trigger. Defaults to 'bottom'. The menu may move to stay visible.",
+          "required": false
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "description": "Distance from the trigger in pixels. Defaults to 10.",
+          "required": false
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "description": "Alignment along the trigger. Defaults to 'start'.",
+          "required": false
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "description": "Offset from the chosen alignment in pixels.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuGroup",
+      "description": "A section of menu items with an optional heading and empty-state label.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique group ID.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Optional section heading.",
+          "required": false
+        },
+        {
+          "name": "emptyLabel",
+          "type": "string | undefined",
+          "description": "Text to show when the group has no items. An empty group without this label is hidden.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Items belonging to this group.",
+          "required": true
+        },
+        {
+          "name": "selectionMode",
+          "type": "'single' | undefined",
+          "description": "Set to 'single' for a group of mutually exclusive choices. Mark the current action with selected: true.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuItem",
+      "description": "A menu action or a nested menu. Any item with an items property is a nested menu, so leave items out of menu actions.",
+      "fields": [
+        {
+          "name": "(union)",
+          "type": "ToolbarMenuActionItem | ToolbarMenuSubmenuItem",
+          "description": "An item is a submenu when it has an 'items' property; otherwise it is a leaf action."
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuSubmenuItem",
+      "description": "A menu item that opens a nested menu.",
+      "fields": [
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Nested items rendered inside the submenu. May themselves contain further submenus (recursive).",
+          "required": true
+        },
+        {
+          "name": "onSelect",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "selected",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique submenu ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Submenu label and mobile submenu heading.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the submenu trigger is rendered with disabled state and the submenu cannot be opened.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

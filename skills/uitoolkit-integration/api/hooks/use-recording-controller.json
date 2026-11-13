@@ -1,0 +1,113 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "recording",
+  "kind": "hook",
+  "name": "useRecordingController",
+  "hook": {
+    "name": "useRecordingController",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Provides cloud-recording status and actions for starting, stopping, pausing, and resuming recordings.",
+    "requiresProvider": true,
+    "signature": "useRecordingController(): RecordingController",
+    "returns": "A RecordingController containing current availability and status, loading and control flags, and four asynchronous actions.",
+    "notes": [
+      "canControlRecording is true only while connected, cloud recording is enabled, the current user is a host or co-host/manager, and no action started from this hook call is in progress.",
+      "Actions have no effect when recording controls are unavailable or the current recording status does not allow the requested action.",
+      "Actions never reject. A failed action shows an error notification that explains the reason when known, such as cloud recording being disabled for the account. isLoading returns to false when the action finishes."
+    ],
+    "returnType": "RecordingController"
+  },
+  "types": [
+    {
+      "name": "RecordingController",
+      "description": "Return shape of useRecordingController().",
+      "fields": [
+        {
+          "name": "recordingStatus",
+          "type": "RecordingStatus",
+          "description": "Current cloud recording status. Stopped when the status cannot be read, for example when no Video SDK client is available.",
+          "required": true
+        },
+        {
+          "name": "isCloudRecordingEnabled",
+          "type": "boolean",
+          "description": "Whether cloud recording is available for the account and session.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while an action started from this hook call is in progress. Actions started from other components, including RecordButton, are not included.",
+          "required": true
+        },
+        {
+          "name": "canControlRecording",
+          "type": "boolean",
+          "description": "True when recording controls are usable: connected, cloud recording enabled, you are a host or co-host, and no action from this hook call is in progress. Each action also checks recordingStatus.",
+          "required": true
+        },
+        {
+          "name": "startRecording",
+          "type": "() => Promise<void>",
+          "description": "Starts cloud recording. No effect while the status is Recording or Paused.",
+          "required": true
+        },
+        {
+          "name": "stopRecording",
+          "type": "() => Promise<void>",
+          "description": "Stops cloud recording. No effect unless the status is Recording or Paused.",
+          "required": true
+        },
+        {
+          "name": "pauseRecording",
+          "type": "() => Promise<void>",
+          "description": "Pauses a recording whose status is Recording.",
+          "required": true
+        },
+        {
+          "name": "resumeRecording",
+          "type": "() => Promise<void>",
+          "description": "Resumes a recording whose status is Paused.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "RecordingStatus",
+      "description": "Cloud recording status enum from the Zoom Video SDK. Import it with `import { RecordingStatus } from '@zoom/videosdk'`.",
+      "values": [
+        {
+          "name": "Recording",
+          "value": "'Recording'",
+          "description": "Cloud recording is in progress."
+        },
+        {
+          "name": "Paused",
+          "value": "'Paused'",
+          "description": "Cloud recording is paused."
+        },
+        {
+          "name": "Stopped",
+          "value": "'Stopped'",
+          "description": "Cloud recording is stopped."
+        },
+        {
+          "name": "Ask",
+          "value": "'Ask'",
+          "description": "Individual (ISO) recording is starting."
+        },
+        {
+          "name": "Accept",
+          "value": "'Accept'",
+          "description": "The user accepted individual (ISO) recording."
+        },
+        {
+          "name": "Decline",
+          "value": "'Decline'",
+          "description": "The user declined individual (ISO) recording."
+        }
+      ]
+    }
+  ]
+}

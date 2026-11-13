@@ -1,0 +1,121 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "app",
+  "kind": "component",
+  "name": "ZoomUIToolkitApp",
+  "component": {
+    "name": "ZoomUIToolkitApp",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Complete, ready-made session screen with participant videos, received screen sharing, and a toolbar. Render inside ZoomUIToolkitProvider. It does not join the session; join with JoinButton or client.join().",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "width",
+        "type": "number | string",
+        "required": false,
+        "default": "'100%'",
+        "description": "Width of the app's outer container."
+      },
+      {
+        "name": "height",
+        "type": "number | string",
+        "required": false,
+        "default": "'100%'",
+        "description": "Height of the app on desktop. On phones and tablets this prop is ignored and the app fills the visible screen height; set style.height to override."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the app's outer container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the app's outer container. Applied after width and height, so they override them."
+      },
+      {
+        "name": "toolbarProps",
+        "type": "ToolbarProps",
+        "required": false,
+        "description": "Configuration for the toolbar at the bottom of the app. On desktop, all controls are included unless you set visibleButtons. On phones and tablets, Audio, Video, Participants, Chat, and Settings are included by default, and Leave appears in the top bar instead. Setting visibleButtons replaces the mobile default."
+      }
+    ]
+  },
+  "behavior": [
+    "Shows \"Joining the session...\" while joining with JoinButton or while the connection is being restored, and the session layout once connected.",
+    "Before joining, after leaving, or if joining fails, the container is empty and shows no error message. Read sessionState from useZoomUIToolkit to show your own.",
+    "Desktop top bar: the session info button with the session name, the recording status (\"Recording\" or \"Recording paused\"), and a Gallery/Speaker view menu.",
+    "Desktop starts in Gallery view each time the session connects. Gallery shows up to 9 participant videos per page, or fewer if the device supports fewer.",
+    "Speaker view shows one participant large (participantState.activeVideoUser from useZoomUIToolkit) with a row of participant videos above. It applies only when at least 2 people, including you, are in the session and no screen is being shared; otherwise Gallery is shown.",
+    "When you receive a screen share, or share your own screen (shown as a preview), the share replaces the main view with the participant row above. This takes priority over the Gallery/Speaker choice.",
+    "The mobile layout is used on Android, iPhone, iPad, and iPod devices, including iPadOS, regardless of window width.",
+    "Mobile top bar: the session info button, a recording indicator, and Leave. There is no Gallery/Speaker menu.",
+    "On mobile, participant videos are shown as swipeable pages. A received screen share becomes the first page.",
+    "The app forms its own stacking layer at the ZoomUIToolkitProvider baseZIndex, so don't wrap it in ZoomUIToolkitRoot.",
+    "On desktop the app has a minimum width and height; smaller width or height values are raised to that minimum. The app scrolls if its content overflows."
+  ],
+  "types": [
+    {
+      "name": "ToolbarProps",
+      "description": "Props accepted by the Toolbar module and forwarded from ZoomUIToolkitApp via toolbarProps.",
+      "fields": [
+        {
+          "name": "className",
+          "type": "string | undefined",
+          "description": "Additional CSS class on the toolbar root.",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties | undefined",
+          "description": "Inline style on the toolbar root.",
+          "required": false
+        },
+        {
+          "name": "isHorizontal",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Arrange controls horizontally (default). Set false for a vertical toolbar."
+        },
+        {
+          "name": "audioButtonProps",
+          "type": "AudioButtonProps | undefined",
+          "description": "Props forwarded to the AudioButton. The toolbar sets isMobile automatically based on the device.",
+          "required": false
+        },
+        {
+          "name": "videoButtonProps",
+          "type": "VideoButtonProps | undefined",
+          "description": "Props forwarded to the VideoButton. The toolbar sets isMobile automatically based on the device.",
+          "required": false
+        },
+        {
+          "name": "recordButtonProps",
+          "type": "RecordButtonProps | undefined",
+          "required": false,
+          "description": "Props forwarded to the RecordButton. The toolbar sets isMobile automatically based on the device."
+        },
+        {
+          "name": "chatButtonProps",
+          "type": "ChatButtonProps | undefined",
+          "description": "Props forwarded to the ChatButton. The toolbar sets isMobile automatically based on the device.",
+          "required": false
+        },
+        {
+          "name": "visibleButtons",
+          "type": "ToolbarButtonVisibility | undefined",
+          "description": "Boolean allow-list of included controls. Omit visibleButtons to include all controls. When provided, only entries set to true are included; false and unspecified entries are hidden. An empty object hides all controls except More. In ZoomUIToolkitApp on phones and tablets, omitting it uses the mobile default instead. Included controls that don't fit move into More; Audio, Video, and Leave always stay on the toolbar.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarButtonVisibility",
+      "description": "Controls which toolbar buttons are included. Omit visibleButtons to include all buttons. When provided, only entries set to true are included. The More button remains available.",
+      "definition": "{ audio?: boolean; video?: boolean; participant?: boolean; chat?: boolean; share?: boolean; record?: boolean; settings?: boolean; leave?: boolean }"
+    }
+  ]
+}

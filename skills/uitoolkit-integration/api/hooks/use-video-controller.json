@@ -1,0 +1,197 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "hook",
+  "name": "useVideoController",
+  "hook": {
+    "name": "useVideoController",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Reads local camera state and exposes camera, mirroring, hardware acceleration, and virtual background actions.",
+    "requiresProvider": true,
+    "signature": "useVideoController(): VideoController",
+    "returns": "VideoController with videoState, capability flags, and asynchronous video actions. See types for every returned field.",
+    "notes": [
+      "canControlVideo is true when the Video SDK client has a media stream. It does not check the connection state. To match VideoButton, enable controls only when canControlVideo is true and useZoomUIToolkit().sessionState.connectionState === ConnectionState.Connected.",
+      "When canControlVideo is false, toggleVideo, startVideo, stopVideo, setHardwareAcceleration, and switchCamera while video is on do nothing. setMirrored and setVirtualBackground still update videoState, which startVideo uses. Any connection state change resets the background choice to the default (see vbImageId).",
+      "canUseVirtualBackground is true when the SDK supports virtual backgrounds and its model is ready.",
+      "videoState reflects the current local camera status.",
+      "startVideo uses the selected camera, mirroring preference, HD video, and the selected virtual background when canUseVirtualBackground is true.",
+      "switchCamera has no effect while disconnected. When video is off, it selects the camera for the next start.",
+      "setVirtualBackground accepts an ID from videoState.virtualBackgroundImageList. Invalid IDs produce an operation warning.",
+      "Actions never reject. Failures of start, stop, camera switch, mirroring, hardware acceleration, and background actions appear in videoState.warning. If starting video fails, an error notification is also shown.",
+      "If a hardware acceleration change isn't applied, nothing changes and no warning is set. Check hardwareAccelerationSending and hardwareAccelerationReceiving afterward."
+    ],
+    "returnType": "VideoController"
+  },
+  "types": [
+    {
+      "name": "VideoController",
+      "description": "Local camera status, available features, and actions returned by useVideoController.",
+      "fields": [
+        {
+          "name": "videoState",
+          "type": "VideoState",
+          "description": "Current local camera status and settings.",
+          "required": true
+        },
+        {
+          "name": "canControlVideo",
+          "type": "boolean",
+          "description": "True when the Video SDK client has a media stream. Does not check the connection state.",
+          "required": true
+        },
+        {
+          "name": "canUseVirtualBackground",
+          "type": "boolean",
+          "description": "Whether virtual backgrounds are supported and ready to use.",
+          "required": true
+        },
+        {
+          "name": "toggleVideo",
+          "type": "() => Promise<void>",
+          "description": "Starts or stops video based on videoState.isVideoOn.",
+          "required": true
+        },
+        {
+          "name": "startVideo",
+          "type": "() => Promise<void>",
+          "description": "Starts the selected camera with the current mirroring and virtual background settings. Failures appear in videoState.warning, and an error notification is also shown.",
+          "required": true
+        },
+        {
+          "name": "stopVideo",
+          "type": "() => Promise<void>",
+          "description": "Stops the local camera. Failures appear in videoState.warning.",
+          "required": true
+        },
+        {
+          "name": "switchCamera",
+          "type": "(deviceId: string) => Promise<void>",
+          "description": "Switches to the camera with this device ID (from useZoomUIToolkit().deviceState.cameras). When video is off, selects the camera for the next start. Preserves the mirroring preference. Does nothing unless the session is connected. While a switch is in progress, deviceState.isSwitchingCamera is true.",
+          "required": true
+        },
+        {
+          "name": "setMirrored",
+          "type": "(mirrored: boolean) => Promise<void>",
+          "description": "Mirrors or unmirrors the local preview. Failures appear in videoState.warning. Without a media stream, the choice is saved for the next startVideo.",
+          "required": true
+        },
+        {
+          "name": "setHardwareAcceleration",
+          "type": "(option: { encode?: boolean; decode?: boolean }) => Promise<void>",
+          "description": "Turns hardware acceleration on or off. encode controls sending video; decode controls receiving video. An omitted option leaves its videoState value unchanged. If the change isn't applied, nothing changes and no warning is set.",
+          "required": true
+        },
+        {
+          "name": "setVirtualBackground",
+          "type": "(imageId: string) => Promise<void>",
+          "description": "Selects a background by ID from videoState.virtualBackgroundImageList. Invalid IDs leave the selection unchanged and set videoState.warning. Without a media stream, only vbImageId is updated; startVideo applies it unless a connection state change resets it first.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideoState",
+      "description": "Current local camera status, settings, and virtual background readiness.",
+      "fields": [
+        {
+          "name": "isVideoOn",
+          "type": "boolean",
+          "description": "True when the local camera is active for the current user. Updated only while VideoButton, the SettingsPanel Video tab, or a component that calls useVideoController is mounted.",
+          "required": true
+        },
+        {
+          "name": "vbImageId",
+          "type": "string",
+          "description": "Selected background ID: '' for none, 'blur', or one of your image IDs. It returns to sessionOptions.video.virtualBackground.defaultVirtualBackgroundImageId when the connection state changes or when you pass a new sessionOptions object, so keep sessionOptions stable (for example with useMemo).",
+          "required": true
+        },
+        {
+          "name": "virtualBackgroundImageList",
+          "type": "VirtualBackgroundImage[]",
+          "description": "Available background choices: the built-in None (id '') and Blur (id 'blur') entries, followed by the valid custom images from sessionOptions. The built-in entries' names are English only and their url is not an image, so show your own translated labels and no thumbnail for them.",
+          "required": true
+        },
+        {
+          "name": "isVirtualBackgroundReady",
+          "type": "boolean",
+          "description": "Whether the Video SDK virtual background model is ready. Before offering virtual backgrounds, also check useVideoController().canUseVirtualBackground.",
+          "required": true
+        },
+        {
+          "name": "isMirrored",
+          "type": "boolean",
+          "description": "Whether the local camera preview is mirrored. Defaults to true and resets to true if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationReceiving",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for receiving video (decoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationSending",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for sending video (encoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while video is starting or stopping. For camera switches, use useZoomUIToolkit().deviceState.isSwitchingCamera.",
+          "required": true
+        },
+        {
+          "name": "warning",
+          "type": "MediaWarning | null",
+          "description": "Latest video error, such as a camera, mirroring, or virtual background failure, or null when there is no error.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaWarning",
+      "description": "An audio or video error, such as denied permission or a failed operation.",
+      "fields": [
+        {
+          "name": "type",
+          "type": "'permission' | 'operation' | 'unknown'",
+          "description": "'permission' when microphone or camera access is denied, 'operation' when an action fails. 'unknown' is reserved and not currently produced.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string | undefined",
+          "description": "Details about the failure, when available. It may be a Video SDK error code or reason (for example 'INSUFFICIENT_PRIVILEGES') rather than a user-facing sentence, so show your own text based on `type`.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VirtualBackgroundImage",
+      "description": "A virtual background choice. Use this shape for images you pass in `sessionOptions.video.virtualBackground.virtualBackgroundImageList`. `videoState.virtualBackgroundImageList` also starts with the built-in None (id '', url '') and Blur (id 'blur', url 'blur') choices, whose names are English only.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique image ID. The values '' and 'blur' are reserved for no background and blur. If an ID is reserved or repeated, only the first entry with that ID is kept.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Non-empty accessible label for the image. Supply a translated label for your application. Entries with empty names are ignored.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "description": "Non-empty image URL. Entries with empty URLs are ignored.",
+          "required": true
+        }
+      ]
+    }
+  ]
+}

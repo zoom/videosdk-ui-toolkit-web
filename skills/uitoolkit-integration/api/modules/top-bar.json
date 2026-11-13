@@ -1,0 +1,39 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session",
+  "kind": "module",
+  "name": "TopBar",
+  "module": {
+    "name": "TopBar",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Session header with a session info button and a recording indicator on the left, and custom controls on the right.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the top bar root."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the top bar root."
+      },
+      {
+        "name": "customizedButtons",
+        "type": "ReactNode[]",
+        "required": false,
+        "description": "Custom controls rendered on the right in array order."
+      }
+    ]
+  },
+  "notes": [
+    "The session info button shows an info icon and, on desktop, the session name. It is disabled until the session is connected. Selecting it opens the Session Info panel below the button.",
+    "On phones and tablets (Android, iPhone, iPad), the session name is hidden, Session Info opens in a bottom sheet, and the recording indicator hides its text label.",
+    "While cloud recording is in progress or paused, the recording indicator shows a dot with \"Recording\" or \"Recording paused\". Nothing is shown otherwise.",
+    "The Session Info panel opened from TopBar does not include an invite link. To show one or customize the button, place SessionInfoButton in your own header."
+  ]
+}

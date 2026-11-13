@@ -1,0 +1,45 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "module",
+  "name": "ActiveSpeakerView",
+  "module": {
+    "name": "ActiveSpeakerView",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Shows one participant: participantState.activeVideoUser from useZoomUIToolkit. Resizes to fit its container. Empty until that participant is set or while the session isn't connected.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "tileAspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Width-to-height ratio for the video tile."
+      },
+      {
+        "name": "hidden",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Hides the view with display: none while keeping it mounted."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root container. backgroundColor and color also apply to the video tile."
+      }
+    ]
+  },
+  "notes": [
+    "Fills its parent (100% width and height), so give the parent a size.",
+    "The tile is centered and keeps tileAspectRatio. When the participant's video is off, the tile shows their name."
+  ]
+}

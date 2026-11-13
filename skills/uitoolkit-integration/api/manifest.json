@@ -1,0 +1,272 @@
+{
+  "$schema": "./schemas/api-manifest.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "items": [
+    {
+      "kind": "component",
+      "name": "AudioButton",
+      "area": "audio",
+      "description": "Joins audio, then mutes and unmutes the microphone. After audio is joined, a menu lets users choose a microphone and speaker or leave audio. Disabled until the session is connected.",
+      "path": "components/audio-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "ChatButton",
+      "area": "chat",
+      "description": "Opens the session chat. Shows an unread badge, lets you pick a recipient and send messages, and lets you delete messages you are allowed to delete. Hosts and co-hosts can also choose who participants can chat with. Uses a draggable panel on desktop and a bottom sheet on mobile.",
+      "path": "components/chat-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "JoinButton",
+      "area": "session",
+      "description": "Joins a session using the supplied credentials. Displays a connecting indicator while joining.",
+      "path": "components/join-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "LeaveButton",
+      "area": "session",
+      "description": "Leaves the session. Participants leave immediately. The host chooses to end the session for everyone or to leave, assigning a new host first when others are present.",
+      "path": "components/leave-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "MobileVideoLayout",
+      "area": "video",
+      "description": "Displays up to four participant videos in a fixed four-cell grid: one row of four when the container is more than twice as wide as it is tall, otherwise two rows of two. Unused cells stay empty. The device's video limit can lower the count.",
+      "path": "components/mobile-video-layout.json"
+    },
+    {
+      "kind": "component",
+      "name": "MoreButton",
+      "area": "toolbar",
+      "description": "Opens a menu of custom controls or built-in buttons in the supplied order. Uses a popover on desktop and a bottom sheet on mobile, with controls in a grid of up to three per row.",
+      "path": "components/more-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "ParticipantButton",
+      "area": "participant",
+      "description": "Opens the participant list and shows a live participant count. The desktop panel can be dragged by its header. On desktop, the panel closes only when you click the button again or use the panel's close button. On mobile, the list opens in a bottom sheet.",
+      "path": "components/participant-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "ParticipantPanel",
+      "area": "participant",
+      "description": "Searchable participant list with role-based action menus, Mute All, and Reclaim host when eligible. Can be displayed inline, anchored to an element, or, with isMobile, embedded in your own mobile container such as a bottom sheet.",
+      "path": "components/participant-panel.json"
+    },
+    {
+      "kind": "component",
+      "name": "ParticipantTile",
+      "area": "video",
+      "description": "Displays one participant's video with a name tag. When their video is off, or renderVideo is false, shows their name and name tag instead.",
+      "path": "components/participant-tile.json"
+    },
+    {
+      "kind": "component",
+      "name": "ReclaimHostBanner",
+      "area": "session",
+      "description": "Prompts the original host to reclaim the host role from the current host. Remains visible until dismissed or the participant is no longer eligible.",
+      "path": "components/reclaim-host-banner.json"
+    },
+    {
+      "kind": "component",
+      "name": "RecordButton",
+      "area": "recording",
+      "description": "Toolbar button for cloud recording. Clicking it starts a recording. While a recording is active or paused, clicking it opens a menu with Pause recording or Resume recording, and Stop recording. Only hosts and co-hosts can use it.",
+      "path": "components/record-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "SessionInfoButton",
+      "area": "session-info",
+      "description": "Opens a panel with the session topic, session ID, your display name and user ID, and an optional invite link. The desktop panel can be dragged; mobile uses a bottom sheet.",
+      "path": "components/session-info-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "SessionInfoPanel",
+      "area": "session-info",
+      "description": "Displays session details inline, beside an anchor element, or inside a container supplied by your application.",
+      "path": "components/session-info-panel.json"
+    },
+    {
+      "kind": "component",
+      "name": "SettingsButton",
+      "area": "settings",
+      "description": "Opens the Settings panel, with Audio, Video, Share screen, and Statistics tabs, in a draggable desktop panel or a mobile bottom sheet.",
+      "path": "components/settings-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "SettingsPanel",
+      "area": "settings",
+      "description": "Settings panel with Audio, Video, Share screen, and Statistics tabs. Use inside your own container, or use SettingsButton to provide the button and popup.",
+      "path": "components/settings-panel.json"
+    },
+    {
+      "kind": "component",
+      "name": "ShareButton",
+      "area": "share",
+      "description": "Starts screen sharing. While you share, shows a draggable floating bar with pause, resume, stop, and sharing options, including annotation settings. Hosts and co-hosts can also change who may share. Disabled when the session is not connected or on a phone or tablet.",
+      "path": "components/share-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "ShareTile",
+      "area": "share",
+      "description": "Displays one participant's shared screen at the specified size.",
+      "path": "components/share-tile.json"
+    },
+    {
+      "kind": "component",
+      "name": "ShareViewLayout",
+      "area": "share",
+      "description": "Arranges shared screens in a grid sized to the supplied container dimensions.",
+      "path": "components/share-view-layout.json"
+    },
+    {
+      "kind": "component",
+      "name": "ThemeProvider",
+      "area": "theme",
+      "description": "Supplies a light or dark theme to the components inside it. Renders no extra element.",
+      "path": "components/theme-provider.json"
+    },
+    {
+      "kind": "component",
+      "name": "ToolbarButton",
+      "area": "toolbar",
+      "description": "Styled native button with active, tone, size, and full-width options. Forwards a button ref and native button props.",
+      "path": "components/toolbar-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "VideoButton",
+      "area": "video",
+      "description": "Starts or stops the local camera and provides a camera-selection menu. The controls are disabled while disconnected.",
+      "path": "components/video-button.json"
+    },
+    {
+      "kind": "component",
+      "name": "VideoLayout",
+      "area": "video",
+      "description": "Arranges participant videos in an evenly sized grid. The number of videos shown is limited by the device's video capabilities.",
+      "path": "components/video-layout.json"
+    },
+    {
+      "kind": "component",
+      "name": "ZoomUIToolkitApp",
+      "area": "app",
+      "description": "Complete, ready-made session screen with participant videos, received screen sharing, and a toolbar. Render inside ZoomUIToolkitProvider. It does not join the session; join with JoinButton or client.join().",
+      "path": "components/zoom-ui-toolkit-app.json"
+    },
+    {
+      "kind": "component",
+      "name": "ZoomUIToolkitProvider",
+      "area": "app",
+      "description": "Connects the built-in components to your initialized Video SDK client and supplies session settings, theme, and notifications.",
+      "path": "components/zoom-ui-toolkit-provider.json"
+    },
+    {
+      "kind": "component",
+      "name": "ZoomUIToolkitRoot",
+      "area": "app",
+      "description": "Optional wrapper that places layouts you build from the individual components in their own stacking layer at the ZoomUIToolkitProvider baseZIndex.",
+      "path": "components/zoom-ui-toolkit-root.json"
+    },
+    {
+      "kind": "module",
+      "name": "ActiveSpeakerView",
+      "area": "video",
+      "description": "Shows one participant: participantState.activeVideoUser from useZoomUIToolkit. Resizes to fit its container. Empty until that participant is set or while the session isn't connected.",
+      "path": "modules/active-speaker-view.json"
+    },
+    {
+      "kind": "module",
+      "name": "MobileParticipantView",
+      "area": "video",
+      "description": "Swipeable participant pages for small screens, with page indicators. A received screen share appears on the first page and is selected automatically.",
+      "path": "modules/mobile-participant-view.json"
+    },
+    {
+      "kind": "module",
+      "name": "ParticipantView",
+      "area": "video",
+      "description": "Paginated participant video grid with previous and next buttons and a page indicator. Resizes to fit its container.",
+      "path": "modules/participant-view.json"
+    },
+    {
+      "kind": "module",
+      "name": "SharePresenterView",
+      "area": "share",
+      "description": "Previews the local participant's shared screen, scaled to fit its container while keeping the shared content's aspect ratio. Displays an empty area when the local participant is not sharing.",
+      "path": "modules/share-presenter-view.json"
+    },
+    {
+      "kind": "module",
+      "name": "ShareViewerView",
+      "area": "share",
+      "description": "Displays screen shares received from other participants. Single-share mode shows the active share with a \"You are viewing {name}'s screen\" banner and a View Options menu: Fit to window (default) or Original size, where larger content can be dragged to pan. Multi-share mode shows a paginated grid that labels each sharer by name.",
+      "path": "modules/share-viewer-view.json"
+    },
+    {
+      "kind": "module",
+      "name": "Toolbar",
+      "area": "toolbar",
+      "description": "Prebuilt session control bar with Audio, Video, Participants, Chat, Share, Record, Settings, More, and Leave buttons. Choose which buttons appear with visibleButtons. Buttons that don't fit move into More automatically on desktop and mobile.",
+      "path": "modules/toolbar.json"
+    },
+    {
+      "kind": "module",
+      "name": "TopBar",
+      "area": "session",
+      "description": "Session header with a session info button and a recording indicator on the left, and custom controls on the right.",
+      "path": "modules/top-bar.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useAudioController",
+      "area": "audio",
+      "description": "Reads local audio state and exposes join, leave, mute, device selection, and audio setting actions for custom controls.",
+      "path": "hooks/use-audio-controller.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useRecordingController",
+      "area": "recording",
+      "description": "Provides cloud-recording status and actions for starting, stopping, pausing, and resuming recordings.",
+      "path": "hooks/use-recording-controller.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useShareController",
+      "area": "share",
+      "description": "Provides screen-sharing status and actions for custom controls or keyboard shortcuts.",
+      "path": "hooks/use-share-controller.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useTheme",
+      "area": "theme",
+      "description": "Reads the current theme.",
+      "path": "hooks/use-theme.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useVideoController",
+      "area": "video",
+      "description": "Reads local camera state and exposes camera, mirroring, hardware acceleration, and virtual background actions.",
+      "path": "hooks/use-video-controller.json"
+    },
+    {
+      "kind": "hook",
+      "name": "useZoomUIToolkit",
+      "area": "app",
+      "description": "Reads live session, audio, video, device, share, participant, and chat state, plus effective session options and the provider client.",
+      "path": "hooks/use-zoom-ui-toolkit.json"
+    }
+  ]
+}

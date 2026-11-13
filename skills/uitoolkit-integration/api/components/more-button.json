@@ -1,0 +1,58 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "toolbar",
+  "kind": "component",
+  "name": "MoreButton",
+  "component": {
+    "name": "MoreButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Opens a menu of custom controls or built-in buttons in the supplied order. Uses a popover on desktop and a bottom sheet on mobile, with controls in a grid of up to three per row.",
+    "requiresProvider": false,
+    "providerNote": "Supplied feature buttons retain their own provider requirements.",
+    "props": [
+      {
+        "name": "buttons",
+        "type": "readonly ReactNode[]",
+        "required": false,
+        "default": [],
+        "description": "JSX controls in display order. Use stable keys when reordering controls. Null, undefined, and boolean entries are ignored; the menu shows 'No additional controls' when none remain."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "description": "Override automatic platform detection to choose the mobile bottom sheet. By default, Android devices, iPhones, iPods, and iPads are treated as mobile. Pass isMobile to supplied feature buttons that should open their own mobile sheets."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the trigger."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the trigger."
+      },
+      {
+        "name": "menuClassName",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class on the desktop popover or mobile sheet body."
+      },
+      {
+        "name": "menuStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles on the desktop popover or mobile sheet body."
+      }
+    ]
+  },
+  "behavior": [
+    "On desktop, the menu opens above the trigger when there is room. Clicking the trigger again or clicking outside closes it, and Escape closes it and returns focus to the trigger.",
+    "On mobile, the sheet closes when you swipe it down, tap outside it, or use its Cancel button.",
+    "Using a control inside the menu does not close it."
+  ]
+}

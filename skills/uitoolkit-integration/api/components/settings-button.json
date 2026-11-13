@@ -1,0 +1,202 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "settings",
+  "kind": "component",
+  "name": "SettingsButton",
+  "component": {
+    "name": "SettingsButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Opens the Settings panel, with Audio, Video, Share screen, and Statistics tabs, in a draggable desktop panel or a mobile bottom sheet.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the button."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the button."
+      },
+      {
+        "name": "renderContent",
+        "type": "() => ReactNode",
+        "required": false,
+        "description": "Custom content that replaces the default Settings icon."
+      },
+      {
+        "name": "onOpen",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel opens."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Called when the panel closes, including when the mobile sheet is dismissed. On desktop, the panel closes only when you click the button again or use the panel's close button."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Shows the panel in a mobile bottom sheet instead of the desktop panel. Not detected automatically. The sheet closes when you swipe it down, tap outside it, or use its close button."
+      },
+      {
+        "name": "panelClassName",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the settings panel, on desktop and mobile."
+      },
+      {
+        "name": "panelStyle",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the settings panel, on desktop and mobile."
+      },
+      {
+        "name": "anchor",
+        "type": "VirtualElement | null",
+        "required": false,
+        "description": "Anchors the desktop panel to this element instead of the button. Pass an HTML element or any object with getBoundingClientRect(). Ignored on mobile."
+      },
+      {
+        "name": "panelProps",
+        "type": "Omit<SettingsPanelProps, 'open' | 'onClose' | 'isMobile' | 'className' | 'style' | 'activeTab' | 'onTabChange'>",
+        "required": false,
+        "description": "SettingsPanel options you can set here: tabs and testSoundUrl."
+      },
+      {
+        "name": "popoverProps",
+        "type": "SettingsButtonPopoverProps",
+        "required": false,
+        "description": "Initial position of the desktop panel: side, align, sideOffset, alignOffset, and collisionPadding. By default the panel opens above the button, aligned to its start edge, and moves to the opposite side when there isn't enough room. Ignored on mobile."
+      }
+    ]
+  },
+  "types": [
+    {
+      "name": "SettingsButtonPopoverProps",
+      "description": "Initial placement of the desktop settings panel. Not exported by name; pass an object literal.",
+      "fields": [
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "default": "'top'",
+          "required": false,
+          "description": "Preferred side of the button or anchor. Moves to the opposite side when there isn't enough room."
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "default": "'start'",
+          "required": false,
+          "description": "Alignment along that side."
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "default": 8,
+          "required": false,
+          "description": "Distance from the button or anchor, in pixels."
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "required": false,
+          "description": "Offset from the chosen alignment, in pixels."
+        },
+        {
+          "name": "collisionPadding",
+          "type": "number | undefined",
+          "default": 12,
+          "required": false,
+          "description": "Minimum gap kept from the viewport edges, in pixels."
+        }
+      ]
+    },
+    {
+      "name": "SettingsPanelProps",
+      "fields": [
+        {
+          "name": "className",
+          "type": "string | undefined",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties | undefined",
+          "required": false
+        },
+        {
+          "name": "open",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Controls visibility. Defaults to true."
+        },
+        {
+          "name": "isMobile",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Renders only the panel content. Supply a mobile sheet or another container to display and dismiss it."
+        },
+        {
+          "name": "onClose",
+          "type": "(() => void) | undefined",
+          "required": false,
+          "description": "Shows a close button and is called when it is pressed. Without onClose, no close button is shown."
+        },
+        {
+          "name": "activeTab",
+          "type": "SettingsTab | undefined",
+          "required": false,
+          "description": "Controls the active tab. Defaults to the first visible tab."
+        },
+        {
+          "name": "onTabChange",
+          "type": "((tab: SettingsTab) => void) | undefined",
+          "required": false,
+          "description": "Called when the user switches tabs."
+        },
+        {
+          "name": "tabs",
+          "type": "SettingsTab[] | undefined",
+          "required": false,
+          "description": "Which tabs to show, in the order provided. Defaults to all tabs."
+        },
+        {
+          "name": "testSoundUrl",
+          "type": "string | undefined",
+          "required": false,
+          "description": "URL of the sound played by \"Test speaker\". Defaults to the SDK ring tone. The speaker test is only shown when a localAudioTrack is passed to ZoomUIToolkitProvider."
+        }
+      ]
+    },
+    {
+      "name": "VirtualElement",
+      "description": "Not exported by name. Pass an HTML element, or any object with a getBoundingClientRect() method that returns a DOMRect.",
+      "fields": [
+        {
+          "name": "getBoundingClientRect",
+          "type": "() => DOMRect",
+          "required": true,
+          "description": "Returns the position and size to anchor to."
+        }
+      ]
+    },
+    {
+      "name": "SettingsTab",
+      "description": "Settings category. Tab labels: 'audio' is \"Audio\", 'video' is \"Video\", 'share' is \"Share screen\", and 'qos' is \"Statistics\". The share tab currently has no controls.",
+      "definition": "'audio' | 'video' | 'share' | 'qos'"
+    }
+  ],
+  "behavior": [
+    "The button is disabled until the session is connected.",
+    "The panel opens on the Audio tab, or on the first visible tab if Audio is hidden. The selected tab is kept while the button stays mounted."
+  ]
+}

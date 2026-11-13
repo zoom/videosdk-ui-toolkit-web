@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zoom.us/schemas/ui-toolkit/api-item.schema.json",
+  "title": "Zoom UI Toolkit API item",
+  "type": "object",
+  "required": ["$schema", "package", "area", "kind", "name"],
+  "properties": {
+    "$schema": {
+      "const": "../schemas/api-item.schema.json"
+    },
+    "package": {
+      "const": "@zoom/videosdk-ui-toolkit"
+    },
+    "area": {
+      "type": "string",
+      "pattern": "^[a-z]+(?:-[a-z]+)*$"
+    },
+    "kind": {
+      "enum": ["component", "module", "hook"]
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+    },
+    "component": {
+      "$ref": "#/$defs/apiEntry"
+    },
+    "module": {
+      "$ref": "#/$defs/apiEntry"
+    },
+    "hook": {
+      "$ref": "#/$defs/apiEntry"
+    }
+  },
+  "oneOf": [
+    {
+      "properties": { "kind": { "const": "component" } },
+      "required": ["component"],
+      "not": { "anyOf": [{ "required": ["module"] }, { "required": ["hook"] }] }
+    },
+    {
+      "properties": { "kind": { "const": "module" } },
+      "required": ["module"],
+      "not": { "anyOf": [{ "required": ["component"] }, { "required": ["hook"] }] }
+    },
+    {
+      "properties": { "kind": { "const": "hook" } },
+      "required": ["hook"],
+      "not": { "anyOf": [{ "required": ["component"] }, { "required": ["module"] }] }
+    }
+  ],
+  "not": {
+    "anyOf": [{ "required": ["components"] }, { "required": ["modules"] }, { "required": ["hooks"] }]
+  },
+  "$defs": {
+    "apiEntry": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

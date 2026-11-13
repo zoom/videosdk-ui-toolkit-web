@@ -1,0 +1,83 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session",
+  "kind": "component",
+  "name": "JoinButton",
+  "component": {
+    "name": "JoinButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Joins a session using the supplied credentials. Displays a connecting indicator while joining.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "joinParameters",
+        "type": "JoinSessionParams",
+        "required": true,
+        "description": "Session topic, token, user name, and optional password and idle timeout."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the button."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the button."
+      },
+      {
+        "name": "fullWidth",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Expands the button to fill its container width."
+      }
+    ]
+  },
+  "behavior": [
+    "The button reads \"Join session\" and changes to \"Connecting...\" while joining.",
+    "Disabled until ZoomUIToolkitProvider has a client, while topic or userName is empty, and while a join is in progress.",
+    "If joining fails, the error message is available as sessionState.errorMessage from useZoomUIToolkit."
+  ],
+  "types": [
+    {
+      "name": "JoinSessionParams",
+      "description": "Session credentials and options used by JoinButton.",
+      "fields": [
+        {
+          "name": "topic",
+          "type": "string",
+          "description": "Session topic. Must match the topic in the token. The button is disabled while this is empty.",
+          "required": true
+        },
+        {
+          "name": "token",
+          "type": "string",
+          "description": "Video SDK JWT generated on your server for this session. ZoomUIToolkitProvider does not accept an SDK secret or generate tokens.",
+          "required": true
+        },
+        {
+          "name": "userName",
+          "type": "string",
+          "description": "Display name for the local user. JoinButton is disabled while this is empty.",
+          "required": true
+        },
+        {
+          "name": "sessionPassword",
+          "type": "string | undefined",
+          "description": "Session password, if required.",
+          "required": false
+        },
+        {
+          "name": "sessionIdleTimeoutMins",
+          "type": "number | undefined",
+          "description": "Minutes the session can stay idle, with one participant present, before it ends. Only applies when joining as the host or original host; otherwise the default of 40 minutes is used.",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

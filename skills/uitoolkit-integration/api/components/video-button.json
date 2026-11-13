@@ -1,0 +1,565 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "component",
+  "name": "VideoButton",
+  "component": {
+    "name": "VideoButton",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Starts or stops the local camera and provides a camera-selection menu. The controls are disabled while disconnected.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the control root."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the control root."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Displays the camera menu as a mobile bottom sheet. Not detected automatically."
+      },
+      {
+        "name": "showMenu",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Shows the camera menu while connected when camera controls or custom menu groups are available and either the camera is on, or cameras are available and the camera has been turned on at least once since the session connected."
+      },
+      {
+        "name": "menuGroups",
+        "type": "ToolbarMenuGroup[]",
+        "required": false,
+        "description": "Additional menu groups shown after the camera choices. The menu becomes available once the camera has been turned on (see showMenu)."
+      },
+      {
+        "name": "dropdownOptions",
+        "type": "ToolbarMenuDropdownOptions",
+        "required": false,
+        "description": "Menu placement, styling, and container options. Ignored when isMobile is true."
+      },
+      {
+        "name": "renderContent",
+        "type": "VideoButtonRenderContent",
+        "required": false,
+        "description": "Custom content for the main button. Object keyed by state ('videoOn', 'videoOff', 'loading', 'warning'); each value is a React node or a function receiving VideoButtonRenderContext. Only the keys you provide are overridden; others use the default icon. See contentStateRules for which state applies."
+      }
+    ]
+  },
+  "behavior": [
+    "The button is disabled until the session is connected, while camera controls are unavailable, and while the camera is starting or stopping.",
+    "Clicking starts or stops the camera.",
+    "While the camera is starting or stopping, the button's accessible label is 'Working...'.",
+    "The menu lists Camera choices, then your menuGroups.",
+    "The current camera is checked and can't be chosen again. Camera choices are disabled while a switch is in progress.",
+    "The camera list shows 'No devices' when no cameras are found. A camera without a name is listed by its device ID.",
+    "When the camera is off, choosing a camera selects it for the next start.",
+    "When the menu is hidden, only the main button is shown.",
+    "On mobile (isMobile), choosing a menu item closes the sheet."
+  ],
+  "types": [
+    {
+      "name": "VideoButtonRenderContext",
+      "description": "Camera status, device choices, labels, and actions available to custom button content.",
+      "fields": [
+        {
+          "name": "videoState",
+          "type": "VideoState",
+          "description": "Current camera status. Until the session is connected, it reports defaults: camera off, not loading, no warning, no background selected, and only the built-in None and Blur backgrounds.",
+          "required": true
+        },
+        {
+          "name": "deviceState",
+          "type": "DeviceState",
+          "description": "Available devices, selected devices, and device-switching status.",
+          "required": true
+        },
+        {
+          "name": "canControlVideo",
+          "type": "boolean",
+          "description": "Whether camera controls are available in the connected session.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Localized action label: 'Start video' when the camera is off, 'Stop video' when it is on. The main button uses it as its accessible label, except while the camera is starting or stopping ('Working...').",
+          "required": true
+        },
+        {
+          "name": "menuLabel",
+          "type": "string",
+          "description": "Localized accessible label for the camera menu ('Video options').",
+          "required": true
+        },
+        {
+          "name": "isDisabled",
+          "type": "boolean",
+          "description": "Whether the main button is disabled (not connected, cannot control video, or isLoading).",
+          "required": true
+        },
+        {
+          "name": "isMenuTriggerDisabled",
+          "type": "boolean",
+          "description": "Whether the camera dropdown trigger is disabled (not connected, or no custom groups and cannot control video).",
+          "required": true
+        },
+        {
+          "name": "toggleVideo",
+          "type": "() => Promise<void>",
+          "description": "Starts or stops the local camera. Has no effect while disconnected.",
+          "required": true
+        },
+        {
+          "name": "startVideo",
+          "type": "() => Promise<void>",
+          "description": "Starts the local camera. Has no effect while disconnected.",
+          "required": true
+        },
+        {
+          "name": "stopVideo",
+          "type": "() => Promise<void>",
+          "description": "Stops the local camera. Has no effect while disconnected.",
+          "required": true
+        },
+        {
+          "name": "switchCamera",
+          "type": "(deviceId: string) => Promise<void>",
+          "description": "Selects the camera by device ID. When the camera is off, it selects the camera for the next start. Has no effect while disconnected.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideoState",
+      "description": "Current local camera status, settings, and virtual background readiness.",
+      "fields": [
+        {
+          "name": "isVideoOn",
+          "type": "boolean",
+          "description": "True when the local camera is active for the current user. Updated only while VideoButton, the SettingsPanel Video tab, or a component that calls useVideoController is mounted.",
+          "required": true
+        },
+        {
+          "name": "vbImageId",
+          "type": "string",
+          "description": "Selected background ID: '' for none, 'blur', or one of your image IDs. It returns to sessionOptions.video.virtualBackground.defaultVirtualBackgroundImageId when the connection state changes or when you pass a new sessionOptions object, so keep sessionOptions stable (for example with useMemo).",
+          "required": true
+        },
+        {
+          "name": "virtualBackgroundImageList",
+          "type": "VirtualBackgroundImage[]",
+          "description": "Available background choices: the built-in None (id '') and Blur (id 'blur') entries, followed by the valid custom images from sessionOptions. The built-in entries' names are English only and their url is not an image, so show your own translated labels and no thumbnail for them.",
+          "required": true
+        },
+        {
+          "name": "isVirtualBackgroundReady",
+          "type": "boolean",
+          "description": "Whether the Video SDK virtual background model is ready. Before offering virtual backgrounds, also check useVideoController().canUseVirtualBackground.",
+          "required": true
+        },
+        {
+          "name": "isMirrored",
+          "type": "boolean",
+          "description": "Whether the local camera preview is mirrored. Defaults to true and resets to true if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationReceiving",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for receiving video (decoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationSending",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for sending video (encoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while video is starting or stopping. For camera switches, use useZoomUIToolkit().deviceState.isSwitchingCamera.",
+          "required": true
+        },
+        {
+          "name": "warning",
+          "type": "MediaWarning | null",
+          "description": "Latest video error, such as a camera, mirroring, or virtual background failure, or null when there is no error.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "DeviceState",
+      "description": "Available media devices, selected devices, and device-switching status.",
+      "fields": [
+        {
+          "name": "cameras",
+          "type": "MediaDevice[]",
+          "description": "Available cameras. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "microphones",
+          "type": "MediaDevice[]",
+          "description": "Available microphones. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "speakers",
+          "type": "MediaDevice[]",
+          "description": "Available speakers. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeCameraId",
+          "type": "string | null",
+          "description": "Selected camera ID. Falls back to the default or first available camera. null when no camera is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeMicrophoneId",
+          "type": "string | null",
+          "description": "Selected microphone ID. Falls back to the default or first available microphone. null when no microphone is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeSpeakerId",
+          "type": "string | null",
+          "description": "Selected speaker ID. Falls back to the default or first available speaker. null when no speaker is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingCamera",
+          "type": "boolean",
+          "description": "Whether a camera change is in progress.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingMicrophone",
+          "type": "boolean",
+          "description": "Whether a microphone change is in progress.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingSpeaker",
+          "type": "boolean",
+          "description": "Whether a speaker change is in progress.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaDevice",
+      "description": "An available microphone, speaker, or camera.",
+      "fields": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Device name for display.",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "description": "Device ID to pass when selecting a microphone, speaker, or camera.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaWarning",
+      "description": "An audio or video error, such as denied permission or a failed operation.",
+      "fields": [
+        {
+          "name": "type",
+          "type": "'permission' | 'operation' | 'unknown'",
+          "description": "'permission' when microphone or camera access is denied, 'operation' when an action fails. 'unknown' is reserved and not currently produced.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string | undefined",
+          "description": "Details about the failure, when available. It may be a Video SDK error code or reason (for example 'INSUFFICIENT_PRIVILEGES') rather than a user-facing sentence, so show your own text based on `type`.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VirtualBackgroundImage",
+      "description": "A virtual background choice. Use this shape for images you pass in `sessionOptions.video.virtualBackground.virtualBackgroundImageList`. `videoState.virtualBackgroundImageList` also starts with the built-in None (id '', url '') and Blur (id 'blur', url 'blur') choices, whose names are English only.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique image ID. The values '' and 'blur' are reserved for no background and blur. If an ID is reserved or repeated, only the first entry with that ID is kept.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Non-empty accessible label for the image. Supply a translated label for your application. Entries with empty names are ignored.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "description": "Non-empty image URL. Entries with empty URLs are ignored.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideoButtonRenderContent",
+      "fields": [
+        {
+          "name": "videoOn",
+          "type": "VideoButtonContentRenderer",
+          "description": "Content shown while the camera is on.",
+          "required": false
+        },
+        {
+          "name": "videoOff",
+          "type": "VideoButtonContentRenderer",
+          "description": "Content shown while the camera is off.",
+          "required": false
+        },
+        {
+          "name": "loading",
+          "type": "VideoButtonContentRenderer",
+          "description": "Content shown while the camera is starting or stopping.",
+          "required": false
+        },
+        {
+          "name": "warning",
+          "type": "VideoButtonContentRenderer",
+          "description": "Content shown while a camera error is present.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VideoButtonContentRenderer",
+      "definition": "ReactNode | ((context: VideoButtonRenderContext) => ReactNode)"
+    },
+    {
+      "name": "ToolbarMenuActionItem",
+      "description": "A selectable menu action. In a single-selection group, the selected action displays a check mark.",
+      "fields": [
+        {
+          "name": "selected",
+          "type": "boolean | undefined",
+          "description": "Marks the selected action in a group with selectionMode: 'single'.",
+          "required": false
+        },
+        {
+          "name": "onSelect",
+          "type": "((item: ToolbarMenuActionItem, group: ToolbarMenuGroup) => void | Promise<void>) | undefined",
+          "description": "Called when the action is selected, with the item and its group. Handle errors in asynchronous callbacks.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "undefined",
+          "description": "Omit this property for an action item.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique action ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Label content rendered inside the menu item.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the item is rendered with disabled state and is non-interactive.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuDropdownOptions",
+      "description": "Styling, placement, and portal container options for desktop dropdown menus. Only the listed options are supported.",
+      "fields": [
+        {
+          "name": "className",
+          "type": "string | undefined",
+          "description": "Additional CSS class for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "style",
+          "type": "CSSProperties | undefined",
+          "description": "Inline styles for the dropdown menu.",
+          "required": false
+        },
+        {
+          "name": "portalContainer",
+          "type": "Element | DocumentFragment | null | undefined",
+          "description": "Container for the dropdown and its nested submenus. Defaults to document.body.",
+          "required": false
+        },
+        {
+          "name": "side",
+          "type": "'top' | 'right' | 'bottom' | 'left' | undefined",
+          "description": "Preferred side of the trigger. Defaults to 'bottom'. The menu may move to stay visible.",
+          "required": false
+        },
+        {
+          "name": "sideOffset",
+          "type": "number | undefined",
+          "description": "Distance from the trigger in pixels. Defaults to 10.",
+          "required": false
+        },
+        {
+          "name": "align",
+          "type": "'start' | 'center' | 'end' | undefined",
+          "description": "Alignment along the trigger. Defaults to 'start'.",
+          "required": false
+        },
+        {
+          "name": "alignOffset",
+          "type": "number | undefined",
+          "description": "Offset from the chosen alignment in pixels.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuGroup",
+      "description": "A section of menu items with an optional heading and empty-state label.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique group ID.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Optional section heading.",
+          "required": false
+        },
+        {
+          "name": "emptyLabel",
+          "type": "string | undefined",
+          "description": "Text to show when the group has no items. An empty group without this label is hidden.",
+          "required": false
+        },
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Items belonging to this group.",
+          "required": true
+        },
+        {
+          "name": "selectionMode",
+          "type": "'single' | undefined",
+          "description": "Set to 'single' for a group of mutually exclusive choices. Mark the current action with selected: true.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuItem",
+      "description": "A menu action or a nested menu. Any item with an items property is a nested menu, so leave items out of menu actions.",
+      "fields": [
+        {
+          "name": "(union)",
+          "type": "ToolbarMenuActionItem | ToolbarMenuSubmenuItem",
+          "description": "An item is a submenu when it has an 'items' property; otherwise it is a leaf action."
+        }
+      ]
+    },
+    {
+      "name": "ToolbarMenuSubmenuItem",
+      "description": "A menu item that opens a nested menu.",
+      "fields": [
+        {
+          "name": "items",
+          "type": "ToolbarMenuItem[]",
+          "description": "Nested items rendered inside the submenu. May themselves contain further submenus (recursive).",
+          "required": true
+        },
+        {
+          "name": "onSelect",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "selected",
+          "type": "undefined",
+          "description": "Omit this property for a submenu.",
+          "required": false
+        },
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique submenu ID within the group.",
+          "required": true
+        },
+        {
+          "name": "label",
+          "type": "ReactNode",
+          "description": "Submenu label and mobile submenu heading.",
+          "required": true
+        },
+        {
+          "name": "disabled",
+          "type": "boolean | undefined",
+          "description": "When true, the submenu trigger is rendered with disabled state and the submenu cannot be opened.",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "contentStateRules": {
+    "description": "Custom-content state and default icon, in priority order. The first matching state is used.",
+    "rules": [
+      {
+        "key": "loading",
+        "matchedWhen": "The camera is starting or stopping.",
+        "defaultIcon": "Loading indicator"
+      },
+      {
+        "key": "warning",
+        "matchedWhen": "A camera error is present, including while the camera is on.",
+        "defaultIcon": "Warning icon"
+      },
+      {
+        "key": "videoOn",
+        "matchedWhen": "The camera is on.",
+        "defaultIcon": "Video camera icon"
+      },
+      {
+        "key": "videoOff",
+        "matchedWhen": "The camera is off.",
+        "defaultIcon": "Video-off icon"
+      }
+    ]
+  },
+  "notifications": {
+    "cameraPermission": "ZoomUIToolkitProvider shows 'Camera access is required.' with 'Allow access in your browser settings, then try again.' and a Close action when camera access is denied, whether or not VideoButton is displayed. It is removed when access is granted. The button shows its warning content until access is granted or a later camera action replaces the warning.",
+    "startFailed": "If starting video fails, shows an error notice such as 'Camera access was denied. Check your browser and system permissions, then try again.', 'Your camera is being used by another application.', 'The selected camera is unavailable. Choose another camera and try again.', or 'No camera was detected.'"
+  }
+}

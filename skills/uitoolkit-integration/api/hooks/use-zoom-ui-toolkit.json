@@ -1,0 +1,796 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "app",
+  "kind": "hook",
+  "name": "useZoomUIToolkit",
+  "hook": {
+    "name": "useZoomUIToolkit",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Reads live session, audio, video, device, share, participant, and chat state, plus effective session options and the provider client.",
+    "requiresProvider": false,
+    "signature": "useZoomUIToolkit(): ZoomUIToolkitStates & { sessionOptions: SessionOptions; client: typeof VideoClient | null }",
+    "returns": {
+      "shape": "Live session state, effective session options, and the Video SDK client passed to the provider.",
+      "keys": [
+        {
+          "name": "sessionOptions",
+          "type": "SessionOptions",
+          "description": "Effective session configuration after provider defaults are applied.",
+          "required": true
+        },
+        {
+          "name": "client",
+          "type": "typeof VideoClient | null",
+          "description": "The Video SDK client passed to ZoomUIToolkitProvider, or null outside the provider or when the provider has no client.",
+          "required": true
+        },
+        {
+          "name": "sessionState",
+          "type": "SessionState",
+          "description": "Session connection status, session details, and errors.",
+          "required": true
+        },
+        {
+          "name": "audioState",
+          "type": "AudioState",
+          "required": true,
+          "description": "Current local audio state."
+        },
+        {
+          "name": "videoState",
+          "type": "VideoState",
+          "required": true,
+          "description": "Current local video state."
+        },
+        {
+          "name": "deviceState",
+          "type": "DeviceState",
+          "required": true,
+          "description": "Available media devices, selected device IDs, and device-switching state."
+        },
+        {
+          "name": "shareState",
+          "type": "ShareState",
+          "description": "Screen-share state: whether you are sharing or receiving a share, the share privilege, and annotation state.",
+          "required": true
+        },
+        {
+          "name": "participantState",
+          "type": "ParticipantState",
+          "description": "Session participants, active speakers, and participants sharing their screens.",
+          "required": true
+        },
+        {
+          "name": "chatState",
+          "type": "ChatState",
+          "description": "Chat messages, recipients, privilege, availability, and unread count.",
+          "required": true
+        }
+      ]
+    },
+    "notes": [
+      "Safe to call outside ZoomUIToolkitProvider: client is null and sessionOptions holds the defaults. State values update only while a ZoomUIToolkitProvider with a client is mounted, and every component on the page reads the same state, so mount only one provider.",
+      "audioState.isJoined, audioState.isMuted, and videoState.isVideoOn follow the local participant only while a component that controls that media is mounted: AudioButton or VideoButton, the matching SettingsPanel tab, or your own component that calls useAudioController or useVideoController. ZoomUIToolkitApp and Toolbar include AudioButton and VideoButton unless visibleButtons leaves them out.",
+      "Before a session connects, every state object holds its initial values with your sessionOptions applied, for example connectionState 'Closed', audioState.isMuted true, videoState.isMirrored true, shareState.sharePrivilege MultipleShare, chatState.privilege All, and empty participant, device, and chat lists. When the connection changes to Reconnecting, Closed, or Fail, all seven state objects return to these values, and connectionState shows the new state.",
+      "Components that call this hook re-render whenever any of the seven state objects changes.",
+      "This hook only reads state. To perform actions, use useAudioController, useVideoController, useShareController, useRecordingController, the built-in components, or the Video SDK client directly."
+    ],
+    "returnType": "ZoomUIToolkitStates & { sessionOptions: SessionOptions; client: typeof VideoClient | null }"
+  },
+  "types": [
+    {
+      "name": "ZoomUIToolkitStates",
+      "description": "The seven live state objects returned by useZoomUIToolkit.",
+      "fields": [
+        {
+          "name": "sessionState",
+          "type": "SessionState",
+          "description": "Session connection status, session details, and errors.",
+          "required": true
+        },
+        {
+          "name": "audioState",
+          "type": "AudioState",
+          "description": "Current local audio state.",
+          "required": true
+        },
+        {
+          "name": "videoState",
+          "type": "VideoState",
+          "description": "Current local video state.",
+          "required": true
+        },
+        {
+          "name": "deviceState",
+          "type": "DeviceState",
+          "description": "Available media devices, selected device IDs, and device-switching state.",
+          "required": true
+        },
+        {
+          "name": "shareState",
+          "type": "ShareState",
+          "description": "Screen-share state: whether you are sharing or receiving a share, the share privilege, and annotation state.",
+          "required": true
+        },
+        {
+          "name": "participantState",
+          "type": "ParticipantState",
+          "description": "Session participants, active speakers, and participants sharing their screens.",
+          "required": true
+        },
+        {
+          "name": "chatState",
+          "type": "ChatState",
+          "description": "Chat messages, recipients, privilege, availability, and unread count.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "SessionState",
+      "description": "Session connection status, metadata, pending actions, errors, and original-host status.",
+      "fields": [
+        {
+          "name": "connectionState",
+          "type": "ConnectionState",
+          "description": "Current session connection status.",
+          "required": true
+        },
+        {
+          "name": "sessionInfo",
+          "type": "SessionInfo",
+          "required": true,
+          "description": "Session details such as topic and sessionId. Filled in when the session connects."
+        },
+        {
+          "name": "isJoining",
+          "type": "boolean",
+          "description": "True while a join started from the built-in JoinButton is in progress. Stays false if you call client.join() yourself.",
+          "required": true
+        },
+        {
+          "name": "isLeaving",
+          "type": "boolean",
+          "description": "True while a leave started from the built-in LeaveButton or the recording consent dialog is in progress. Stays false if you call client.leave() yourself.",
+          "required": true
+        },
+        {
+          "name": "errorMessage",
+          "type": "string | null",
+          "description": "Latest error from joining with JoinButton, leaving, ending, or assigning a new host with LeaveButton, answering a recording consent prompt, or a failed connection. null when there is no current error.",
+          "required": true
+        },
+        {
+          "name": "reason",
+          "type": "string | null",
+          "description": "Reason reported by the Video SDK for the latest connection change. Failed LeaveButton and recording consent actions also write their error here. null when there is none.",
+          "required": true
+        },
+        {
+          "name": "isOriginalHost",
+          "type": "boolean",
+          "description": "Whether the local participant joined with an original-host token (role_type: 1). Resets to false if the session reconnects or ends.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "AudioState",
+      "description": "Local audio status and settings.",
+      "fields": [
+        {
+          "name": "isJoined",
+          "type": "boolean",
+          "description": "Whether the local participant has joined audio. Updated only while AudioButton, the SettingsPanel Audio tab, or a component that calls useAudioController is mounted.",
+          "required": true
+        },
+        {
+          "name": "isMuted",
+          "type": "boolean",
+          "description": "True when the local microphone is muted. Always true while not joined. Updated under the same conditions as isJoined.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while joining, leaving, muting, or unmuting audio.",
+          "required": true
+        },
+        {
+          "name": "noiseSuppression",
+          "type": "boolean",
+          "description": "The noise suppression value applied when audio is joined, taken from sessionOptions.audio.noiseSuppression (default false). setNoiseSuppression does not change it; see noiseSuppressionEnabled for the current setting.",
+          "required": true
+        },
+        {
+          "name": "noiseSuppressionEnabled",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current background noise suppression setting, when known. Undefined until audio is joined with AudioButton or useAudioController, or the setting is changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "originalSound",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current original sound setting, when known. Undefined until changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "headsetSync",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Current headset button synchronization setting, when known. Undefined until changed in this session. Resets if the session reconnects or ends."
+        },
+        {
+          "name": "warning",
+          "type": "MediaWarning | null",
+          "description": "Latest audio error, or null when there is no error.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideoState",
+      "description": "Current local camera status, settings, and virtual background readiness.",
+      "fields": [
+        {
+          "name": "isVideoOn",
+          "type": "boolean",
+          "description": "True when the local camera is active for the current user. Updated only while VideoButton, the SettingsPanel Video tab, or a component that calls useVideoController is mounted.",
+          "required": true
+        },
+        {
+          "name": "vbImageId",
+          "type": "string",
+          "description": "Selected background ID: '' for none, 'blur', or one of your image IDs. It returns to sessionOptions.video.virtualBackground.defaultVirtualBackgroundImageId when the connection state changes or when you pass a new sessionOptions object, so keep sessionOptions stable (for example with useMemo).",
+          "required": true
+        },
+        {
+          "name": "virtualBackgroundImageList",
+          "type": "VirtualBackgroundImage[]",
+          "description": "Available background choices: the built-in None (id '') and Blur (id 'blur') entries, followed by the valid custom images from sessionOptions. The built-in entries' names are English only and their url is not an image, so show your own translated labels and no thumbnail for them.",
+          "required": true
+        },
+        {
+          "name": "isVirtualBackgroundReady",
+          "type": "boolean",
+          "description": "Whether the Video SDK virtual background model is ready. Before offering virtual backgrounds, also check useVideoController().canUseVirtualBackground.",
+          "required": true
+        },
+        {
+          "name": "isMirrored",
+          "type": "boolean",
+          "description": "Whether the local camera preview is mirrored. Defaults to true and resets to true if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationReceiving",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for receiving video (decoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "hardwareAccelerationSending",
+          "type": "boolean",
+          "description": "Whether hardware acceleration is enabled for sending video (encoding). Starts false and turns true automatically once it can be enabled. useVideoController().setHardwareAcceleration also changes it. Resets if the session reconnects or ends.",
+          "required": true
+        },
+        {
+          "name": "isLoading",
+          "type": "boolean",
+          "description": "True while video is starting or stopping. For camera switches, use useZoomUIToolkit().deviceState.isSwitchingCamera.",
+          "required": true
+        },
+        {
+          "name": "warning",
+          "type": "MediaWarning | null",
+          "description": "Latest video error, such as a camera, mirroring, or virtual background failure, or null when there is no error.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ShareState",
+      "description": "Whether you are sharing or receiving a share, the share privilege, shared-video optimization, and annotation state.",
+      "fields": [
+        {
+          "name": "isSharing",
+          "type": "boolean",
+          "description": "True when the local user is currently screen-sharing.",
+          "required": true
+        },
+        {
+          "name": "isReceivingShare",
+          "type": "boolean",
+          "required": true,
+          "description": "True while a screen share from another participant is being received."
+        },
+        {
+          "name": "sharePrivilege",
+          "type": "SharePrivilege",
+          "required": true,
+          "description": "Who may share in this session. Starts as MultipleShare and updates when the host or a co-host changes it."
+        },
+        {
+          "name": "isEnableOptimizeForSharedVideo",
+          "type": "boolean",
+          "required": true,
+          "description": "True after useShareController().toggleOptimizeForSharedVideo or the \"Optimize for video clip\" option in ShareButton's sharing controls turns optimization on. Resets to false when your share ends. Not updated by the optimizedForSharedVideo start option or by direct Video SDK calls."
+        },
+        {
+          "name": "annotation",
+          "type": "{ canDoAnnotation: boolean; canUndo: boolean; canRedo: boolean; isAnnotationStarted: boolean; isEnableViewerAnnotation: boolean; isShowAnnotatorName: boolean; }",
+          "required": true,
+          "description": "Screen-share annotation availability, active state, and viewer/name-display settings. canUndo and canRedo are reserved and always false."
+        }
+      ]
+    },
+    {
+      "name": "ParticipantState",
+      "description": "Session participants, the local participant, active speakers, and screen-sharing participants.",
+      "fields": [
+        {
+          "name": "participants",
+          "type": "Participant[]",
+          "description": "All participants in the session, including the local participant.",
+          "required": true
+        },
+        {
+          "name": "currentUser",
+          "type": "Participant | null",
+          "description": "The local participant, or null before joining.",
+          "required": true
+        },
+        {
+          "name": "activeVideoUser",
+          "type": "Participant | null",
+          "description": "The participant whose video most recently became active or inactive, as reported by the Video SDK. ActiveSpeakerView shows this participant. null until the first report.",
+          "required": true
+        },
+        {
+          "name": "activeSpeakers",
+          "type": "Participant[]",
+          "description": "Participants the Video SDK most recently reported as speaking, loudest first.",
+          "required": true
+        },
+        {
+          "name": "activeShareUsersList",
+          "type": "Participant[]",
+          "description": "Other participants currently sharing their screens, in the order they started. Your own share is not included; see shareState.isSharing.",
+          "required": true
+        },
+        {
+          "name": "activeShareUser",
+          "type": "Participant | null",
+          "description": "The participant whose received screen share the Video SDK reports as active. ShareViewerView shows this share by default. null when no received share is active.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ChatState",
+      "description": "Chat messages, recipients, permissions, unread-message status, and the current draft and pending send.",
+      "fields": [
+        {
+          "name": "messages",
+          "type": "ChatMessage[]",
+          "description": "Chat history available to the local participant.",
+          "required": true
+        },
+        {
+          "name": "receivers",
+          "type": "ChatReceiver[]",
+          "description": "Available chat recipients, including the entry for everyone (userId 0).",
+          "required": true
+        },
+        {
+          "name": "privilege",
+          "type": "ChatPrivilege",
+          "description": "Who can send chat messages in this session.",
+          "required": true
+        },
+        {
+          "name": "isAvailable",
+          "type": "boolean",
+          "description": "Whether chat is ready to use in the connected session.",
+          "required": true
+        },
+        {
+          "name": "unreadCount",
+          "type": "number",
+          "description": "Number of unread text messages from other participants received since the session connected. Deleting an unread message lowers it. Cleared whenever the chat panel opened from ChatButton shows the latest message, for example when it opens or the user scrolls to the bottom. There is no public way to clear it from a custom chat UI.",
+          "required": true
+        },
+        {
+          "name": "unreadMessageIds",
+          "type": "string[]",
+          "required": true,
+          "description": "IDs of the messages counted in unreadCount. Cleared at the same time as unreadCount."
+        },
+        {
+          "name": "draftMessage",
+          "type": "string",
+          "description": "Unsent message. Preserved when chat reopens or a different recipient is selected. Clears after a successful send. If the selected recipient is unavailable, the panel clears the draft and selects the first available recipient when open or reopened. Also clears when the connection reconnects, closes, or fails.",
+          "required": true
+        },
+        {
+          "name": "receiverId",
+          "type": "string",
+          "description": "Selected recipient ID. '0' means Everyone; an empty string means no recipient is selected.",
+          "required": true
+        },
+        {
+          "name": "pendingSendId",
+          "type": "number | null",
+          "description": "Identifier of the send pending for the current draft, or null when no send is pending. Preserved when chat reopens. Use pendingSendId !== null to check whether the draft is sending.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "DeviceState",
+      "description": "Available media devices, selected devices, and device-switching status.",
+      "fields": [
+        {
+          "name": "cameras",
+          "type": "MediaDevice[]",
+          "description": "Available cameras. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "microphones",
+          "type": "MediaDevice[]",
+          "description": "Available microphones. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "speakers",
+          "type": "MediaDevice[]",
+          "description": "Available speakers. Empty until the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeCameraId",
+          "type": "string | null",
+          "description": "Selected camera ID. Falls back to the default or first available camera. null when no camera is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeMicrophoneId",
+          "type": "string | null",
+          "description": "Selected microphone ID. Falls back to the default or first available microphone. null when no microphone is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "activeSpeakerId",
+          "type": "string | null",
+          "description": "Selected speaker ID. Falls back to the default or first available speaker. null when no speaker is known, including before the session connects.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingCamera",
+          "type": "boolean",
+          "description": "Whether a camera change is in progress.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingMicrophone",
+          "type": "boolean",
+          "description": "Whether a microphone change is in progress.",
+          "required": true
+        },
+        {
+          "name": "isSwitchingSpeaker",
+          "type": "boolean",
+          "description": "Whether a speaker change is in progress.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaDevice",
+      "description": "An available microphone, speaker, or camera.",
+      "fields": [
+        {
+          "name": "label",
+          "type": "string",
+          "description": "Device name for display.",
+          "required": true
+        },
+        {
+          "name": "deviceId",
+          "type": "string",
+          "description": "Device ID to pass when selecting a microphone, speaker, or camera.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "MediaWarning",
+      "description": "An audio or video error, such as denied permission or a failed operation.",
+      "fields": [
+        {
+          "name": "type",
+          "type": "'permission' | 'operation' | 'unknown'",
+          "description": "'permission' when microphone or camera access is denied, 'operation' when an action fails. 'unknown' is reserved and not currently produced.",
+          "required": true
+        },
+        {
+          "name": "message",
+          "type": "string | undefined",
+          "description": "Details about the failure, when available. It may be a Video SDK error code or reason (for example 'INSUFFICIENT_PRIVILEGES') rather than a user-facing sentence, so show your own text based on `type`.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "SessionOptions",
+      "description": "Audio, video, recording, and session behavior configured through ZoomUIToolkitProvider.",
+      "fields": [
+        {
+          "name": "audio",
+          "type": "AudioOptionType | undefined",
+          "description": "Audio defaults and host unmute-request consent settings.",
+          "required": false
+        },
+        {
+          "name": "video",
+          "type": "VideoOptionType | undefined",
+          "description": "Video defaults, including custom virtual background images and the initially selected background.",
+          "required": false
+        },
+        {
+          "name": "recording",
+          "type": "RecordingOptionType | undefined",
+          "required": false,
+          "description": "Recording consent dialog configuration."
+        },
+        {
+          "name": "session",
+          "type": "SessionOptionType | undefined",
+          "description": "Reclaim-host banner setting.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "AudioOptionType",
+      "description": "Configuration accepted by SessionOptions.audio.",
+      "fields": [
+        {
+          "name": "noiseSuppression",
+          "type": "boolean | undefined",
+          "description": "Whether AudioButton and useAudioController turn on background noise suppression when they join audio. Default false.",
+          "required": false
+        },
+        {
+          "name": "disableUnmuteConsentDialog",
+          "type": "boolean | undefined",
+          "description": "Hides the dialog that AudioButton shows when the host asks you to unmute. Default false.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "VideoOptionType",
+      "description": "Configuration accepted by SessionOptions.video.",
+      "fields": [
+        {
+          "name": "virtualBackground.virtualBackgroundImageList",
+          "type": "VirtualBackgroundImage[] | undefined",
+          "description": "Custom background choices { id, name, url }. Entries with an empty name or url, a duplicate id, or a reserved id ('' or 'blur') are ignored. The effective list starts with the built-in None and Blur choices.",
+          "required": false
+        },
+        {
+          "name": "virtualBackground.defaultVirtualBackgroundImageId",
+          "type": "string | undefined",
+          "description": "Default background ID: '' for none, 'blur', or an ID in the configured list. Invalid IDs fall back to ''. The default is reapplied when the connection state changes or when you pass a new sessionOptions object.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "SessionOptionType",
+      "description": "Configuration accepted by SessionOptions.session.",
+      "fields": [
+        {
+          "name": "disableReclaimHostBanner",
+          "type": "boolean | undefined",
+          "description": "Set to true to stop ZoomUIToolkitProvider from showing the banner that lets the session's original host take back the host role (\"Reclaim host\") while someone else is host. Default false.",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "ConnectionState",
+      "description": "Session connection status.",
+      "values": [
+        {
+          "name": "Connected",
+          "value": "'Connected'",
+          "description": "Joined the session. Start audio and video separately."
+        },
+        {
+          "name": "Reconnecting",
+          "value": "'Reconnecting'",
+          "description": "The session is reconnecting after a connection interruption."
+        },
+        {
+          "name": "Closed",
+          "value": "'Closed'",
+          "description": "Initial value before joining. Also reported when the session closes."
+        },
+        {
+          "name": "Fail",
+          "value": "'Fail'",
+          "description": "The SDK reports a connection failure."
+        }
+      ]
+    },
+    {
+      "name": "RecordingOptionType",
+      "description": "Configuration accepted by SessionOptions.recording.",
+      "fields": [
+        {
+          "name": "disableRecordingConsentDialog",
+          "type": "boolean | undefined",
+          "required": false,
+          "description": "Hides the recording consent dialogs that ZoomUIToolkitProvider shows when a recording needs your consent. Default false."
+        }
+      ]
+    },
+    {
+      "name": "Participant",
+      "description": "Zoom Video SDK Participant type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').Participant"
+    },
+    {
+      "name": "SharePrivilege",
+      "description": "Share privilege enum from the Zoom Video SDK. Import it with `import { SharePrivilege } from '@zoom/videosdk'`.",
+      "values": [
+        {
+          "name": "Unlocked",
+          "value": 0,
+          "description": "One participant can share at a time; only the host or a co-host can start sharing while someone else is sharing."
+        },
+        {
+          "name": "Locked",
+          "value": 1,
+          "description": "Only the host or a co-host can share."
+        },
+        {
+          "name": "MultipleShare",
+          "value": 3,
+          "description": "Multiple participants can share simultaneously."
+        }
+      ]
+    },
+    {
+      "name": "VirtualBackgroundImage",
+      "description": "A virtual background choice. Use this shape for images you pass in `sessionOptions.video.virtualBackground.virtualBackgroundImageList`. `videoState.virtualBackgroundImageList` also starts with the built-in None (id '', url '') and Blur (id 'blur', url 'blur') choices, whose names are English only.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "string",
+          "description": "Unique image ID. The values '' and 'blur' are reserved for no background and blur. If an ID is reserved or repeated, only the first entry with that ID is kept.",
+          "required": true
+        },
+        {
+          "name": "name",
+          "type": "string",
+          "description": "Non-empty accessible label for the image. Supply a translated label for your application. Entries with empty names are ignored.",
+          "required": true
+        },
+        {
+          "name": "url",
+          "type": "string",
+          "description": "Non-empty image URL. Entries with empty URLs are ignored.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "VideoClient",
+      "description": "The Zoom Video SDK client returned by ZoomVideo.createClient(). Import the type with `import type { VideoClient } from '@zoom/videosdk'` and write it as `typeof VideoClient`. Call client.init() yourself before passing the client to ZoomUIToolkitProvider.",
+      "definition": "typeof VideoClient"
+    },
+    {
+      "name": "SessionInfo",
+      "description": "Session details from the Video SDK, also exported by this package. Filled in when the session connects; before that, text fields are empty, userId is 0, and isInMeeting is false. Contains the session password, so do not log or display it.",
+      "fields": [
+        {
+          "name": "topic",
+          "type": "string",
+          "description": "Session topic.",
+          "required": true
+        },
+        {
+          "name": "password",
+          "type": "string",
+          "description": "Session password, if one is set.",
+          "required": true
+        },
+        {
+          "name": "userName",
+          "type": "string",
+          "description": "Local participant's display name.",
+          "required": true
+        },
+        {
+          "name": "userId",
+          "type": "number",
+          "description": "Local participant's user ID.",
+          "required": true
+        },
+        {
+          "name": "isInMeeting",
+          "type": "boolean",
+          "description": "Whether the local participant is in the session.",
+          "required": true
+        },
+        {
+          "name": "sessionId",
+          "type": "string",
+          "description": "Session ID.",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ChatMessage",
+      "description": "Zoom Video SDK chat message type, also exported by this package.",
+      "definition": "import('@zoom/videosdk').ChatMessage"
+    },
+    {
+      "name": "ChatReceiver",
+      "description": "A chat recipient. userId 0 is the entry for everyone. Exported by this package.",
+      "fields": [
+        {
+          "name": "userId",
+          "type": "number",
+          "description": "Recipient user ID.",
+          "required": true
+        },
+        {
+          "name": "displayName",
+          "type": "string",
+          "description": "Recipient display name.",
+          "required": true
+        },
+        {
+          "name": "isHost",
+          "type": "boolean",
+          "description": "Whether the recipient is the host.",
+          "required": true
+        },
+        {
+          "name": "isManager",
+          "type": "boolean",
+          "description": "Whether the recipient is a manager (co-host).",
+          "required": true
+        }
+      ]
+    },
+    {
+      "name": "ChatPrivilege",
+      "description": "Chat privilege enum from the Zoom Video SDK. Import it with `import { ChatPrivilege } from '@zoom/videosdk'`.",
+      "values": [
+        {
+          "name": "All",
+          "value": 1,
+          "description": "Everyone can send messages."
+        },
+        {
+          "name": "NoOne",
+          "value": 4,
+          "description": "No one can send messages."
+        },
+        {
+          "name": "EveryonePublicly",
+          "value": 5,
+          "description": "Everyone can send public messages, but not private messages."
+        }
+      ]
+    }
+  ]
+}

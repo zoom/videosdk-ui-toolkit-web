@@ -1,0 +1,82 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "session-info",
+  "kind": "component",
+  "name": "SessionInfoPanel",
+  "component": {
+    "name": "SessionInfoPanel",
+    "description": "Displays session details inline, beside an anchor element, or inside a container supplied by your application.",
+    "props": [
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the desktop panel."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the desktop panel."
+      },
+      {
+        "name": "anchor",
+        "type": "HTMLElement | null",
+        "required": false,
+        "description": "Element to anchor the panel against on desktop. The panel is positioned next to it and kept on screen. Ignored when isMobile is true."
+      },
+      {
+        "name": "placement",
+        "type": "'top' | 'bottom'",
+        "required": false,
+        "default": "'bottom'",
+        "description": "Preferred side of the anchor; may flip to stay on screen. Only used with anchor."
+      },
+      {
+        "name": "open",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "Controls panel visibility."
+      },
+      {
+        "name": "isMobile",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Renders only the panel content, without its own box or positioning, for a mobile sheet or another container supplied by your application. anchor and placement are ignored."
+      },
+      {
+        "name": "onClose",
+        "type": "() => void",
+        "required": false,
+        "description": "Shows a close button and is called when it is pressed. With anchor set, pressing Escape or clicking outside also calls it. The panel does not hide itself; set open to false in response. If you provide a mobile sheet, close it here. Without onClose, no close button is shown."
+      },
+      {
+        "name": "inviteLink",
+        "type": "string",
+        "required": false,
+        "description": "Invite URL supplied by your application. Shows a copyable link; omit or leave empty to hide it."
+      }
+    ],
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "requiresProvider": true
+  },
+  "displayedFields": {
+    "description": "Session metadata is read automatically. Rows appear in this order. The invite link comes from the inviteLink prop and is hidden when empty.",
+    "fields": {
+      "topic": "string",
+      "sessionId": "string",
+      "yourName": "string",
+      "yourUserId": "string",
+      "inviteLink": "string (from the inviteLink prop; row hidden when empty)"
+    }
+  },
+  "notes": [
+    "Displays the session topic, session ID, and your display name and user ID. The session password is not shown.",
+    "Supply inviteLink to show an invite link and its copy action. Session ID also supports copying.",
+    "Use SessionInfoButton for a managed trigger and popup, or SessionInfoPanel inside a custom surface.",
+    "With SessionInfoButton on desktop, the panel closes only when you click the button again or use the panel's close button."
+  ]
+}

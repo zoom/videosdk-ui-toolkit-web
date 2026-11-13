@@ -1,0 +1,91 @@
+{
+  "$schema": "../schemas/api-item.schema.json",
+  "package": "@zoom/videosdk-ui-toolkit",
+  "area": "video",
+  "kind": "module",
+  "name": "ParticipantView",
+  "module": {
+    "name": "ParticipantView",
+    "importPath": "@zoom/videosdk-ui-toolkit",
+    "description": "Paginated participant video grid with previous and next buttons and a page indicator. Resizes to fit its container.",
+    "requiresProvider": true,
+    "props": [
+      {
+        "name": "pageSize",
+        "type": "number",
+        "required": false,
+        "default": 4,
+        "description": "Maximum number of participants per page. Changing pageSize returns to page 1."
+      },
+      {
+        "name": "tileAspectRatio",
+        "type": "number",
+        "required": false,
+        "default": "16 / 9",
+        "description": "Width-to-height ratio for each video tile."
+      },
+      {
+        "name": "isShowSelf",
+        "type": "boolean",
+        "required": false,
+        "default": true,
+        "description": "When true, the local participant is shown after the first remote participant, or first when alone. When false, the local participant is not shown."
+      },
+      {
+        "name": "paginationDirection",
+        "type": "PaginationDirection",
+        "required": false,
+        "default": "'horizontal'",
+        "description": "Placement of the previous and next buttons. 'horizontal' shows left and right arrows on the sides; 'vertical' shows up and down arrows at the top and bottom."
+      },
+      {
+        "name": "hidePagination",
+        "type": "boolean",
+        "required": false,
+        "default": false,
+        "description": "Hides the previous and next buttons. Users then can't change pages, so the view stays on its current page (normally page 1) and participants on other pages aren't shown. The page indicator is not affected."
+      },
+      {
+        "name": "className",
+        "type": "string",
+        "required": false,
+        "description": "Additional CSS class for the root container."
+      },
+      {
+        "name": "style",
+        "type": "CSSProperties",
+        "required": false,
+        "description": "Inline styles for the root container. backgroundColor and color also apply to the tiles."
+      },
+      {
+        "name": "hidden",
+        "type": "boolean",
+        "required": false,
+        "description": "Hides the view with display: none while keeping it mounted.",
+        "default": false
+      }
+    ]
+  },
+  "notes": [
+    "Fills its parent (100% width and height), so give the parent a size.",
+    "Tiles form a centered grid that keeps tileAspectRatio and makes tiles as large as the container allows.",
+    "Tiles use the VideoLayout default minTileWidth and are never narrower. If a full page does not fit the container at that width, the grid extends past the edges and is clipped. Use a smaller pageSize for small containers.",
+    "The view is empty until the session is connected. It is also empty while reconnecting and after leaving."
+  ],
+  "types": [
+    {
+      "name": "PaginationDirection",
+      "description": "Page navigation direction: 'horizontal' (left and right) or 'vertical' (up and down). Not exported by name; pass 'horizontal' or 'vertical' directly.",
+      "definition": "'horizontal' | 'vertical'"
+    }
+  ],
+  "paginationRules": {
+    "pageSize": "Changing pageSize returns to the first page.",
+    "ordering": "Remote participants with video on appear before those with video off. When included, the local participant appears after the first remote participant, or first when alone. The order updates live, so participants can move between pages when someone turns their video on or off.",
+    "lastPage": "The last page may repeat participants from the preceding page to fill the grid.",
+    "renderLimit": "Each page shows at most as many tiles as the device can render (one if it cannot render multiple videos). If pageSize is larger, the remaining participants on that page are not shown.",
+    "navigationButtons": "The previous button appears only when there is an earlier page. The next button appears only when there is a later page.",
+    "pageIndicator": "Shows the current and total page, for example '2 / 3'. It appears briefly when the view first renders and whenever the page changes, then fades out. It also appears when there is only one page. No prop hides it.",
+    "hidePagination": "Hides the previous and next buttons, so users can't change pages. The page indicator still appears briefly when the view first renders."
+  }
+}
