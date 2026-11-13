@@ -420,11 +420,22 @@ export type VideoClientEvent =
   | "share-camera-approve-change"
   | "share-camera-status"
   | "broadcast-streaming-status"
+  | "real-time-media-streams-status-change"
   | "whiteboard-status-change"
-  | "whiteboard-privilege-change"
+  | "peer-whiteboard-state-change"
   | "speaking-while-muted"
+  | "whisper-status-change"
   | "system-resource-usage-change"
-  | "webrtc-statistic-data-change";
+  | "webrtc-stats-report-data-change"
+  | "emoji-reaction"
+  | "voice-translator-started"
+  | "voice-translator-unsupported-language-pair"
+  | "incoming-live-stream-status"
+  | "on-hold-change"
+  | "clinical-notes-status-change"
+  | "clinical-notes-supported-change"
+  | "clinical-notes-stop-request"
+  | "clinical-notes-stop-response";
 // END VideoClientEvent union (auto-generated)
 
 /**
